@@ -1,4 +1,4 @@
-# 作業状態 - 2026-01-09
+# 作業状態 - 2026-01-09 (Updated)
 
 ## プロジェクト概要
 
@@ -91,7 +91,7 @@
 |--------|------|
 | React Native / Expo + React Native Paper セットアップ | 未着手 |
 | Next.js セットアップ | 未着手 |
-| CI/CD 設定（GitHub Actions） | 未着手 |
+| CI/CD 設定（GitHub Actions） | ✅ 完了（基本設定） |
 
 ### Phase 3: MVP実装（P0）
 
@@ -134,9 +134,6 @@ DB設計時:   data-model.md
 
 - リポジトリ: sanwaminamihonda-eng/sanwa-houkai-app
 - ブランチ: main
-- 最新コミット: ada7f96
-- 状態: 未追跡ファイルあり
-  - `Application Documentation.pdf`
-  - `docs/md/`
-  - `docs/legacy/`
-  - `docs/ui/`
+- 最新コミット: 17223a8
+- 状態: Clean（CI/CD設定追加待ち）
+- CI/CD: `.github/workflows/ci.yml` 設定済み
