@@ -12,6 +12,7 @@ import RecordInputScreen from '../screens/records/RecordInputScreen';
 import RecordHistoryScreen from '../screens/records/RecordHistoryScreen';
 import RecordDetailScreen from '../screens/records/RecordDetailScreen';
 import ScheduleScreen from '../screens/schedule/ScheduleScreen';
+import ScheduleFormScreen from '../screens/schedule/ScheduleFormScreen';
 import ClientListScreen from '../screens/clients/ClientListScreen';
 import ClientDetailScreen from '../screens/clients/ClientDetailScreen';
 import SettingsScreen from '../screens/settings/SettingsScreen';
@@ -24,7 +25,7 @@ export type RootStackParamList = {
 export type MainTabParamList = {
   RecordInput: undefined;
   RecordHistoryStack: undefined;
-  Schedule: undefined;
+  ScheduleStack: undefined;
   ClientStack: undefined;
   Settings: undefined;
 };
@@ -32,6 +33,23 @@ export type MainTabParamList = {
 export type RecordHistoryStackParamList = {
   RecordHistory: undefined;
   RecordDetail: { recordId: string };
+};
+
+export type ScheduleStackParamList = {
+  ScheduleList: undefined;
+  ScheduleForm: {
+    schedule?: {
+      id: string;
+      clientId: string;
+      staffId: string;
+      serviceTypeId?: string | null;
+      scheduledDate: string;
+      startTime: string;
+      endTime: string;
+      notes?: string | null;
+    };
+    initialDate?: string;
+  };
 };
 
 export type ClientStackParamList = {
@@ -42,6 +60,7 @@ export type ClientStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
 const RecordHistoryStack = createNativeStackNavigator<RecordHistoryStackParamList>();
+const ScheduleStack = createNativeStackNavigator<ScheduleStackParamList>();
 const ClientStack = createNativeStackNavigator<ClientStackParamList>();
 
 function RecordHistoryNavigator() {
@@ -50,6 +69,15 @@ function RecordHistoryNavigator() {
       <RecordHistoryStack.Screen name="RecordHistory" component={RecordHistoryScreen} />
       <RecordHistoryStack.Screen name="RecordDetail" component={RecordDetailScreen} />
     </RecordHistoryStack.Navigator>
+  );
+}
+
+function ScheduleNavigator() {
+  return (
+    <ScheduleStack.Navigator screenOptions={{ headerShown: false }}>
+      <ScheduleStack.Screen name="ScheduleList" component={ScheduleScreen} />
+      <ScheduleStack.Screen name="ScheduleForm" component={ScheduleFormScreen} />
+    </ScheduleStack.Navigator>
   );
 }
 
@@ -104,8 +132,8 @@ function MainTabs() {
         }}
       />
       <Tab.Screen
-        name="Schedule"
-        component={ScheduleScreen}
+        name="ScheduleStack"
+        component={ScheduleNavigator}
         options={{
           tabBarLabel: '予定表',
           tabBarIcon: ({ color, size }) => (
