@@ -18,6 +18,8 @@ import ClientDetailScreen from '../screens/clients/ClientDetailScreen';
 import SettingsScreen from '../screens/settings/SettingsScreen';
 import CarePlansScreen from '../screens/careplans/CarePlansScreen';
 import CarePlanDetailScreen from '../screens/careplans/CarePlanDetailScreen';
+import ReportsScreen from '../screens/reports/ReportsScreen';
+import ReportDetailScreen from '../screens/reports/ReportDetailScreen';
 
 export type RootStackParamList = {
   Login: undefined;
@@ -63,11 +65,17 @@ export type ClientStackParamList = {
 export type SettingsStackParamList = {
   SettingsMain: undefined;
   CarePlansStack: undefined;
+  ReportsStack: undefined;
 };
 
 export type CarePlansStackParamList = {
   CarePlansList: undefined;
   CarePlanDetail: { carePlanId: string };
+};
+
+export type ReportsStackParamList = {
+  ReportsList: undefined;
+  ReportDetail: { reportId: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -77,6 +85,7 @@ const ScheduleStack = createNativeStackNavigator<ScheduleStackParamList>();
 const ClientStack = createNativeStackNavigator<ClientStackParamList>();
 const SettingsStack = createNativeStackNavigator<SettingsStackParamList>();
 const CarePlansStack = createNativeStackNavigator<CarePlansStackParamList>();
+const ReportsStack = createNativeStackNavigator<ReportsStackParamList>();
 
 function RecordHistoryNavigator() {
   return (
@@ -114,11 +123,21 @@ function CarePlansNavigator() {
   );
 }
 
+function ReportsNavigator() {
+  return (
+    <ReportsStack.Navigator screenOptions={{ headerShown: false }}>
+      <ReportsStack.Screen name="ReportsList" component={ReportsScreen} />
+      <ReportsStack.Screen name="ReportDetail" component={ReportDetailScreen} />
+    </ReportsStack.Navigator>
+  );
+}
+
 function SettingsNavigator() {
   return (
     <SettingsStack.Navigator screenOptions={{ headerShown: false }}>
       <SettingsStack.Screen name="SettingsMain" component={SettingsScreen} />
       <SettingsStack.Screen name="CarePlansStack" component={CarePlansNavigator} />
+      <SettingsStack.Screen name="ReportsStack" component={ReportsNavigator} />
     </SettingsStack.Navigator>
   );
 }

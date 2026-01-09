@@ -22,6 +22,10 @@ export default function SettingsScreen() {
     navigation.navigate('CarePlansStack');
   };
 
+  const handleReportsPress = () => {
+    navigation.navigate('ReportsStack');
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <ScrollView>
@@ -48,14 +52,25 @@ export default function SettingsScreen() {
         <Divider style={styles.divider} />
 
         <List.Section>
-          <List.Subheader>メニュー</List.Subheader>
+          <List.Subheader>帳票</List.Subheader>
           <List.Item
-            title="帳票一覧"
-            description="報告書・計画書の出力"
-            left={(props) => <List.Icon {...props} icon="file-document-outline" />}
+            title="訪問介護計画書"
+            description="計画書の閲覧・PDF出力"
+            left={(props) => <List.Icon {...props} icon="clipboard-text-outline" />}
             right={(props) => <List.Icon {...props} icon="chevron-right" />}
             onPress={handleCarePlansPress}
           />
+          <List.Item
+            title="実施報告書"
+            description="月次報告書の閲覧・PDF出力"
+            left={(props) => <List.Icon {...props} icon="file-chart-outline" />}
+            right={(props) => <List.Icon {...props} icon="chevron-right" />}
+            onPress={handleReportsPress}
+          />
+        </List.Section>
+
+        <List.Section>
+          <List.Subheader>管理</List.Subheader>
           <List.Item
             title="支援者管理"
             description="職員情報の管理"
