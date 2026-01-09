@@ -4,6 +4,16 @@
 
 訪問介護サービスの記録・管理アプリ（モバイル + Web）
 
+## 環境設定
+
+| 項目 | 値 |
+|------|-----|
+| GitHub | sanwaminamihonda-eng / sanwa-houkai-app |
+| GCP | sanwaminamihonda@gmail.com / sanwa-houkai-app |
+| Firebase | sanwa-houkai-app |
+
+**自動切り替え**: direnv（.envrc）でディレクトリ移動時に環境が自動設定される
+
 ## 技術スタック
 
 | 項目 | 技術 |
