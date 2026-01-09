@@ -1,0 +1,14 @@
+specVersion: "v1beta"
+serviceId: "sanwa-houkai-service"
+location: "asia-northeast1"
+
+schema:
+  source: "./schema"
+  datasource:
+    postgresql:
+      database: "fdcdb"
+      cloudSql:
+        instanceId: "sanwa-houkai-db"
+
+connectorDirs:
+  - "./connector"

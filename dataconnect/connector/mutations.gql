@@ -1,0 +1,360 @@
+# =============================================
+# ミューテーション定義
+# =============================================
+
+# ---------------------
+# 利用者
+# ---------------------
+
+mutation CreateClient(
+  $facilityId: UUID!
+  $name: String!
+  $nameKana: String
+  $gender: String
+  $birthDate: Date
+  $careLevelId: UUID
+  $addressPrefecture: String
+  $addressCity: String
+  $phone: String
+  $careManager: String
+  $careOffice: String
+  $emergencyPhone: String
+  $emergencyName: String
+  $emergencyRelation: String
+  $notes: String
+) @auth(level: USER) {
+  client_insert(data: {
+    facility: { id: $facilityId }
+    name: $name
+    nameKana: $nameKana
+    gender: $gender
+    birthDate: $birthDate
+    careLevel: { id: $careLevelId }
+    addressPrefecture: $addressPrefecture
+    addressCity: $addressCity
+    phone: $phone
+    careManager: $careManager
+    careOffice: $careOffice
+    emergencyPhone: $emergencyPhone
+    emergencyName: $emergencyName
+    emergencyRelation: $emergencyRelation
+    notes: $notes
+  })
+}
+
+mutation UpdateClient(
+  $id: UUID!
+  $name: String
+  $nameKana: String
+  $gender: String
+  $birthDate: Date
+  $careLevelId: UUID
+  $addressPrefecture: String
+  $addressCity: String
+  $phone: String
+  $careManager: String
+  $careOffice: String
+  $emergencyPhone: String
+  $emergencyName: String
+  $emergencyRelation: String
+  $assessment: Any
+  $lastAssessmentDate: Date
+  $regularServices: Any
+  $notes: String
+) @auth(level: USER) {
+  client_update(id: $id, data: {
+    name: $name
+    nameKana: $nameKana
+    gender: $gender
+    birthDate: $birthDate
+    careLevel: { id: $careLevelId }
+    addressPrefecture: $addressPrefecture
+    addressCity: $addressCity
+    phone: $phone
+    careManager: $careManager
+    careOffice: $careOffice
+    emergencyPhone: $emergencyPhone
+    emergencyName: $emergencyName
+    emergencyRelation: $emergencyRelation
+    assessment: $assessment
+    lastAssessmentDate: $lastAssessmentDate
+    regularServices: $regularServices
+    notes: $notes
+  })
+}
+
+mutation DeleteClient($id: UUID!) @auth(level: USER) {
+  client_update(id: $id, data: { isActive: false })
+}
+
+# ---------------------
+# スケジュール
+# ---------------------
+
+mutation CreateSchedule(
+  $facilityId: UUID!
+  $clientId: UUID!
+  $staffId: UUID!
+  $serviceTypeId: UUID
+  $scheduledDate: Date!
+  $startTime: String!
+  $endTime: String!
+  $notes: String
+  $recurrenceRule: String
+  $recurrenceId: UUID
+) @auth(level: USER) {
+  schedule_insert(data: {
+    facility: { id: $facilityId }
+    client: { id: $clientId }
+    staff: { id: $staffId }
+    serviceType: { id: $serviceTypeId }
+    scheduledDate: $scheduledDate
+    startTime: $startTime
+    endTime: $endTime
+    notes: $notes
+    recurrenceRule: $recurrenceRule
+    recurrenceId: $recurrenceId
+  })
+}
+
+mutation UpdateSchedule(
+  $id: UUID!
+  $clientId: UUID
+  $staffId: UUID
+  $serviceTypeId: UUID
+  $scheduledDate: Date
+  $startTime: String
+  $endTime: String
+  $status: String
+  $notes: String
+) @auth(level: USER) {
+  schedule_update(id: $id, data: {
+    client: { id: $clientId }
+    staff: { id: $staffId }
+    serviceType: { id: $serviceTypeId }
+    scheduledDate: $scheduledDate
+    startTime: $startTime
+    endTime: $endTime
+    status: $status
+    notes: $notes
+  })
+}
+
+mutation DeleteSchedule($id: UUID!) @auth(level: USER) {
+  schedule_delete(id: $id)
+}
+
+mutation CancelSchedule($id: UUID!) @auth(level: USER) {
+  schedule_update(id: $id, data: { status: "cancelled" })
+}
+
+mutation CompleteSchedule($id: UUID!) @auth(level: USER) {
+  schedule_update(id: $id, data: { status: "completed" })
+}
+
+# ---------------------
+# 訪問記録
+# ---------------------
+
+mutation CreateVisitRecord(
+  $scheduleId: UUID
+  $clientId: UUID!
+  $staffId: UUID!
+  $visitDate: Date!
+  $visitReasonId: UUID
+  $startTime: String!
+  $endTime: String!
+  $vitals: Any
+  $services: Any!
+  $notes: String
+  $aiGenerated: Boolean
+  $aiInput: String
+  $satisfaction: String
+  $satisfactionReason: String
+  $conditionChange: String
+  $conditionChangeDetail: String
+  $serviceChangeNeeded: String
+  $serviceChangeDetail: String
+  $attachments: [String!]
+) @auth(level: USER) {
+  visitRecord_insert(data: {
+    schedule: { id: $scheduleId }
+    client: { id: $clientId }
+    staff: { id: $staffId }
+    visitDate: $visitDate
+    visitReason: { id: $visitReasonId }
+    startTime: $startTime
+    endTime: $endTime
+    vitals: $vitals
+    services: $services
+    notes: $notes
+    aiGenerated: $aiGenerated
+    aiInput: $aiInput
+    satisfaction: $satisfaction
+    satisfactionReason: $satisfactionReason
+    conditionChange: $conditionChange
+    conditionChangeDetail: $conditionChangeDetail
+    serviceChangeNeeded: $serviceChangeNeeded
+    serviceChangeDetail: $serviceChangeDetail
+    attachments: $attachments
+  })
+}
+
+mutation UpdateVisitRecord(
+  $id: UUID!
+  $vitals: Any
+  $services: Any
+  $notes: String
+  $aiGenerated: Boolean
+  $aiInput: String
+  $satisfaction: String
+  $satisfactionReason: String
+  $conditionChange: String
+  $conditionChangeDetail: String
+  $serviceChangeNeeded: String
+  $serviceChangeDetail: String
+  $attachments: [String!]
+) @auth(level: USER) {
+  visitRecord_update(id: $id, data: {
+    vitals: $vitals
+    services: $services
+    notes: $notes
+    aiGenerated: $aiGenerated
+    aiInput: $aiInput
+    satisfaction: $satisfaction
+    satisfactionReason: $satisfactionReason
+    conditionChange: $conditionChange
+    conditionChangeDetail: $conditionChangeDetail
+    serviceChangeNeeded: $serviceChangeNeeded
+    serviceChangeDetail: $serviceChangeDetail
+    attachments: $attachments
+  })
+}
+
+mutation DeleteVisitRecord($id: UUID!) @auth(level: USER) {
+  visitRecord_delete(id: $id)
+}
+
+# ---------------------
+# 帳票
+# ---------------------
+
+mutation CreateReport(
+  $clientId: UUID!
+  $staffId: UUID!
+  $targetYear: Int!
+  $targetMonth: Int!
+  $summary: String
+  $aiGenerated: Boolean
+) @auth(level: USER) {
+  report_insert(data: {
+    client: { id: $clientId }
+    staff: { id: $staffId }
+    targetYear: $targetYear
+    targetMonth: $targetMonth
+    summary: $summary
+    aiGenerated: $aiGenerated
+  })
+}
+
+mutation UpdateReportPdf(
+  $id: UUID!
+  $pdfUrl: String!
+) @auth(level: USER) {
+  report_update(id: $id, data: {
+    pdfUrl: $pdfUrl
+    pdfGenerated: true
+  })
+}
+
+mutation CreateCarePlan(
+  $clientId: UUID!
+  $staffId: UUID!
+  $currentSituation: String
+  $familyWishes: String
+  $mainSupport: String
+  $longTermGoals: Any
+  $shortTermGoals: Any
+) @auth(level: USER) {
+  carePlan_insert(data: {
+    client: { id: $clientId }
+    staff: { id: $staffId }
+    currentSituation: $currentSituation
+    familyWishes: $familyWishes
+    mainSupport: $mainSupport
+    longTermGoals: $longTermGoals
+    shortTermGoals: $shortTermGoals
+  })
+}
+
+# ---------------------
+# マスタデータ初期化（管理者用）
+# ---------------------
+
+mutation SeedCareLevel($name: String!, $sortOrder: Int!) @auth(level: USER) {
+  careLevel_insert(data: {
+    name: $name
+    sortOrder: $sortOrder
+  })
+}
+
+mutation SeedVisitReason($name: String!, $sortOrder: Int!) @auth(level: USER) {
+  visitReason_insert(data: {
+    name: $name
+    sortOrder: $sortOrder
+  })
+}
+
+mutation CreateFacility($name: String!, $address: String, $phone: String) @auth(level: USER) {
+  facility_insert(data: {
+    name: $name
+    address: $address
+    phone: $phone
+  })
+}
+
+mutation CreateStaff(
+  $facilityId: UUID!
+  $firebaseUid: String
+  $name: String!
+  $email: String
+  $role: String
+) @auth(level: USER) {
+  staff_insert(data: {
+    facility: { id: $facilityId }
+    firebaseUid: $firebaseUid
+    name: $name
+    email: $email
+    role: $role
+  })
+}
+
+mutation CreateServiceType(
+  $facilityId: UUID!
+  $code: String
+  $name: String!
+  $category: String!
+  $color: String
+  $sortOrder: Int
+) @auth(level: USER) {
+  serviceType_insert(data: {
+    facility: { id: $facilityId }
+    code: $code
+    name: $name
+    category: $category
+    color: $color
+    sortOrder: $sortOrder
+  })
+}
+
+mutation CreateServiceItem(
+  $serviceTypeId: UUID!
+  $name: String!
+  $sortOrder: Int
+) @auth(level: USER) {
+  serviceItem_insert(data: {
+    serviceType: { id: $serviceTypeId }
+    name: $name
+    sortOrder: $sortOrder
+  })
+}
