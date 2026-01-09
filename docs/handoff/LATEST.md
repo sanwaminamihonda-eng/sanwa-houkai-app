@@ -366,6 +366,10 @@ web/
     - Cloud Function呼び出し
   - Data Connect クエリ追加（ListReportsByFacility）
   - Cloud Functionsデプロイ完了（generateReport）
+- [x] Cloud Storageバケット作成（CLIで）
+  - `gsutil mb` でカスタムバケット `sanwa-houkai-app-reports` 作成
+  - Cloud Functionsサービスアカウントに objectAdmin 権限付与
+  - バケット名をデフォルト（firebasestorage.app）からカスタムに変更
 
 ### 前セッション完了作業（参考）
 
@@ -375,13 +379,11 @@ web/
 
 ## 次回アクション
 
-1. **Firebase Storage初期セットアップ（必須）**
-   - Firebase ConsoleでStorageを有効化
-   - `firebase deploy --only storage` でルールをデプロイ
-2. 訪問介護計画書PDF生成機能
-3. 繰り返し予定機能（毎週/毎月の定期スケジュール）
+1. 訪問介護計画書PDF生成機能
+2. 繰り返し予定機能（毎週/毎月の定期スケジュール）
 
 **デプロイ済み:**
 - Cloud Functions（generateVisitNotes, generateReport）- 2026-01-10 デプロイ完了
+- Cloud Storageバケット（sanwa-houkai-app-reports）- 2026-01-10 作成完了
 - リアルタイム同期コード - 2026-01-10 マージ完了
 - Firestoreルール - 2026-01-10 デプロイ完了
