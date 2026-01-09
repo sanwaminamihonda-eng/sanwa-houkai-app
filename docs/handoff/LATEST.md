@@ -1,4 +1,4 @@
-# 作業状態 - 2026-01-09 (AI Notes Generation)
+# 作業状態 - 2026-01-10 (Realtime Schedule Sync)
 
 ## プロジェクト概要
 
@@ -225,6 +225,7 @@
 | 利用者一覧・詳細画面 | ✅ 完了（モバイル/Web両対応） |
 | スケジュール表示（週/日/月） | ✅ 完了（モバイル/Web両対応） |
 | AI特記事項生成 | ✅ 完了（Cloud Functions + Vertex AI Gemini） |
+| リアルタイム同期 | ✅ 完了（Firestore + onSnapshot） |
 
 ## ドキュメント状態
 
@@ -346,28 +347,29 @@ web/
 - リポジトリ: sanwaminamihonda-eng/sanwa-houkai-app
 - ブランチ: main
 - 状態: clean
-- CI/CD: ✅ 動作確認済み（PR #6, #7, #8, #10, #11, #12, #14, #16）
+- CI/CD: ✅ 動作確認済み（PR #6, #7, #8, #10, #11, #12, #14, #16, #25, #26）
 - デプロイ: ✅ Firebase Hosting 自動デプロイ（main push時）
 
 ## 今セッション完了作業
 
-- [x] AI特記事項生成機能 - PR #25
-  - Cloud Functions追加（functions/src/index.ts）
-  - Vertex AI Gemini 2.5 Flashで特記事項を自動生成
-  - モバイル/Web両方の記録入力画面に「AI生成」ボタン追加
-  - 選択されたサービス内容・バイタル・利用者情報から専門的な特記事項を生成
-  - aiGeneratedフラグでAI生成記録を識別可能
+- [x] スケジュールリアルタイム同期機能 - PR #26
+  - firestore.rules追加（スケジュール更新通知用セキュリティルール）
+  - useScheduleRealtimeフック作成（Web/Mobile両対応）
+  - 他ユーザーがスケジュールを作成/更新/削除すると自動で画面更新
+  - Firestore onSnapshotで即座に変更を検知
+  - 自分の更新は無視（二重リフレッシュ防止）
 
 ### 前セッション完了作業（参考）
 
+- [x] AI特記事項生成機能 - PR #25
 - [x] CLAUDE.md簡略化 - PR #23
-- [x] モバイル版スケジュール新規作成・編集画面 - PR #20
 
 ## 次回アクション
 
-1. リアルタイム同期（Firestore連携）
-2. PDF帳票生成機能
-3. 繰り返し予定機能
+1. PDF帳票生成機能（実施報告書・訪問介護計画書）
+2. 繰り返し予定機能（毎週/毎月の定期スケジュール）
+3. Firestoreルールのデプロイ（`firebase deploy --only firestore:rules`）
 
 **デプロイ済み:**
 - Cloud Functions（generateVisitNotes）- 2026-01-09 デプロイ完了
+- リアルタイム同期コード - 2026-01-10 マージ完了（Firestoreルールデプロイ待ち）
