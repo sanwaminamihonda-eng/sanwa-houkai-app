@@ -1,4 +1,4 @@
-# 作業状態 - 2026-01-10 (Recurring Schedule Visual Indicator)
+# 作業状態 - 2026-01-10 (Mobile Reports Display)
 
 ## プロジェクト概要
 
@@ -347,38 +347,41 @@ web/
 - リポジトリ: sanwaminamihonda-eng/sanwa-houkai-app
 - ブランチ: main
 - 状態: clean
-- CI/CD: ✅ 動作確認済み（PR #6, #7, #8, #10, #11, #12, #14, #16, #25, #26, #28, #29, #30, #31, #32）
+- CI/CD: ✅ 動作確認済み（PR #6, #7, #8, #10, #11, #12, #14, #16, #25, #26, #28, #29, #30, #31, #32, #33）
 - デプロイ: ✅ Firebase Hosting 自動デプロイ（main push時）
 
 ## 今セッション完了作業
 
-- [x] 繰り返し予定の視覚的識別機能 - PR #32
-  - Web（FullCalendar）
-    - カレンダーイベントにリピートアイコン（RepeatIcon）を表示
-    - eventContentでカスタムレンダリング
-    - 詳細ダイアログに「繰り返し予定」表示を追加
-  - Mobile（react-native-big-calendar）
-    - カレンダーイベントタイトルに🔄マークを追加
-    - 詳細モーダルに「繰り返し予定」表示を追加
-  - 繰り返し予定と通常予定を視覚的に区別可能に
+- [x] 実施報告書のモバイル表示機能 - PR #33
+  - GetReport クエリを DataConnect に追加
+  - ReportsScreen.tsx（一覧画面）
+    - FlatList + Card 形式の一覧表示
+    - 利用者フィルター（Menu コンポーネント）
+    - プルリフレッシュ対応
+    - AI要約バッジ、PDFバッジ表示
+  - ReportDetailScreen.tsx（詳細画面）
+    - 年月、利用者名、要介護度、担当者表示
+    - AI要約セクション
+    - PDFを開くボタン（Linking.openURL）
+  - RootNavigator.tsx に ReportsStack 追加
+  - SettingsScreen.tsx メニュー改善
+    - 「帳票」「管理」セクションに分割
+    - 「実施報告書」メニュー追加
 
 ### 前セッション完了作業（参考）
 
+- [x] 繰り返し予定の視覚的識別機能 - PR #32
 - [x] モバイル計画書表示機能 - PR #31
 - [x] 繰り返し予定の編集・削除改善 - PR #30
 - [x] 繰り返し予定機能 - PR #29
 - [x] 訪問介護計画書PDF生成機能 - PR #28
 - [x] PDF帳票生成機能（実施報告書）- PR #27
-- [x] Cloud Storageバケット作成（sanwa-houkai-app-reports）
-- [x] Firestoreルールデプロイ（リアルタイム同期有効化）
-- [x] スケジュールリアルタイム同期機能 - PR #26
-- [x] AI特記事項生成機能 - PR #25
 
 ## 次回アクション
 
-1. 実施報告書のモバイル表示機能
+1. Web計画書表示機能
 2. オフライン対応検討
-3. Web計画書表示機能
+3. 追加機能の要望に応じて実装
 
 **デプロイ済み:**
 - Cloud Functions（generateVisitNotes, generateReport, generateCarePlan）- 2026-01-10 デプロイ完了
