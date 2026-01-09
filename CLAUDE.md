@@ -204,8 +204,9 @@ gcloud config list
 - [x] Firebase Hosting デプロイ設定・稼働確認（https://sanwa-houkai-app.web.app）
 - [x] 利用者一覧・詳細画面の実装（モバイル/Web両対応）
 - [x] スケジュール画面の実装（FullCalendar / react-native-big-calendar）
+- [x] スケジュール新規作成・編集画面の実装（モバイル）
 
 次のステップ:
-1. スケジュール新規作成・編集画面（モバイル）
-2. リアルタイム同期（Firestore連携）
-3. AI特記事項生成機能
+1. リアルタイム同期（Firestore連携）
+2. AI特記事項生成機能
+3. Web版スケジュール新規作成・編集画面
