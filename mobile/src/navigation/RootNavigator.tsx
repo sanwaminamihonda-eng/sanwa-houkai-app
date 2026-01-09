@@ -13,6 +13,7 @@ import RecordHistoryScreen from '../screens/records/RecordHistoryScreen';
 import RecordDetailScreen from '../screens/records/RecordDetailScreen';
 import ScheduleScreen from '../screens/schedule/ScheduleScreen';
 import ClientListScreen from '../screens/clients/ClientListScreen';
+import ClientDetailScreen from '../screens/clients/ClientDetailScreen';
 import SettingsScreen from '../screens/settings/SettingsScreen';
 
 export type RootStackParamList = {
@@ -24,7 +25,7 @@ export type MainTabParamList = {
   RecordInput: undefined;
   RecordHistoryStack: undefined;
   Schedule: undefined;
-  ClientList: undefined;
+  ClientStack: undefined;
   Settings: undefined;
 };
 
@@ -33,9 +34,15 @@ export type RecordHistoryStackParamList = {
   RecordDetail: { recordId: string };
 };
 
+export type ClientStackParamList = {
+  ClientList: undefined;
+  ClientDetail: { clientId: string };
+};
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
 const RecordHistoryStack = createNativeStackNavigator<RecordHistoryStackParamList>();
+const ClientStack = createNativeStackNavigator<ClientStackParamList>();
 
 function RecordHistoryNavigator() {
   return (
@@ -43,6 +50,15 @@ function RecordHistoryNavigator() {
       <RecordHistoryStack.Screen name="RecordHistory" component={RecordHistoryScreen} />
       <RecordHistoryStack.Screen name="RecordDetail" component={RecordDetailScreen} />
     </RecordHistoryStack.Navigator>
+  );
+}
+
+function ClientNavigator() {
+  return (
+    <ClientStack.Navigator screenOptions={{ headerShown: false }}>
+      <ClientStack.Screen name="ClientList" component={ClientListScreen} />
+      <ClientStack.Screen name="ClientDetail" component={ClientDetailScreen} />
+    </ClientStack.Navigator>
   );
 }
 
@@ -98,8 +114,8 @@ function MainTabs() {
         }}
       />
       <Tab.Screen
-        name="ClientList"
-        component={ClientListScreen}
+        name="ClientStack"
+        component={ClientNavigator}
         options={{
           tabBarLabel: '利用者',
           tabBarIcon: ({ color, size }) => (
