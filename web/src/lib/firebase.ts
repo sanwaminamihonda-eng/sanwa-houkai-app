@@ -2,6 +2,7 @@ import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { getDataConnect, DataConnect } from 'firebase/data-connect';
+import { getFunctions, Functions, httpsCallable } from 'firebase/functions';
 import { connectorConfig } from '@sanwa-houkai-app/dataconnect';
 
 const firebaseConfig = {
@@ -20,6 +21,7 @@ let _app: FirebaseApp | null = null;
 let _auth: Auth | null = null;
 let _db: Firestore | null = null;
 let _dataConnect: DataConnect | null = null;
+let _functions: Functions | null = null;
 
 if (isValidConfig) {
   // Initialize Firebase
@@ -29,6 +31,9 @@ if (isValidConfig) {
 
   // Initialize Data Connect
   _dataConnect = getDataConnect(_app, connectorConfig);
+
+  // Initialize Functions (asia-northeast1)
+  _functions = getFunctions(_app, 'asia-northeast1');
 }
 
 // Runtime getters that throw if Firebase is not initialized
@@ -52,10 +57,16 @@ function getFirebaseDataConnect(): DataConnect {
   return _dataConnect;
 }
 
+function getFirebaseFunctions(): Functions {
+  if (!_functions) throw new Error('Firebase Functions is not initialized. Check environment variables.');
+  return _functions;
+}
+
 // Export both direct references (nullable) and getter functions (non-nullable at runtime)
 export const app = _app as FirebaseApp;
 export const auth = _auth as Auth;
 export const db = _db as Firestore;
 export const dataConnect = _dataConnect as DataConnect;
+export const functions = _functions as Functions;
 
-export { getFirebaseApp, getFirebaseAuth, getFirebaseDb, getFirebaseDataConnect };
+export { getFirebaseApp, getFirebaseAuth, getFirebaseDb, getFirebaseDataConnect, getFirebaseFunctions, httpsCallable };
