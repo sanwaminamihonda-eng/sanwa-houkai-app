@@ -520,3 +520,352 @@ function formatServices(
   }
   return parts.join(" / ");
 }
+
+// ========== 訪問介護計画書PDF生成 ==========
+
+interface Goal {
+  content: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+interface GenerateCarePlanRequest {
+  carePlanId?: string;  // 既存の計画書ID（更新時）
+  clientId: string;
+  staffId: string;
+  currentSituation: string;
+  familyWishes: string;
+  mainSupport: string;
+  longTermGoals: Goal[];
+  shortTermGoals: Goal[];
+}
+
+interface CarePlanClientInfo {
+  id: string;
+  name: string;
+  birth_date: Date | null;
+  gender: string | null;
+  care_level_name: string | null;
+  address_prefecture: string | null;
+  address_city: string | null;
+}
+
+export const generateCarePlan = onCall<GenerateCarePlanRequest>(
+  {
+    region: LOCATION,
+    cors: true,
+    memory: "512MiB",
+    timeoutSeconds: 120,
+  },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError("unauthenticated", "認証が必要です");
+    }
+
+    const {
+      carePlanId,
+      clientId,
+      staffId,
+      currentSituation,
+      familyWishes,
+      mainSupport,
+      longTermGoals,
+      shortTermGoals,
+    } = request.data;
+
+    if (!clientId || !staffId) {
+      throw new HttpsError("invalid-argument", "利用者IDと作成者IDは必須です");
+    }
+
+    try {
+      // 1. 利用者情報取得
+      const clientResult = await pool.query<CarePlanClientInfo>(
+        `SELECT c.id, c.name, c.birth_date, c.gender,
+                c.address_prefecture, c.address_city,
+                cl.name as care_level_name
+         FROM clients c
+         LEFT JOIN care_levels cl ON c.care_level_id = cl.id
+         WHERE c.id = $1`,
+        [clientId]
+      );
+
+      if (clientResult.rows.length === 0) {
+        throw new HttpsError("not-found", "利用者が見つかりません");
+      }
+
+      const client = clientResult.rows[0];
+
+      // 2. PDF生成
+      const pdfBuffer = await generateCarePlanPdfBuffer(
+        client,
+        currentSituation,
+        familyWishes,
+        mainSupport,
+        longTermGoals,
+        shortTermGoals
+      );
+
+      // 3. Cloud Storageにアップロード
+      const timestamp = Date.now();
+      const fileName = `careplan_${timestamp}.pdf`;
+      const filePath = `careplans/${clientId}/${fileName}`;
+
+      const bucket = storage.bucket(BUCKET_NAME);
+      const gcsFile = bucket.file(filePath);
+
+      await gcsFile.save(pdfBuffer, {
+        contentType: "application/pdf",
+        metadata: {
+          clientId,
+          staffId,
+          createdAt: new Date().toISOString(),
+        },
+      });
+
+      // 4. 署名付きURL生成（7日間有効）
+      const [signedUrl] = await gcsFile.getSignedUrl({
+        action: "read",
+        expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+      });
+
+      const pdfUrl = `gs://${BUCKET_NAME}/${filePath}`;
+
+      // 5. care_plansテーブルに保存/更新
+      if (carePlanId) {
+        // 既存の計画書を更新
+        await pool.query(
+          `UPDATE care_plans SET
+             current_situation = $1,
+             family_wishes = $2,
+             main_support = $3,
+             long_term_goals = $4,
+             short_term_goals = $5,
+             pdf_url = $6,
+             updated_at = NOW()
+           WHERE id = $7`,
+          [
+            currentSituation,
+            familyWishes,
+            mainSupport,
+            JSON.stringify(longTermGoals),
+            JSON.stringify(shortTermGoals),
+            pdfUrl,
+            carePlanId,
+          ]
+        );
+      } else {
+        // 新規作成
+        await pool.query(
+          `INSERT INTO care_plans (id, client_id, staff_id, current_situation, family_wishes, main_support, long_term_goals, short_term_goals, pdf_url)
+           VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6, $7, $8)`,
+          [
+            clientId,
+            staffId,
+            currentSituation,
+            familyWishes,
+            mainSupport,
+            JSON.stringify(longTermGoals),
+            JSON.stringify(shortTermGoals),
+            pdfUrl,
+          ]
+        );
+      }
+
+      return {
+        success: true,
+        pdfUrl: signedUrl,
+      };
+    } catch (error) {
+      console.error("Care plan generation error:", error);
+      if (error instanceof HttpsError) {
+        throw error;
+      }
+      throw new HttpsError("internal", "計画書生成中にエラーが発生しました");
+    }
+  }
+);
+
+// 計画書PDF生成
+async function generateCarePlanPdfBuffer(
+  client: CarePlanClientInfo,
+  currentSituation: string,
+  familyWishes: string,
+  mainSupport: string,
+  longTermGoals: Goal[],
+  shortTermGoals: Goal[]
+): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    const doc = new PDFDocument({
+      size: "A4",
+      margins: { top: 40, bottom: 40, left: 50, right: 50 },
+    });
+
+    doc.on("data", (chunk: Buffer) => chunks.push(chunk));
+    doc.on("end", () => resolve(Buffer.concat(chunks)));
+    doc.on("error", reject);
+
+    // 日本語フォント登録
+    doc.registerFont("Japanese", FONT_PATH);
+    doc.font("Japanese");
+
+    // タイトル
+    doc.fontSize(18).text("訪問介護計画書", { align: "center" });
+    doc.moveDown(0.5);
+
+    // 作成日
+    doc.fontSize(10).text(`作成日: ${new Date().toLocaleDateString("ja-JP")}`, { align: "right" });
+    doc.moveDown();
+
+    // 基本情報セクション
+    doc.fontSize(12);
+    const basicInfoY = doc.y;
+
+    // 左列
+    doc.text(`利用者名: ${client.name}`, 50, basicInfoY);
+    if (client.birth_date) {
+      const birthDate = new Date(client.birth_date);
+      const age = calculateAge(birthDate);
+      doc.text(`生年月日: ${formatFullDate(birthDate)} (${age}歳)`, 50);
+    }
+    doc.text(`性別: ${client.gender || "未設定"}`, 50);
+
+    // 右列
+    doc.text(`要介護度: ${client.care_level_name || "未設定"}`, 300, basicInfoY);
+    if (client.address_prefecture || client.address_city) {
+      doc.text(`住所: ${client.address_prefecture || ""}${client.address_city || ""}`, 300);
+    }
+
+    doc.moveDown(2);
+
+    // 区切り線
+    doc.moveTo(50, doc.y).lineTo(545, doc.y).stroke();
+    doc.moveDown();
+
+    // 利用者の生活現状
+    doc.fontSize(12).text("【利用者の生活現状】", { underline: false });
+    doc.moveDown(0.3);
+    doc.fontSize(10);
+    drawTextBox(doc, currentSituation || "（未入力）", 50, doc.y, 495, 60);
+    doc.moveDown(0.5);
+
+    // 利用者及び家族の意向・希望
+    doc.fontSize(12).text("【利用者及び家族の意向・希望】");
+    doc.moveDown(0.3);
+    doc.fontSize(10);
+    drawTextBox(doc, familyWishes || "（未入力）", 50, doc.y, 495, 60);
+    doc.moveDown(0.5);
+
+    // 主な支援内容
+    doc.fontSize(12).text("【主な支援内容】");
+    doc.moveDown(0.3);
+    doc.fontSize(10);
+    drawTextBox(doc, mainSupport || "（未入力）", 50, doc.y, 495, 60);
+    doc.moveDown(0.5);
+
+    // ページ確認・追加
+    if (doc.y > 600) {
+      doc.addPage();
+    }
+
+    // 長期目標
+    doc.fontSize(12).text("【長期目標】");
+    doc.moveDown(0.3);
+    doc.fontSize(10);
+
+    if (longTermGoals && longTermGoals.length > 0) {
+      longTermGoals.forEach((goal, index) => {
+        const goalText = goal.content || "（未入力）";
+        const dateRange = formatGoalDateRange(goal.startDate, goal.endDate);
+        doc.text(`${index + 1}. ${goalText}`);
+        if (dateRange) {
+          doc.fontSize(9).text(`   期間: ${dateRange}`, { indent: 20 });
+          doc.fontSize(10);
+        }
+        doc.moveDown(0.3);
+      });
+    } else {
+      doc.text("（未設定）");
+    }
+    doc.moveDown(0.5);
+
+    // 短期目標
+    doc.fontSize(12).text("【短期目標】");
+    doc.moveDown(0.3);
+    doc.fontSize(10);
+
+    if (shortTermGoals && shortTermGoals.length > 0) {
+      shortTermGoals.forEach((goal, index) => {
+        const goalText = goal.content || "（未入力）";
+        const dateRange = formatGoalDateRange(goal.startDate, goal.endDate);
+        doc.text(`${index + 1}. ${goalText}`);
+        if (dateRange) {
+          doc.fontSize(9).text(`   期間: ${dateRange}`, { indent: 20 });
+          doc.fontSize(10);
+        }
+        doc.moveDown(0.3);
+      });
+    } else {
+      doc.text("（未設定）");
+    }
+
+    // フッター
+    doc.moveDown(2);
+    doc.fontSize(8).text("※この計画書は利用者の状態に応じて随時見直しを行います。", { align: "center" });
+
+    doc.end();
+  });
+}
+
+// テキストボックス描画（枠線付き）
+function drawTextBox(
+  doc: InstanceType<typeof PDFDocument>,
+  text: string,
+  x: number,
+  y: number,
+  width: number,
+  minHeight: number
+): void {
+  const textHeight = doc.heightOfString(text, { width: width - 10 });
+  const boxHeight = Math.max(minHeight, textHeight + 10);
+
+  doc.rect(x, y, width, boxHeight).stroke();
+  doc.text(text, x + 5, y + 5, { width: width - 10 });
+  doc.y = y + boxHeight + 5;
+}
+
+// 年齢計算
+function calculateAge(birthDate: Date): number {
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+}
+
+// 完全な日付フォーマット
+function formatFullDate(date: Date): string {
+  const d = new Date(date);
+  return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
+}
+
+// 目標期間フォーマット
+function formatGoalDateRange(startDate?: string, endDate?: string): string {
+  if (!startDate && !endDate) return "";
+
+  const formatDate = (dateStr: string) => {
+    const d = new Date(dateStr);
+    return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
+  };
+
+  if (startDate && endDate) {
+    return `${formatDate(startDate)} 〜 ${formatDate(endDate)}`;
+  } else if (startDate) {
+    return `${formatDate(startDate)} 〜`;
+  } else if (endDate) {
+    return `〜 ${formatDate(endDate)}`;
+  }
+  return "";
+}

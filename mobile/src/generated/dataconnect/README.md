@@ -24,6 +24,9 @@ This README will guide you through the process of using the generated JavaScript
   - [*ListReportsByClient*](#listreportsbyclient)
   - [*ListReportsByFacility*](#listreportsbyfacility)
   - [*ListCarePlansByClient*](#listcareplansbyclient)
+  - [*ListCarePlansByFacility*](#listcareplansbyfacility)
+  - [*GetCarePlan*](#getcareplan)
+  - [*ListGoalTemplates*](#listgoaltemplates)
 - [**Mutations**](#mutations)
   - [*CreateClient*](#createclient)
   - [*UpdateClient*](#updateclient)
@@ -39,6 +42,8 @@ This README will guide you through the process of using the generated JavaScript
   - [*CreateReport*](#createreport)
   - [*UpdateReportPdf*](#updatereportpdf)
   - [*CreateCarePlan*](#createcareplan)
+  - [*UpdateCarePlan*](#updatecareplan)
+  - [*DeleteCarePlan*](#deletecareplan)
   - [*SeedCareLevel*](#seedcarelevel)
   - [*SeedVisitReason*](#seedvisitreason)
   - [*CreateFacility*](#createfacility)
@@ -2026,6 +2031,359 @@ executeQuery(ref).then((response) => {
 });
 ```
 
+## ListCarePlansByFacility
+You can execute the `ListCarePlansByFacility` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+listCarePlansByFacility(vars: ListCarePlansByFacilityVariables): QueryPromise<ListCarePlansByFacilityData, ListCarePlansByFacilityVariables>;
+
+interface ListCarePlansByFacilityRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: ListCarePlansByFacilityVariables): QueryRef<ListCarePlansByFacilityData, ListCarePlansByFacilityVariables>;
+}
+export const listCarePlansByFacilityRef: ListCarePlansByFacilityRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+listCarePlansByFacility(dc: DataConnect, vars: ListCarePlansByFacilityVariables): QueryPromise<ListCarePlansByFacilityData, ListCarePlansByFacilityVariables>;
+
+interface ListCarePlansByFacilityRef {
+  ...
+  (dc: DataConnect, vars: ListCarePlansByFacilityVariables): QueryRef<ListCarePlansByFacilityData, ListCarePlansByFacilityVariables>;
+}
+export const listCarePlansByFacilityRef: ListCarePlansByFacilityRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listCarePlansByFacilityRef:
+```typescript
+const name = listCarePlansByFacilityRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `ListCarePlansByFacility` query requires an argument of type `ListCarePlansByFacilityVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface ListCarePlansByFacilityVariables {
+  facilityId: UUIDString;
+}
+```
+### Return Type
+Recall that executing the `ListCarePlansByFacility` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `ListCarePlansByFacilityData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface ListCarePlansByFacilityData {
+  carePlans: ({
+    id: UUIDString;
+    currentSituation?: string | null;
+    familyWishes?: string | null;
+    mainSupport?: string | null;
+    longTermGoals?: unknown | null;
+    shortTermGoals?: unknown | null;
+    pdfUrl?: string | null;
+    createdAt: TimestampString;
+    client: {
+      id: UUIDString;
+      name: string;
+    } & Client_Key;
+      staff: {
+        id: UUIDString;
+        name: string;
+      } & Staff_Key;
+  } & CarePlan_Key)[];
+}
+```
+### Using `ListCarePlansByFacility`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, listCarePlansByFacility, ListCarePlansByFacilityVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `ListCarePlansByFacility` query requires an argument of type `ListCarePlansByFacilityVariables`:
+const listCarePlansByFacilityVars: ListCarePlansByFacilityVariables = {
+  facilityId: ..., 
+};
+
+// Call the `listCarePlansByFacility()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await listCarePlansByFacility(listCarePlansByFacilityVars);
+// Variables can be defined inline as well.
+const { data } = await listCarePlansByFacility({ facilityId: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await listCarePlansByFacility(dataConnect, listCarePlansByFacilityVars);
+
+console.log(data.carePlans);
+
+// Or, you can use the `Promise` API.
+listCarePlansByFacility(listCarePlansByFacilityVars).then((response) => {
+  const data = response.data;
+  console.log(data.carePlans);
+});
+```
+
+### Using `ListCarePlansByFacility`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, listCarePlansByFacilityRef, ListCarePlansByFacilityVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `ListCarePlansByFacility` query requires an argument of type `ListCarePlansByFacilityVariables`:
+const listCarePlansByFacilityVars: ListCarePlansByFacilityVariables = {
+  facilityId: ..., 
+};
+
+// Call the `listCarePlansByFacilityRef()` function to get a reference to the query.
+const ref = listCarePlansByFacilityRef(listCarePlansByFacilityVars);
+// Variables can be defined inline as well.
+const ref = listCarePlansByFacilityRef({ facilityId: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = listCarePlansByFacilityRef(dataConnect, listCarePlansByFacilityVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.carePlans);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.carePlans);
+});
+```
+
+## GetCarePlan
+You can execute the `GetCarePlan` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+getCarePlan(vars: GetCarePlanVariables): QueryPromise<GetCarePlanData, GetCarePlanVariables>;
+
+interface GetCarePlanRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: GetCarePlanVariables): QueryRef<GetCarePlanData, GetCarePlanVariables>;
+}
+export const getCarePlanRef: GetCarePlanRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+getCarePlan(dc: DataConnect, vars: GetCarePlanVariables): QueryPromise<GetCarePlanData, GetCarePlanVariables>;
+
+interface GetCarePlanRef {
+  ...
+  (dc: DataConnect, vars: GetCarePlanVariables): QueryRef<GetCarePlanData, GetCarePlanVariables>;
+}
+export const getCarePlanRef: GetCarePlanRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getCarePlanRef:
+```typescript
+const name = getCarePlanRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `GetCarePlan` query requires an argument of type `GetCarePlanVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface GetCarePlanVariables {
+  id: UUIDString;
+}
+```
+### Return Type
+Recall that executing the `GetCarePlan` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `GetCarePlanData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface GetCarePlanData {
+  carePlan?: {
+    id: UUIDString;
+    currentSituation?: string | null;
+    familyWishes?: string | null;
+    mainSupport?: string | null;
+    longTermGoals?: unknown | null;
+    shortTermGoals?: unknown | null;
+    pdfUrl?: string | null;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+    client: {
+      id: UUIDString;
+      name: string;
+      careLevel?: {
+        name: string;
+      };
+    } & Client_Key;
+      staff: {
+        id: UUIDString;
+        name: string;
+      } & Staff_Key;
+  } & CarePlan_Key;
+}
+```
+### Using `GetCarePlan`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, getCarePlan, GetCarePlanVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `GetCarePlan` query requires an argument of type `GetCarePlanVariables`:
+const getCarePlanVars: GetCarePlanVariables = {
+  id: ..., 
+};
+
+// Call the `getCarePlan()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await getCarePlan(getCarePlanVars);
+// Variables can be defined inline as well.
+const { data } = await getCarePlan({ id: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await getCarePlan(dataConnect, getCarePlanVars);
+
+console.log(data.carePlan);
+
+// Or, you can use the `Promise` API.
+getCarePlan(getCarePlanVars).then((response) => {
+  const data = response.data;
+  console.log(data.carePlan);
+});
+```
+
+### Using `GetCarePlan`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, getCarePlanRef, GetCarePlanVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `GetCarePlan` query requires an argument of type `GetCarePlanVariables`:
+const getCarePlanVars: GetCarePlanVariables = {
+  id: ..., 
+};
+
+// Call the `getCarePlanRef()` function to get a reference to the query.
+const ref = getCarePlanRef(getCarePlanVars);
+// Variables can be defined inline as well.
+const ref = getCarePlanRef({ id: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = getCarePlanRef(dataConnect, getCarePlanVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.carePlan);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.carePlan);
+});
+```
+
+## ListGoalTemplates
+You can execute the `ListGoalTemplates` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+listGoalTemplates(): QueryPromise<ListGoalTemplatesData, undefined>;
+
+interface ListGoalTemplatesRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<ListGoalTemplatesData, undefined>;
+}
+export const listGoalTemplatesRef: ListGoalTemplatesRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+listGoalTemplates(dc: DataConnect): QueryPromise<ListGoalTemplatesData, undefined>;
+
+interface ListGoalTemplatesRef {
+  ...
+  (dc: DataConnect): QueryRef<ListGoalTemplatesData, undefined>;
+}
+export const listGoalTemplatesRef: ListGoalTemplatesRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listGoalTemplatesRef:
+```typescript
+const name = listGoalTemplatesRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `ListGoalTemplates` query has no variables.
+### Return Type
+Recall that executing the `ListGoalTemplates` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `ListGoalTemplatesData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface ListGoalTemplatesData {
+  goalTemplates: ({
+    id: UUIDString;
+    supportType: string;
+    goalType: string;
+    content: string;
+    sortOrder?: number | null;
+  } & GoalTemplate_Key)[];
+}
+```
+### Using `ListGoalTemplates`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, listGoalTemplates } from '@sanwa-houkai-app/dataconnect';
+
+
+// Call the `listGoalTemplates()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await listGoalTemplates();
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await listGoalTemplates(dataConnect);
+
+console.log(data.goalTemplates);
+
+// Or, you can use the `Promise` API.
+listGoalTemplates().then((response) => {
+  const data = response.data;
+  console.log(data.goalTemplates);
+});
+```
+
+### Using `ListGoalTemplates`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, listGoalTemplatesRef } from '@sanwa-houkai-app/dataconnect';
+
+
+// Call the `listGoalTemplatesRef()` function to get a reference to the query.
+const ref = listGoalTemplatesRef();
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = listGoalTemplatesRef(dataConnect);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.goalTemplates);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.goalTemplates);
+});
+```
+
 # Mutations
 
 There are two ways to execute a Data Connect Mutation using the generated Web SDK:
@@ -3834,6 +4192,242 @@ console.log(data.carePlan_insert);
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.carePlan_insert);
+});
+```
+
+## UpdateCarePlan
+You can execute the `UpdateCarePlan` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+updateCarePlan(vars: UpdateCarePlanVariables): MutationPromise<UpdateCarePlanData, UpdateCarePlanVariables>;
+
+interface UpdateCarePlanRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: UpdateCarePlanVariables): MutationRef<UpdateCarePlanData, UpdateCarePlanVariables>;
+}
+export const updateCarePlanRef: UpdateCarePlanRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+updateCarePlan(dc: DataConnect, vars: UpdateCarePlanVariables): MutationPromise<UpdateCarePlanData, UpdateCarePlanVariables>;
+
+interface UpdateCarePlanRef {
+  ...
+  (dc: DataConnect, vars: UpdateCarePlanVariables): MutationRef<UpdateCarePlanData, UpdateCarePlanVariables>;
+}
+export const updateCarePlanRef: UpdateCarePlanRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the updateCarePlanRef:
+```typescript
+const name = updateCarePlanRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `UpdateCarePlan` mutation requires an argument of type `UpdateCarePlanVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface UpdateCarePlanVariables {
+  id: UUIDString;
+  currentSituation?: string | null;
+  familyWishes?: string | null;
+  mainSupport?: string | null;
+  longTermGoals?: unknown | null;
+  shortTermGoals?: unknown | null;
+  pdfUrl?: string | null;
+}
+```
+### Return Type
+Recall that executing the `UpdateCarePlan` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `UpdateCarePlanData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface UpdateCarePlanData {
+  carePlan_update?: CarePlan_Key | null;
+}
+```
+### Using `UpdateCarePlan`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, updateCarePlan, UpdateCarePlanVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `UpdateCarePlan` mutation requires an argument of type `UpdateCarePlanVariables`:
+const updateCarePlanVars: UpdateCarePlanVariables = {
+  id: ..., 
+  currentSituation: ..., // optional
+  familyWishes: ..., // optional
+  mainSupport: ..., // optional
+  longTermGoals: ..., // optional
+  shortTermGoals: ..., // optional
+  pdfUrl: ..., // optional
+};
+
+// Call the `updateCarePlan()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await updateCarePlan(updateCarePlanVars);
+// Variables can be defined inline as well.
+const { data } = await updateCarePlan({ id: ..., currentSituation: ..., familyWishes: ..., mainSupport: ..., longTermGoals: ..., shortTermGoals: ..., pdfUrl: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await updateCarePlan(dataConnect, updateCarePlanVars);
+
+console.log(data.carePlan_update);
+
+// Or, you can use the `Promise` API.
+updateCarePlan(updateCarePlanVars).then((response) => {
+  const data = response.data;
+  console.log(data.carePlan_update);
+});
+```
+
+### Using `UpdateCarePlan`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, updateCarePlanRef, UpdateCarePlanVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `UpdateCarePlan` mutation requires an argument of type `UpdateCarePlanVariables`:
+const updateCarePlanVars: UpdateCarePlanVariables = {
+  id: ..., 
+  currentSituation: ..., // optional
+  familyWishes: ..., // optional
+  mainSupport: ..., // optional
+  longTermGoals: ..., // optional
+  shortTermGoals: ..., // optional
+  pdfUrl: ..., // optional
+};
+
+// Call the `updateCarePlanRef()` function to get a reference to the mutation.
+const ref = updateCarePlanRef(updateCarePlanVars);
+// Variables can be defined inline as well.
+const ref = updateCarePlanRef({ id: ..., currentSituation: ..., familyWishes: ..., mainSupport: ..., longTermGoals: ..., shortTermGoals: ..., pdfUrl: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = updateCarePlanRef(dataConnect, updateCarePlanVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.carePlan_update);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.carePlan_update);
+});
+```
+
+## DeleteCarePlan
+You can execute the `DeleteCarePlan` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+deleteCarePlan(vars: DeleteCarePlanVariables): MutationPromise<DeleteCarePlanData, DeleteCarePlanVariables>;
+
+interface DeleteCarePlanRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeleteCarePlanVariables): MutationRef<DeleteCarePlanData, DeleteCarePlanVariables>;
+}
+export const deleteCarePlanRef: DeleteCarePlanRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+deleteCarePlan(dc: DataConnect, vars: DeleteCarePlanVariables): MutationPromise<DeleteCarePlanData, DeleteCarePlanVariables>;
+
+interface DeleteCarePlanRef {
+  ...
+  (dc: DataConnect, vars: DeleteCarePlanVariables): MutationRef<DeleteCarePlanData, DeleteCarePlanVariables>;
+}
+export const deleteCarePlanRef: DeleteCarePlanRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the deleteCarePlanRef:
+```typescript
+const name = deleteCarePlanRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DeleteCarePlan` mutation requires an argument of type `DeleteCarePlanVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DeleteCarePlanVariables {
+  id: UUIDString;
+}
+```
+### Return Type
+Recall that executing the `DeleteCarePlan` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DeleteCarePlanData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DeleteCarePlanData {
+  carePlan_delete?: CarePlan_Key | null;
+}
+```
+### Using `DeleteCarePlan`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, deleteCarePlan, DeleteCarePlanVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DeleteCarePlan` mutation requires an argument of type `DeleteCarePlanVariables`:
+const deleteCarePlanVars: DeleteCarePlanVariables = {
+  id: ..., 
+};
+
+// Call the `deleteCarePlan()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await deleteCarePlan(deleteCarePlanVars);
+// Variables can be defined inline as well.
+const { data } = await deleteCarePlan({ id: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await deleteCarePlan(dataConnect, deleteCarePlanVars);
+
+console.log(data.carePlan_delete);
+
+// Or, you can use the `Promise` API.
+deleteCarePlan(deleteCarePlanVars).then((response) => {
+  const data = response.data;
+  console.log(data.carePlan_delete);
+});
+```
+
+### Using `DeleteCarePlan`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, deleteCarePlanRef, DeleteCarePlanVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DeleteCarePlan` mutation requires an argument of type `DeleteCarePlanVariables`:
+const deleteCarePlanVars: DeleteCarePlanVariables = {
+  id: ..., 
+};
+
+// Call the `deleteCarePlanRef()` function to get a reference to the mutation.
+const ref = deleteCarePlanRef(deleteCarePlanVars);
+// Variables can be defined inline as well.
+const ref = deleteCarePlanRef({ id: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = deleteCarePlanRef(dataConnect, deleteCarePlanVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.carePlan_delete);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.carePlan_delete);
 });
 ```
 

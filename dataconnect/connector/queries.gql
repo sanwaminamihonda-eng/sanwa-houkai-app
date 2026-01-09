@@ -341,3 +341,62 @@ query ListCarePlansByClient($clientId: UUID!) @auth(level: USER) {
     createdAt
   }
 }
+
+query ListCarePlansByFacility($facilityId: UUID!) @auth(level: USER) {
+  carePlans(
+    where: { client: { facility: { id: { eq: $facilityId } } } }
+    orderBy: [{ createdAt: DESC }]
+  ) {
+    id
+    currentSituation
+    familyWishes
+    mainSupport
+    longTermGoals
+    shortTermGoals
+    pdfUrl
+    createdAt
+    client {
+      id
+      name
+    }
+    staff {
+      id
+      name
+    }
+  }
+}
+
+query GetCarePlan($id: UUID!) @auth(level: USER) {
+  carePlan(id: $id) {
+    id
+    currentSituation
+    familyWishes
+    mainSupport
+    longTermGoals
+    shortTermGoals
+    pdfUrl
+    createdAt
+    updatedAt
+    client {
+      id
+      name
+      careLevel {
+        name
+      }
+    }
+    staff {
+      id
+      name
+    }
+  }
+}
+
+query ListGoalTemplates @auth(level: USER) {
+  goalTemplates(orderBy: [{ sortOrder: ASC }]) {
+    id
+    supportType
+    goalType
+    content
+    sortOrder
+  }
+}
