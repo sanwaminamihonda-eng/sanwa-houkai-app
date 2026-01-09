@@ -347,26 +347,23 @@ web/
 - リポジトリ: sanwaminamihonda-eng/sanwa-houkai-app
 - ブランチ: main
 - 状態: clean
-- CI/CD: ✅ 動作確認済み（PR #6, #7, #8, #10, #11, #12, #14, #16, #25, #26, #28, #29）
+- CI/CD: ✅ 動作確認済み（PR #6, #7, #8, #10, #11, #12, #14, #16, #25, #26, #28, #29, #30）
 - デプロイ: ✅ Firebase Hosting 自動デプロイ（main push時）
 
 ## 今セッション完了作業
 
-- [x] 繰り返し予定機能 - PR #29
-  - rruleライブラリをWeb/Mobile両方に追加
-  - Web: スケジュールフォームダイアログに繰り返し設定UI追加
-    - 繰り返しパターン: なし/毎日/毎週/隔週/毎月
-    - 曜日選択（週次/隔週の場合、複数選択可）
-    - 終了条件: 回数指定（1〜52回）/ 終了日指定
-    - 繰り返し予定の一括作成
-  - Mobile: ScheduleFormScreenに繰り返し設定UI追加
-    - React Native Paper（Chip, RadioButton, Divider）を使用
-    - Webと同等の機能を実装
-  - データ構造: recurrence_rule（iCal RRULE形式）, recurrence_id（UUID）
-  - 編集時は単一予定のみ更新
+- [x] 繰り返し予定の編集・削除改善 - PR #30
+  - GetSchedulesByRecurrenceIdクエリ追加（同じシリーズの予定を取得）
+  - ListSchedulesByDateRangeクエリにrecurrenceRule, recurrenceIdフィールド追加
+  - Web: 編集時の選択ダイアログ（この予定のみ/以降すべて/シリーズ全体）
+  - Web: 削除時の選択ダイアログ（この予定のみ/シリーズ全体）
+  - Mobile: 編集時の選択ダイアログ（RadioButton.Group使用）
+  - Mobile: 削除時の選択ダイアログ（RadioButton.Group使用）
+  - シリーズ全体の一括更新・削除に対応
 
 ### 前セッション完了作業（参考）
 
+- [x] 繰り返し予定機能 - PR #29
 - [x] 訪問介護計画書PDF生成機能 - PR #28
 - [x] PDF帳票生成機能（実施報告書）- PR #27
 - [x] Cloud Storageバケット作成（sanwa-houkai-app-reports）
@@ -377,8 +374,8 @@ web/
 ## 次回アクション
 
 1. モバイルアプリでの計画書表示機能
-2. 繰り返し予定の編集・削除時の挙動改善（シリーズ全体 or 単一予定の選択）
-3. 繰り返し予定のカレンダー上での視覚的識別（アイコン等）
+2. 繰り返し予定のカレンダー上での視覚的識別（アイコン等）
+3. オフライン対応検討
 
 **デプロイ済み:**
 - Cloud Functions（generateVisitNotes, generateReport, generateCarePlan）- 2026-01-10 デプロイ完了
@@ -386,3 +383,4 @@ web/
 - リアルタイム同期コード - 2026-01-10 マージ完了
 - Firestoreルール - 2026-01-10 デプロイ完了
 - 繰り返し予定機能 - 2026-01-10 マージ完了（PR #29）
+- 繰り返し予定編集・削除改善 - 2026-01-10 マージ完了（PR #30）
