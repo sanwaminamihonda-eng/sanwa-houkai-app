@@ -175,6 +175,30 @@ exports.createCarePlan = function createCarePlan(dcOrVars, vars) {
   return executeMutation(createCarePlanRef(dcOrVars, vars));
 };
 
+const updateCarePlanRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'UpdateCarePlan', inputVars);
+}
+updateCarePlanRef.operationName = 'UpdateCarePlan';
+exports.updateCarePlanRef = updateCarePlanRef;
+
+exports.updateCarePlan = function updateCarePlan(dcOrVars, vars) {
+  return executeMutation(updateCarePlanRef(dcOrVars, vars));
+};
+
+const deleteCarePlanRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return mutationRef(dcInstance, 'DeleteCarePlan', inputVars);
+}
+deleteCarePlanRef.operationName = 'DeleteCarePlan';
+exports.deleteCarePlanRef = deleteCarePlanRef;
+
+exports.deleteCarePlan = function deleteCarePlan(dcOrVars, vars) {
+  return executeMutation(deleteCarePlanRef(dcOrVars, vars));
+};
+
 const seedCareLevelRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();
@@ -437,4 +461,40 @@ exports.listCarePlansByClientRef = listCarePlansByClientRef;
 
 exports.listCarePlansByClient = function listCarePlansByClient(dcOrVars, vars) {
   return executeQuery(listCarePlansByClientRef(dcOrVars, vars));
+};
+
+const listCarePlansByFacilityRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ListCarePlansByFacility', inputVars);
+}
+listCarePlansByFacilityRef.operationName = 'ListCarePlansByFacility';
+exports.listCarePlansByFacilityRef = listCarePlansByFacilityRef;
+
+exports.listCarePlansByFacility = function listCarePlansByFacility(dcOrVars, vars) {
+  return executeQuery(listCarePlansByFacilityRef(dcOrVars, vars));
+};
+
+const getCarePlanRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'GetCarePlan', inputVars);
+}
+getCarePlanRef.operationName = 'GetCarePlan';
+exports.getCarePlanRef = getCarePlanRef;
+
+exports.getCarePlan = function getCarePlan(dcOrVars, vars) {
+  return executeQuery(getCarePlanRef(dcOrVars, vars));
+};
+
+const listGoalTemplatesRef = (dc) => {
+  const { dc: dcInstance} = validateArgs(connectorConfig, dc, undefined);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ListGoalTemplates');
+}
+listGoalTemplatesRef.operationName = 'ListGoalTemplates';
+exports.listGoalTemplatesRef = listGoalTemplatesRef;
+
+exports.listGoalTemplates = function listGoalTemplates(dc) {
+  return executeQuery(listGoalTemplatesRef(dc));
 };

@@ -287,6 +287,29 @@ mutation CreateCarePlan(
   })
 }
 
+mutation UpdateCarePlan(
+  $id: UUID!
+  $currentSituation: String
+  $familyWishes: String
+  $mainSupport: String
+  $longTermGoals: Any
+  $shortTermGoals: Any
+  $pdfUrl: String
+) @auth(level: USER) {
+  carePlan_update(id: $id, data: {
+    currentSituation: $currentSituation
+    familyWishes: $familyWishes
+    mainSupport: $mainSupport
+    longTermGoals: $longTermGoals
+    shortTermGoals: $shortTermGoals
+    pdfUrl: $pdfUrl
+  })
+}
+
+mutation DeleteCarePlan($id: UUID!) @auth(level: USER) {
+  carePlan_delete(id: $id)
+}
+
 # ---------------------
 # マスタデータ初期化（管理者用）
 # ---------------------

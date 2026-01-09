@@ -178,6 +178,14 @@ export interface CreateVisitRecordVariables {
   attachments?: string[] | null;
 }
 
+export interface DeleteCarePlanData {
+  carePlan_delete?: CarePlan_Key | null;
+}
+
+export interface DeleteCarePlanVariables {
+  id: UUIDString;
+}
+
 export interface DeleteClientData {
   client_update?: Client_Key | null;
 }
@@ -205,6 +213,35 @@ export interface DeleteVisitRecordVariables {
 export interface Facility_Key {
   id: UUIDString;
   __typename?: 'Facility_Key';
+}
+
+export interface GetCarePlanData {
+  carePlan?: {
+    id: UUIDString;
+    currentSituation?: string | null;
+    familyWishes?: string | null;
+    mainSupport?: string | null;
+    longTermGoals?: unknown | null;
+    shortTermGoals?: unknown | null;
+    pdfUrl?: string | null;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+    client: {
+      id: UUIDString;
+      name: string;
+      careLevel?: {
+        name: string;
+      };
+    } & Client_Key;
+      staff: {
+        id: UUIDString;
+        name: string;
+      } & Staff_Key;
+  } & CarePlan_Key;
+}
+
+export interface GetCarePlanVariables {
+  id: UUIDString;
 }
 
 export interface GetClientData {
@@ -329,6 +366,31 @@ export interface ListCarePlansByClientVariables {
   clientId: UUIDString;
 }
 
+export interface ListCarePlansByFacilityData {
+  carePlans: ({
+    id: UUIDString;
+    currentSituation?: string | null;
+    familyWishes?: string | null;
+    mainSupport?: string | null;
+    longTermGoals?: unknown | null;
+    shortTermGoals?: unknown | null;
+    pdfUrl?: string | null;
+    createdAt: TimestampString;
+    client: {
+      id: UUIDString;
+      name: string;
+    } & Client_Key;
+      staff: {
+        id: UUIDString;
+        name: string;
+      } & Staff_Key;
+  } & CarePlan_Key)[];
+}
+
+export interface ListCarePlansByFacilityVariables {
+  facilityId: UUIDString;
+}
+
 export interface ListClientsData {
   clients: ({
     id: UUIDString;
@@ -346,6 +408,16 @@ export interface ListClientsData {
 
 export interface ListClientsVariables {
   facilityId: UUIDString;
+}
+
+export interface ListGoalTemplatesData {
+  goalTemplates: ({
+    id: UUIDString;
+    supportType: string;
+    goalType: string;
+    content: string;
+    sortOrder?: number | null;
+  } & GoalTemplate_Key)[];
 }
 
 export interface ListReportsByClientData {
@@ -591,6 +663,20 @@ export interface ServiceType_Key {
 export interface Staff_Key {
   id: UUIDString;
   __typename?: 'Staff_Key';
+}
+
+export interface UpdateCarePlanData {
+  carePlan_update?: CarePlan_Key | null;
+}
+
+export interface UpdateCarePlanVariables {
+  id: UUIDString;
+  currentSituation?: string | null;
+  familyWishes?: string | null;
+  mainSupport?: string | null;
+  longTermGoals?: unknown | null;
+  shortTermGoals?: unknown | null;
+  pdfUrl?: string | null;
 }
 
 export interface UpdateClientData {
@@ -840,6 +926,30 @@ export const createCarePlanRef: CreateCarePlanRef;
 
 export function createCarePlan(vars: CreateCarePlanVariables): MutationPromise<CreateCarePlanData, CreateCarePlanVariables>;
 export function createCarePlan(dc: DataConnect, vars: CreateCarePlanVariables): MutationPromise<CreateCarePlanData, CreateCarePlanVariables>;
+
+interface UpdateCarePlanRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: UpdateCarePlanVariables): MutationRef<UpdateCarePlanData, UpdateCarePlanVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: UpdateCarePlanVariables): MutationRef<UpdateCarePlanData, UpdateCarePlanVariables>;
+  operationName: string;
+}
+export const updateCarePlanRef: UpdateCarePlanRef;
+
+export function updateCarePlan(vars: UpdateCarePlanVariables): MutationPromise<UpdateCarePlanData, UpdateCarePlanVariables>;
+export function updateCarePlan(dc: DataConnect, vars: UpdateCarePlanVariables): MutationPromise<UpdateCarePlanData, UpdateCarePlanVariables>;
+
+interface DeleteCarePlanRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DeleteCarePlanVariables): MutationRef<DeleteCarePlanData, DeleteCarePlanVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: DeleteCarePlanVariables): MutationRef<DeleteCarePlanData, DeleteCarePlanVariables>;
+  operationName: string;
+}
+export const deleteCarePlanRef: DeleteCarePlanRef;
+
+export function deleteCarePlan(vars: DeleteCarePlanVariables): MutationPromise<DeleteCarePlanData, DeleteCarePlanVariables>;
+export function deleteCarePlan(dc: DataConnect, vars: DeleteCarePlanVariables): MutationPromise<DeleteCarePlanData, DeleteCarePlanVariables>;
 
 interface SeedCareLevelRef {
   /* Allow users to create refs without passing in DataConnect */
@@ -1104,4 +1214,40 @@ export const listCarePlansByClientRef: ListCarePlansByClientRef;
 
 export function listCarePlansByClient(vars: ListCarePlansByClientVariables): QueryPromise<ListCarePlansByClientData, ListCarePlansByClientVariables>;
 export function listCarePlansByClient(dc: DataConnect, vars: ListCarePlansByClientVariables): QueryPromise<ListCarePlansByClientData, ListCarePlansByClientVariables>;
+
+interface ListCarePlansByFacilityRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: ListCarePlansByFacilityVariables): QueryRef<ListCarePlansByFacilityData, ListCarePlansByFacilityVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: ListCarePlansByFacilityVariables): QueryRef<ListCarePlansByFacilityData, ListCarePlansByFacilityVariables>;
+  operationName: string;
+}
+export const listCarePlansByFacilityRef: ListCarePlansByFacilityRef;
+
+export function listCarePlansByFacility(vars: ListCarePlansByFacilityVariables): QueryPromise<ListCarePlansByFacilityData, ListCarePlansByFacilityVariables>;
+export function listCarePlansByFacility(dc: DataConnect, vars: ListCarePlansByFacilityVariables): QueryPromise<ListCarePlansByFacilityData, ListCarePlansByFacilityVariables>;
+
+interface GetCarePlanRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: GetCarePlanVariables): QueryRef<GetCarePlanData, GetCarePlanVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: GetCarePlanVariables): QueryRef<GetCarePlanData, GetCarePlanVariables>;
+  operationName: string;
+}
+export const getCarePlanRef: GetCarePlanRef;
+
+export function getCarePlan(vars: GetCarePlanVariables): QueryPromise<GetCarePlanData, GetCarePlanVariables>;
+export function getCarePlan(dc: DataConnect, vars: GetCarePlanVariables): QueryPromise<GetCarePlanData, GetCarePlanVariables>;
+
+interface ListGoalTemplatesRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<ListGoalTemplatesData, undefined>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect): QueryRef<ListGoalTemplatesData, undefined>;
+  operationName: string;
+}
+export const listGoalTemplatesRef: ListGoalTemplatesRef;
+
+export function listGoalTemplates(): QueryPromise<ListGoalTemplatesData, undefined>;
+export function listGoalTemplates(dc: DataConnect): QueryPromise<ListGoalTemplatesData, undefined>;
 

@@ -22,6 +22,7 @@ import {
   People as ClientsIcon,
   Person as StaffIcon,
   Description as ReportIcon,
+  Assignment as CarePlanIcon,
   Settings as SettingsIcon,
 } from '@mui/icons-material';
 
@@ -33,7 +34,8 @@ const menuItems = [
   { text: 'スケジュール', icon: <ScheduleIcon />, href: '/schedule' },
   { text: '利用者管理', icon: <ClientsIcon />, href: '/clients' },
   { text: '支援者管理', icon: <StaffIcon />, href: '/staff' },
-  { text: '帳票・報告', icon: <ReportIcon />, href: '/reports' },
+  { text: '実施報告書', icon: <ReportIcon />, href: '/reports' },
+  { text: '計画書', icon: <CarePlanIcon />, href: '/careplans' },
 ];
 
 const settingsItems = [
