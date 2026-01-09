@@ -6,22 +6,26 @@
 - [x] DB選定: Firebase Data Connect (PostgreSQL)
 - [x] オフライン非対応の決定（ADR-0001）
 - [x] ドキュメント構成整備
+- [x] GitHub リポジトリ作成: sanwaminamihonda-eng/sanwa-houkai-app
+- [x] GCP プロジェクト作成: sanwa-houkai-app
+- [x] Firebase プロジェクト追加
+- [x] direnv 環境自動切り替え設定
+- [x] CLAUDE.md 改善（/init対応）
 
 ## 次のステップ
 
-1. **Firebase プロジェクト作成**
-   - GCPプロジェクト作成
-   - Firebase初期化
-   - Data Connect有効化
+1. **Firebase Data Connect 有効化**
+   - Cloud SQL インスタンス作成
+   - Data Connect 初期化
 
 2. **データモデル詳細化**
-   - PostgreSQLスキーマ確定
-   - Data Connect GraphQLスキーマ作成
+   - PostgreSQL スキーマ確定
+   - Data Connect GraphQL スキーマ作成
 
 3. **開発環境構築**
    - React Native / Expo セットアップ
    - Next.js セットアップ
-   - CI/CD設定（GitHub Actions）
+   - CI/CD 設定（GitHub Actions）
 
 ## 未決定事項
 
@@ -33,7 +37,14 @@
 
 | ドキュメント | 状態 |
 |-------------|------|
+| CLAUDE.md | ✅ /init対応済み |
 | architecture.md | ✅ 確定 |
 | requirements.md | 📝 概要のみ |
 | data-model.md | 📝 概要のみ |
 | ADR-0001 | ✅ 確定 |
+
+## Git状態
+
+- リポジトリ: sanwaminamihonda-eng/sanwa-houkai-app (Public)
+- 最新コミット: 0ce75c6 (direnv設定追加)
+- ブランチ: main

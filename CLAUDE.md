@@ -1,4 +1,6 @@
-# 訪問介護記録アプリ - AI開発ガイド
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## プロジェクト概要
 
@@ -22,7 +24,7 @@
 | 認証 | Firebase Auth (Google OAuth / Email+PW) |
 | ホスティング | Firebase Hosting |
 | バックエンド | Cloud Functions |
-| AI | Vertex AI Gemini 2.5 Flash (日本リージョン) |
+| AI | Vertex AI Gemini 2.5 Flash (asia-northeast1) |
 | モバイル | React Native + Expo |
 | Web | Next.js |
 
@@ -32,27 +34,57 @@
 - **GCP統一**: 認証・DB・AI全てGCP/Firebase
 - **シングルDB**: PostgreSQL一本
 
-## ドキュメント
+## ドキュメント構成
 
 ```
 docs/
-├── README.md           # 目次
-├── architecture.md     # アーキテクチャ（確定）
-├── requirements.md     # 要件（概要）
-├── data-model.md       # データモデル（概要）
-├── adr/                # 決定記録
-└── handoff/LATEST.md   # 作業状態
+├── README.md           # 目次・クイックリファレンス
+├── architecture.md     # アーキテクチャ詳細
+├── requirements.md     # 要件定義
+├── data-model.md       # データモデル・ER図
+├── adr/                # Architecture Decision Records
+└── handoff/LATEST.md   # 作業状態（セッション継続用）
 ```
+
+## 開発コマンド
+
+```bash
+# 環境ロード確認
+direnv allow
+
+# Firebase CLI
+firebase login
+firebase projects:list
+firebase deploy
+
+# GCP CLI
+gcloud auth list
+gcloud config list
+```
+
+※ビルド・テストコマンドは開発環境構築後に追加
 
 ## 開発ルール
 
 1. **設計変更時**: docs/ を更新
-2. **重要決定時**: ADR を作成
+2. **重要決定時**: ADR を作成（docs/adr/）
 3. **セッション終了時**: handoff/LATEST.md を更新
 4. **コミット**: 作業単位を小さく、こまめに
+5. **mainへ直接push禁止**: featureブランチ → PR → レビュー → マージ
 
 ## 作業再開時
 
 1. `docs/handoff/LATEST.md` を読む
 2. 未完了タスクを確認
 3. 必要に応じて関連ドキュメントを参照
+
+## 現在のフェーズ
+
+**設計フェーズ** - コード実装前
+
+次のステップ:
+1. Firebase Data Connect 有効化
+2. PostgreSQL スキーマ確定
+3. React Native / Expo セットアップ
+4. Next.js セットアップ
+5. CI/CD 設定（GitHub Actions）
