@@ -8,7 +8,11 @@ import {
   ActivityIndicator,
   Appbar,
   HelperText,
+  Chip,
+  Divider,
+  RadioButton,
 } from 'react-native-paper';
+import { RRule, Options } from 'rrule';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
@@ -34,6 +38,29 @@ import { ScheduleStackParamList } from '../../navigation/RootNavigator';
 type Client = ListClientsData['clients'][0];
 type ServiceType = ListServiceTypesData['serviceTypes'][0];
 type Staff = ListStaffData['staffs'][0];
+
+// 繰り返しパターンの型定義
+type RecurrenceType = 'none' | 'daily' | 'weekly' | 'biweekly' | 'monthly';
+type RecurrenceEndType = 'count' | 'until';
+
+// 曜日マッピング
+const WEEKDAYS = [
+  { key: 'MO', label: '月', rruleDay: RRule.MO },
+  { key: 'TU', label: '火', rruleDay: RRule.TU },
+  { key: 'WE', label: '水', rruleDay: RRule.WE },
+  { key: 'TH', label: '木', rruleDay: RRule.TH },
+  { key: 'FR', label: '金', rruleDay: RRule.FR },
+  { key: 'SA', label: '土', rruleDay: RRule.SA },
+  { key: 'SU', label: '日', rruleDay: RRule.SU },
+] as const;
+
+interface RecurrenceSettings {
+  type: RecurrenceType;
+  weekdays: string[];
+  endType: RecurrenceEndType;
+  count: number;
+  until: Date | null;
+}
 
 type ScheduleFormRouteProp = RouteProp<ScheduleStackParamList, 'ScheduleForm'>;
 type ScheduleFormNavigationProp = NativeStackNavigationProp<ScheduleStackParamList, 'ScheduleForm'>;
@@ -76,6 +103,16 @@ export default function ScheduleFormScreen() {
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  // 繰り返し設定の状態
+  const [recurrence, setRecurrence] = useState<RecurrenceSettings>({
+    type: 'none',
+    weekdays: [],
+    endType: 'count',
+    count: 10,
+    until: null,
+  });
+  const [showUntilPicker, setShowUntilPicker] = useState(false);
 
   // Initialize form with existing data or defaults
   useEffect(() => {
@@ -182,7 +219,110 @@ export default function ScheduleFormScreen() {
       Alert.alert('入力エラー', '終了時間は開始時間より後にしてください');
       return false;
     }
+    // 週次/隔週で曜日未選択の場合はエラー
+    if (!isEditing && (recurrence.type === 'weekly' || recurrence.type === 'biweekly') && recurrence.weekdays.length === 0) {
+      Alert.alert('入力エラー', '繰り返しの曜日を選択してください');
+      return false;
+    }
     return true;
+  };
+
+  // 繰り返しルールから日付リストを生成
+  const generateRecurringDates = (startDate: Date, rec: RecurrenceSettings): Date[] => {
+    if (rec.type === 'none') {
+      return [startDate];
+    }
+
+    const options: Partial<Options> = {
+      dtstart: startDate,
+    };
+
+    switch (rec.type) {
+      case 'daily':
+        options.freq = RRule.DAILY;
+        break;
+      case 'weekly':
+        options.freq = RRule.WEEKLY;
+        if (rec.weekdays.length > 0) {
+          options.byweekday = rec.weekdays.map(day => {
+            const weekday = WEEKDAYS.find(w => w.key === day);
+            return weekday?.rruleDay || RRule.MO;
+          });
+        }
+        break;
+      case 'biweekly':
+        options.freq = RRule.WEEKLY;
+        options.interval = 2;
+        if (rec.weekdays.length > 0) {
+          options.byweekday = rec.weekdays.map(day => {
+            const weekday = WEEKDAYS.find(w => w.key === day);
+            return weekday?.rruleDay || RRule.MO;
+          });
+        }
+        break;
+      case 'monthly':
+        options.freq = RRule.MONTHLY;
+        break;
+    }
+
+    if (rec.endType === 'count') {
+      options.count = rec.count;
+    } else if (rec.until) {
+      options.until = rec.until;
+    }
+
+    const rule = new RRule(options as Options);
+    return rule.all();
+  };
+
+  // RRULEを文字列形式で生成
+  const generateRRuleString = (rec: RecurrenceSettings): string | undefined => {
+    if (rec.type === 'none') {
+      return undefined;
+    }
+
+    let rule = '';
+    switch (rec.type) {
+      case 'daily':
+        rule = 'FREQ=DAILY';
+        break;
+      case 'weekly':
+        rule = 'FREQ=WEEKLY';
+        if (rec.weekdays.length > 0) {
+          rule += `;BYDAY=${rec.weekdays.join(',')}`;
+        }
+        break;
+      case 'biweekly':
+        rule = 'FREQ=WEEKLY;INTERVAL=2';
+        if (rec.weekdays.length > 0) {
+          rule += `;BYDAY=${rec.weekdays.join(',')}`;
+        }
+        break;
+      case 'monthly':
+        rule = 'FREQ=MONTHLY';
+        break;
+    }
+
+    if (rec.endType === 'count') {
+      rule += `;COUNT=${rec.count}`;
+    } else if (rec.until) {
+      const y = rec.until.getFullYear();
+      const m = String(rec.until.getMonth() + 1).padStart(2, '0');
+      const d = String(rec.until.getDate()).padStart(2, '0');
+      rule += `;UNTIL=${y}${m}${d}T235959Z`;
+    }
+
+    return rule;
+  };
+
+  // 曜日選択をトグル
+  const toggleWeekday = (key: string) => {
+    setRecurrence(prev => ({
+      ...prev,
+      weekdays: prev.weekdays.includes(key)
+        ? prev.weekdays.filter(d => d !== key)
+        : [...prev.weekdays, key],
+    }));
   };
 
   const handleSave = async () => {
@@ -194,20 +334,24 @@ export default function ScheduleFormScreen() {
 
     setSaving(true);
     try {
-      let scheduleId: string;
+      const startTimeStr = formatTimeForApi(startTime);
+      const endTimeStr = formatTimeForApi(endTime);
+      const notesStr = notes || undefined;
+      const recurrenceRule = generateRRuleString(recurrence);
 
       if (isEditing && scheduleData) {
+        // 編集時は単一予定のみ更新
         await updateSchedule(dataConnect, {
           id: scheduleData.id,
           clientId: selectedClientId,
           staffId: selectedStaffId,
           serviceTypeId: selectedServiceTypeId || undefined,
           scheduledDate: formatDateForApi(scheduledDate),
-          startTime: formatTimeForApi(startTime),
-          endTime: formatTimeForApi(endTime),
-          notes: notes || undefined,
+          startTime: startTimeStr,
+          endTime: endTimeStr,
+          notes: notesStr,
         });
-        scheduleId = scheduleData.id;
+        const scheduleId = scheduleData.id;
 
         // Notify other users about the update
         await notifyScheduleUpdate(scheduleId, 'update');
@@ -216,22 +360,54 @@ export default function ScheduleFormScreen() {
           { text: 'OK', onPress: () => navigation.goBack() },
         ]);
       } else {
-        const result = await createSchedule(dataConnect, {
+        // 新規作成時は繰り返し予定を一括作成
+        const dates = generateRecurringDates(scheduledDate, recurrence);
+
+        // 親IDを生成（繰り返しの場合）
+        const recurrenceId = recurrenceRule ? crypto.randomUUID() : undefined;
+
+        // 最初の予定を作成
+        const firstResult = await createSchedule(dataConnect, {
           facilityId,
           clientId: selectedClientId,
           staffId: selectedStaffId,
           serviceTypeId: selectedServiceTypeId || undefined,
-          scheduledDate: formatDateForApi(scheduledDate),
-          startTime: formatTimeForApi(startTime),
-          endTime: formatTimeForApi(endTime),
-          notes: notes || undefined,
+          scheduledDate: formatDateForApi(dates[0]),
+          startTime: startTimeStr,
+          endTime: endTimeStr,
+          notes: notesStr,
+          recurrenceRule,
+          recurrenceId,
         });
-        scheduleId = result.data.schedule_insert.id;
+
+        // 残りの予定を作成
+        if (dates.length > 1) {
+          await Promise.all(
+            dates.slice(1).map(date =>
+              createSchedule(dataConnect, {
+                facilityId,
+                clientId: selectedClientId,
+                staffId: selectedStaffId,
+                serviceTypeId: selectedServiceTypeId || undefined,
+                scheduledDate: formatDateForApi(date),
+                startTime: startTimeStr,
+                endTime: endTimeStr,
+                notes: notesStr,
+                recurrenceRule,
+                recurrenceId,
+              })
+            )
+          );
+        }
 
         // Notify other users about the creation
-        await notifyScheduleUpdate(scheduleId, 'create');
+        await notifyScheduleUpdate(firstResult.data.schedule_insert.id, 'create');
 
-        Alert.alert('完了', '予定を作成しました', [
+        const message = dates.length > 1
+          ? `${dates.length}件の予定を作成しました`
+          : '予定を作成しました';
+
+        Alert.alert('完了', message, [
           { text: 'OK', onPress: () => navigation.goBack() },
         ]);
       }
@@ -461,6 +637,129 @@ export default function ScheduleFormScreen() {
           style={styles.notesInput}
         />
 
+        {/* 繰り返し設定（新規作成時のみ） */}
+        {!isEditing && (
+          <>
+            <Divider style={styles.divider} />
+            <Text variant="titleMedium" style={styles.recurrenceTitle}>
+              繰り返し設定
+            </Text>
+
+            {/* 繰り返しパターン */}
+            <Text variant="labelLarge" style={styles.sectionLabel}>
+              繰り返しパターン
+            </Text>
+            <View style={styles.pickerContainer}>
+              <Picker
+                selectedValue={recurrence.type}
+                onValueChange={(value) => setRecurrence(prev => ({
+                  ...prev,
+                  type: value as RecurrenceType,
+                  weekdays: value === 'none' ? [] : prev.weekdays,
+                }))}
+                style={styles.picker}
+              >
+                <Picker.Item label="繰り返しなし" value="none" />
+                <Picker.Item label="毎日" value="daily" />
+                <Picker.Item label="毎週" value="weekly" />
+                <Picker.Item label="隔週" value="biweekly" />
+                <Picker.Item label="毎月" value="monthly" />
+              </Picker>
+            </View>
+
+            {/* 曜日選択（週次/隔週の場合） */}
+            {(recurrence.type === 'weekly' || recurrence.type === 'biweekly') && (
+              <>
+                <Text variant="labelLarge" style={styles.sectionLabel}>
+                  曜日を選択（複数可）
+                </Text>
+                <View style={styles.weekdayContainer}>
+                  {WEEKDAYS.map((day) => (
+                    <Chip
+                      key={day.key}
+                      selected={recurrence.weekdays.includes(day.key)}
+                      onPress={() => toggleWeekday(day.key)}
+                      style={styles.weekdayChip}
+                      showSelectedOverlay
+                    >
+                      {day.label}
+                    </Chip>
+                  ))}
+                </View>
+                {recurrence.weekdays.length === 0 && (
+                  <HelperText type="info">少なくとも1つの曜日を選択してください</HelperText>
+                )}
+              </>
+            )}
+
+            {/* 終了条件（繰り返しありの場合） */}
+            {recurrence.type !== 'none' && (
+              <>
+                <Text variant="labelLarge" style={styles.sectionLabel}>
+                  終了条件
+                </Text>
+                <RadioButton.Group
+                  onValueChange={(value) => setRecurrence(prev => ({
+                    ...prev,
+                    endType: value as RecurrenceEndType,
+                  }))}
+                  value={recurrence.endType}
+                >
+                  <View style={styles.radioRow}>
+                    <RadioButton.Item label="回数指定" value="count" style={styles.radioItem} />
+                    <RadioButton.Item label="終了日指定" value="until" style={styles.radioItem} />
+                  </View>
+                </RadioButton.Group>
+
+                {recurrence.endType === 'count' ? (
+                  <>
+                    <TextInput
+                      mode="outlined"
+                      label="繰り返し回数"
+                      keyboardType="number-pad"
+                      value={String(recurrence.count)}
+                      onChangeText={(text) => {
+                        const num = parseInt(text) || 1;
+                        setRecurrence(prev => ({
+                          ...prev,
+                          count: Math.max(1, Math.min(52, num)),
+                        }));
+                      }}
+                      style={styles.countInput}
+                    />
+                    <HelperText type="info">1〜52回まで</HelperText>
+                  </>
+                ) : (
+                  <>
+                    <Button
+                      mode="outlined"
+                      onPress={() => setShowUntilPicker(true)}
+                      style={styles.dateButton}
+                      icon="calendar"
+                    >
+                      {recurrence.until ? formatDate(recurrence.until) : '終了日を選択'}
+                    </Button>
+                    {showUntilPicker && (
+                      <DateTimePicker
+                        value={recurrence.until || new Date()}
+                        mode="date"
+                        minimumDate={scheduledDate}
+                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                        onChange={(_, date) => {
+                          setShowUntilPicker(Platform.OS === 'ios');
+                          if (date) {
+                            setRecurrence(prev => ({ ...prev, until: date }));
+                          }
+                        }}
+                      />
+                    )}
+                  </>
+                )}
+              </>
+            )}
+          </>
+        )}
+
         {/* Save Button */}
         <Button
           mode="contained"
@@ -556,5 +855,32 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     marginTop: 12,
+  },
+  divider: {
+    marginVertical: 16,
+  },
+  recurrenceTitle: {
+    marginBottom: 8,
+    color: '#424242',
+  },
+  weekdayContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 8,
+  },
+  weekdayChip: {
+    marginBottom: 4,
+  },
+  radioRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  radioItem: {
+    flex: 1,
+    minWidth: 140,
+  },
+  countInput: {
+    backgroundColor: '#FFFFFF',
   },
 });
