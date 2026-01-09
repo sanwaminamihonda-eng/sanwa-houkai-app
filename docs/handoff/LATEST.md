@@ -1,4 +1,4 @@
-# 作業状態 - 2026-01-09 (Client Screens Mobile)
+# 作業状態 - 2026-01-09 (Client Screens Web)
 
 ## プロジェクト概要
 
@@ -222,7 +222,7 @@
 | 記録入力画面 | ✅ 完了（モバイル/Web両対応） |
 | 履歴一覧・詳細画面 | ✅ 完了（モバイル/Web両対応） |
 | Firebase Hosting デプロイ | ✅ 完了（https://sanwa-houkai-app.web.app） |
-| 利用者一覧・詳細画面 | 🔄 モバイル完了 / Web未着手 |
+| 利用者一覧・詳細画面 | ✅ 完了（モバイル/Web両対応） |
 | スケジュール表示（週/日/月） | 未着手 |
 
 ## ドキュメント状態
@@ -345,27 +345,26 @@ web/
 - リポジトリ: sanwaminamihonda-eng/sanwa-houkai-app
 - ブランチ: main
 - 状態: clean
-- CI/CD: ✅ 動作確認済み（PR #6, #7, #8, #10, #11, #12, #14）
+- CI/CD: ✅ 動作確認済み（PR #6, #7, #8, #10, #11, #12, #14, #16）
 - デプロイ: ✅ Firebase Hosting 自動デプロイ（main push時）
 
 ## 今セッション完了作業
 
-- [x] モバイル利用者一覧画面（ClientListScreen.tsx）
-  - FlatListによるカード形式一覧表示
+- [x] Web版利用者一覧画面（web/src/app/clients/page.tsx）
+  - MUI Tableでテーブル形式の一覧表示
   - 検索バー（名前/フリガナ検索）
-  - 電話発信機能（Alert + tel:リンク）
-  - 介護度/性別のChip表示
-  - プルリフレッシュ対応
-- [x] モバイル利用者詳細画面（ClientDetailScreen.tsx）
+  - TablePaginationでページネーション対応
+  - 電話発信リンク
+  - 行クリックで詳細画面へ遷移
+- [x] Web版利用者詳細画面（web/src/app/clients/detail/page.tsx）
   - 基本情報（名前、介護度、性別、年齢、生年月日）
   - 連絡先（住所、電話番号、発信ボタン）
   - 緊急連絡先（氏名、続柄、電話番号）
   - ケア情報（ケアマネ、事業所）
   - アセスメント、定期サービス、備考
-- [x] ClientStackNavigator追加（RootNavigator.tsx）
-- [x] PR #14 マージ、Firebase Hosting 自動デプロイ確認
+  - クエリパラメータ形式（`/clients/detail/?id=xxx`）で静的エクスポート対応
+- [x] PR #16 マージ、Firebase Hosting 自動デプロイ確認
 
 ## 次回アクション
 
-1. Web版利用者一覧・詳細画面の実装
-2. スケジュール画面（FullCalendar統合）
+1. スケジュール画面（FullCalendar統合）
