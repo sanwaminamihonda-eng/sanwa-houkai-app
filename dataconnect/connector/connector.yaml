@@ -1,5 +1,11 @@
 connectorId: "default"
 generate:
   javascriptSdk:
-    outputDir: "../../../src/generated/dataconnect"
-    package: "@sanwa-houkai-app/dataconnect"
+    # モバイルアプリ（React Native / Expo）用
+    - outputDir: "../../mobile/src/generated/dataconnect"
+      packageJsonDir: "../../mobile"
+      package: "@sanwa-houkai-app/dataconnect"
+    # Webアプリ（Next.js）用
+    - outputDir: "../../web/src/generated/dataconnect"
+      packageJsonDir: "../../web"
+      package: "@sanwa-houkai-app/dataconnect"
