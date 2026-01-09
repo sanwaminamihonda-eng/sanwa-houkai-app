@@ -1,4 +1,4 @@
-# 作業状態 - 2026-01-09 (Schedule Screens)
+# 作業状態 - 2026-01-09 (Schedule Form)
 
 ## プロジェクト概要
 
@@ -350,23 +350,22 @@ web/
 
 ## 今セッション完了作業
 
-- [x] Web版スケジュール画面（web/src/app/schedule/page.tsx）
-  - FullCalendarによる日/週/月表示切り替え
-  - サービス種類別の色分け表示（身体介護:青、生活援助:緑、自立支援:橙、複合:紫）
-  - ドラッグ&ドロップによる予定移動
-  - 時間帯選択で新規予定作成
-  - 予定クリックで詳細モーダル表示
-  - 予定の編集・削除機能
-- [x] モバイル版スケジュール画面（mobile/src/screens/schedule/ScheduleScreen.tsx）
-  - react-native-big-calendarによる日/週/月表示切り替え
-  - SegmentedButtonsで表示モード切り替え
-  - サービス種類別の色分け表示
-  - FABで新規予定作成（次回実装予定）
-  - 予定タップで詳細モーダル表示
-  - スワイプによる日付移動
+- [x] モバイル版スケジュール新規作成・編集画面（mobile/src/screens/schedule/ScheduleFormScreen.tsx）- PR #20
+  - 利用者選択（Picker）
+  - 担当者選択（Picker）- 現在のユーザーがデフォルト
+  - サービス種類選択（Picker）
+  - 予定日選択（DateTimePicker）
+  - 開始/終了時間選択（DateTimePicker）
+  - メモ入力
+  - 新規作成・更新・削除機能
+- [x] ScheduleStackナビゲーション追加（mobile/src/navigation/RootNavigator.tsx）
+- [x] ScheduleScreen更新（mobile/src/screens/schedule/ScheduleScreen.tsx）
+  - FABタップで新規作成画面に遷移
+  - 詳細モーダルに編集ボタン追加
+  - useFocusEffectで画面フォーカス時にデータ再取得
 
 ## 次回アクション
 
-1. スケジュール新規作成・編集画面（モバイル）
-2. リアルタイム同期（Firestore連携）
-3. AI特記事項生成機能
+1. リアルタイム同期（Firestore連携）
+2. AI特記事項生成機能
+3. Web版スケジュール新規作成・編集画面（モバイルと同等機能）
