@@ -2,14 +2,24 @@ import React from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { Text, useTheme, List, Avatar, Button, Divider } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuth } from '../../contexts/AuthContext';
+import { SettingsStackParamList } from '../../navigation/RootNavigator';
+
+type NavigationProp = NativeStackNavigationProp<SettingsStackParamList, 'SettingsMain'>;
 
 export default function SettingsScreen() {
   const theme = useTheme();
+  const navigation = useNavigation<NavigationProp>();
   const { user, signOut } = useAuth();
 
   const handleLogout = async () => {
     await signOut();
+  };
+
+  const handleCarePlansPress = () => {
+    navigation.navigate('CarePlansStack');
   };
 
   return (
@@ -44,6 +54,7 @@ export default function SettingsScreen() {
             description="報告書・計画書の出力"
             left={(props) => <List.Icon {...props} icon="file-document-outline" />}
             right={(props) => <List.Icon {...props} icon="chevron-right" />}
+            onPress={handleCarePlansPress}
           />
           <List.Item
             title="支援者管理"
