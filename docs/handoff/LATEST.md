@@ -1,4 +1,4 @@
-# 作業状態 - 2026-01-09 (Schedule Form)
+# 作業状態 - 2026-01-09 (CLAUDE.md Simplification)
 
 ## プロジェクト概要
 
@@ -350,19 +350,17 @@ web/
 
 ## 今セッション完了作業
 
-- [x] モバイル版スケジュール新規作成・編集画面（mobile/src/screens/schedule/ScheduleFormScreen.tsx）- PR #20
-  - 利用者選択（Picker）
-  - 担当者選択（Picker）- 現在のユーザーがデフォルト
-  - サービス種類選択（Picker）
-  - 予定日選択（DateTimePicker）
-  - 開始/終了時間選択（DateTimePicker）
-  - メモ入力
-  - 新規作成・更新・削除機能
-- [x] ScheduleStackナビゲーション追加（mobile/src/navigation/RootNavigator.tsx）
-- [x] ScheduleScreen更新（mobile/src/screens/schedule/ScheduleScreen.tsx）
-  - FABタップで新規作成画面に遷移
-  - 詳細モーダルに編集ボタン追加
-  - useFocusEffectで画面フォーカス時にデータ再取得
+- [x] CLAUDE.md簡略化 - PR #23
+  - グローバルCLAUDE.mdと重複していた開発ルールを削除
+  - 開発コマンドを実際のビルド・起動コマンドに更新
+  - 「現在のフェーズ」セクションを簡略化（詳細はhandoff参照へ誘導）
+  - 213行 → 185行（-28行）に削減
+
+### 前セッション完了作業（参考）
+
+- [x] モバイル版スケジュール新規作成・編集画面 - PR #20
+- [x] ScheduleStackナビゲーション追加
+- [x] ScheduleScreen更新（FAB、編集ボタン、useFocusEffect）
 
 ## 次回アクション
 
