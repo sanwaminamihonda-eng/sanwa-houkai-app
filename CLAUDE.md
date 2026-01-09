@@ -179,9 +179,10 @@ gcloud config list
 - [x] Cloud SQL インスタンス作成（sanwa-houkai-db）
 - [x] GraphQL スキーマ定義（13テーブル）
 - [x] CI/CD 設定（GitHub Actions）
+- [x] Data Connect SDK 生成・統合（モバイル/Web両対応）
 
 次のステップ:
-1. Data Connect SDK 生成・統合
-2. 認証機能（Firebase Auth）実装
-3. 記録入力画面の実装
-4. スケジュール画面（FullCalendar統合）
+1. 認証機能（Firebase Auth）実装
+2. 記録入力画面の実装
+3. スケジュール画面（FullCalendar統合）
+4. 履歴一覧・詳細画面
