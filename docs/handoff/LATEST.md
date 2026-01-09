@@ -1,4 +1,4 @@
-# 作業状態 - 2026-01-09 (Updated)
+# 作業状態 - 2026-01-09 (Record Input Screen)
 
 ## プロジェクト概要
 
@@ -83,7 +83,7 @@
 - [x] 両アプリでビルド成功確認
 - [x] PR #8 マージ完了
 
-### Firebase Auth（Google OAuth）実装（今回完了）
+### Firebase Auth（Google OAuth）実装
 - [x] モバイルアプリ認証機能
   - expo-auth-session / expo-web-browser / expo-crypto パッケージ追加
   - mobile/src/lib/firebase.ts にAuth初期化追加
@@ -101,6 +101,30 @@
   - web/src/components/ThemeRegistry.tsx AuthProviderでラップ
   - web/src/components/layout/MainLayout.tsx AuthGuardでラップ
   - web/src/components/layout/Header.tsx ログアウト機能実装
+
+### 記録入力画面実装（今回完了）
+- [x] モバイル記録入力画面
+  - mobile/src/hooks/useStaff.ts 作成（スタッフ情報取得フック）
+  - mobile/src/screens/records/RecordInputScreen.tsx 実装
+    - 利用者選択（Picker）
+    - 訪問日/時間選択（DateTimePicker）
+    - 訪問理由選択
+    - バイタル入力（脈拍、血圧高/低）
+    - サービス内容選択（Chip形式、カテゴリ別）
+    - 特記事項テキスト入力
+    - Data Connect経由でDB保存
+  - @react-native-community/datetimepicker パッケージ追加
+  - @react-native-picker/picker パッケージ追加
+- [x] Web記録入力画面
+  - web/src/hooks/useStaff.ts 作成（スタッフ情報取得フック）
+  - web/src/app/records/new/page.tsx 実装
+    - MUI Select / DatePicker / TimePicker使用
+    - サービス内容選択（Chip形式）
+    - Snackbar通知
+  - @mui/x-date-pickers パッケージ追加
+  - date-fns パッケージ追加
+- [x] .gitignore に .serena/ 追加
+- [x] web/eslint.config.mjs に generated/ 無視追加
 
 ## 設計決定事項
 
@@ -161,7 +185,7 @@
 |--------|------|
 | Data Connect SDK生成・統合 | ✅ 完了 |
 | 認証機能（Google OAuth） | ✅ 完了（コード実装済み、Firebase Console設定待ち） |
-| 記録入力画面 | 未着手 |
+| 記録入力画面 | ✅ 完了（モバイル/Web両対応） |
 | 履歴一覧・詳細画面 | 未着手 |
 | 利用者一覧・詳細画面 | 未着手 |
 | スケジュール表示（週/日/月） | 未着手 |
@@ -289,13 +313,15 @@ web/
 
 ## 今セッション完了作業
 
-- [x] Firebase Auth（Google OAuth）実装
-  - モバイル: expo-auth-session + Firebase Web SDK 方式
-  - Web: signInWithPopup 方式
-  - 認証状態管理（AuthContext）
-  - ログイン画面（LoginScreen / login/page.tsx）
-  - 認証ガード（RootNavigator分岐 / AuthGuard）
-  - ログアウト機能（SettingsScreen / Header）
+- [x] 記録入力画面実装（モバイル/Web）
+  - useStaffフック（スタッフ情報取得）
+  - 利用者選択、日時選択、訪問理由選択
+  - バイタル入力（脈拍、血圧）
+  - サービス内容選択（カテゴリ別Chip）
+  - 特記事項入力
+  - Data Connect経由でDB保存
+- [x] .gitignore に .serena/ 追加
+- [x] ESLint設定更新（generated無視）
 
 ## 次回アクション
 
@@ -303,6 +329,6 @@ web/
    - Firebase Console → Authentication → Google プロバイダ有効化
    - GCP Console → OAuth クライアント ID 作成（Web/Android/iOS）
    - `.env.local` に実際の値を設定
-2. 記録入力画面の実装
+2. 履歴一覧・詳細画面の実装
 3. スケジュール画面（FullCalendar統合）
-4. 履歴一覧・詳細画面
+4. 利用者一覧・詳細画面の実装

@@ -181,9 +181,10 @@ gcloud config list
 - [x] CI/CD 設定（GitHub Actions）
 - [x] Data Connect SDK 生成・統合（モバイル/Web両対応）
 - [x] Firebase Auth（Google OAuth）実装（コード実装済み）
+- [x] 記録入力画面の実装（モバイル/Web両対応）
 
 次のステップ:
 1. Firebase Console設定（Google認証有効化、OAuth クライアントID作成）
-2. 記録入力画面の実装
+2. 履歴一覧・詳細画面の実装
 3. スケジュール画面（FullCalendar統合）
-4. 履歴一覧・詳細画面
+4. 利用者一覧・詳細画面の実装

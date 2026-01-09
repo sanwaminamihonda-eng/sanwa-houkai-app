@@ -33,3 +33,6 @@ docs/archive/
 *.key
 credentials.json
 service-account.json
+
+# Serena MCP
+.serena/
