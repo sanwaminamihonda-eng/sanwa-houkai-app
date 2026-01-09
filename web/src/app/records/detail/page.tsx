@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import {
   Box,
   Typography,
@@ -40,16 +40,22 @@ interface Vitals {
   bloodPressureLow?: number;
 }
 
-export default function RecordDetailPage() {
-  const params = useParams();
+function RecordDetailContent() {
+  const searchParams = useSearchParams();
   const router = useRouter();
-  const recordId = params.id as string;
+  const recordId = searchParams.get('id');
 
   const [record, setRecord] = useState<VisitRecord | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!recordId) {
+      setError('記録IDが指定されていません');
+      setLoading(false);
+      return;
+    }
+
     const fetchRecord = async () => {
       try {
         const result = await getVisitRecord(dataConnect, { id: recordId });
@@ -105,17 +111,15 @@ export default function RecordDetailPage() {
 
   if (loading) {
     return (
-      <MainLayout title="記録詳細">
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-          <CircularProgress />
-        </Box>
-      </MainLayout>
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+        <CircularProgress />
+      </Box>
     );
   }
 
   if (error || !record) {
     return (
-      <MainLayout title="記録詳細">
+      <>
         <Box mb={2}>
           <Button
             startIcon={<ArrowBackIcon />}
@@ -125,7 +129,7 @@ export default function RecordDetailPage() {
           </Button>
         </Box>
         <Alert severity="error">{error || '記録が見つかりません'}</Alert>
-      </MainLayout>
+      </>
     );
   }
 
@@ -133,7 +137,7 @@ export default function RecordDetailPage() {
   const vitals = parseVitals(record.vitals);
 
   return (
-    <MainLayout title="記録詳細">
+    <>
       <Box mb={3}>
         <Button
           startIcon={<ArrowBackIcon />}
@@ -359,6 +363,20 @@ export default function RecordDetailPage() {
           </Box>
         </Grid>
       </Grid>
+    </>
+  );
+}
+
+export default function RecordDetailPage() {
+  return (
+    <MainLayout title="記録詳細">
+      <Suspense fallback={
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+          <CircularProgress />
+        </Box>
+      }>
+        <RecordDetailContent />
+      </Suspense>
     </MainLayout>
   );
 }
