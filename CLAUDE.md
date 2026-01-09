@@ -30,6 +30,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 重要な設計判断
 
+- **AppSheet移行**: 現行AppSheetの制限を解消（[ADR-0002](./docs/adr/0002-appsheet-migration.md)）
 - **オフライン非対応**: 同期問題・バージョン問題を回避（[ADR-0001](./docs/adr/0001-database-architecture.md)）
 - **GCP統一**: 認証・DB・AI全てGCP/Firebase
 - **シングルDB**: PostgreSQL一本
