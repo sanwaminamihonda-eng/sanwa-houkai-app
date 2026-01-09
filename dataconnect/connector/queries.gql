@@ -137,6 +137,38 @@ query ListSchedulesByDateRange(
     endTime
     status
     notes
+    recurrenceRule
+    recurrenceId
+    client {
+      id
+      name
+    }
+    staff {
+      id
+      name
+    }
+    serviceType {
+      id
+      name
+      category
+      color
+    }
+  }
+}
+
+query GetSchedulesByRecurrenceId($recurrenceId: UUID!) @auth(level: USER) {
+  schedules(
+    where: { recurrenceId: { eq: $recurrenceId } }
+    orderBy: [{ scheduledDate: ASC }, { startTime: ASC }]
+  ) {
+    id
+    scheduledDate
+    startTime
+    endTime
+    status
+    notes
+    recurrenceRule
+    recurrenceId
     client {
       id
       name

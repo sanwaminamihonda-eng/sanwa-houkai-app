@@ -47,6 +47,7 @@ export type ScheduleStackParamList = {
       startTime: string;
       endTime: string;
       notes?: string | null;
+      recurrenceId?: string | null;
     };
     initialDate?: string;
   };

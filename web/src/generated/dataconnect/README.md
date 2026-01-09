@@ -17,6 +17,7 @@ This README will guide you through the process of using the generated JavaScript
   - [*ListClients*](#listclients)
   - [*GetClient*](#getclient)
   - [*ListSchedulesByDateRange*](#listschedulesbydaterange)
+  - [*GetSchedulesByRecurrenceId*](#getschedulesbyrecurrenceid)
   - [*ListSchedulesByStaff*](#listschedulesbystaff)
   - [*ListVisitRecordsByClient*](#listvisitrecordsbyclient)
   - [*ListVisitRecordsByDateRange*](#listvisitrecordsbydaterange)
@@ -1053,6 +1054,8 @@ export interface ListSchedulesByDateRangeData {
     endTime: string;
     status?: string | null;
     notes?: string | null;
+    recurrenceRule?: string | null;
+    recurrenceId?: UUIDString | null;
     client: {
       id: UUIDString;
       name: string;
@@ -1123,6 +1126,138 @@ const ref = listSchedulesByDateRangeRef({ facilityId: ..., startDate: ..., endDa
 // You can also pass in a `DataConnect` instance to the `QueryRef` function.
 const dataConnect = getDataConnect(connectorConfig);
 const ref = listSchedulesByDateRangeRef(dataConnect, listSchedulesByDateRangeVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.schedules);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.schedules);
+});
+```
+
+## GetSchedulesByRecurrenceId
+You can execute the `GetSchedulesByRecurrenceId` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+getSchedulesByRecurrenceId(vars: GetSchedulesByRecurrenceIdVariables): QueryPromise<GetSchedulesByRecurrenceIdData, GetSchedulesByRecurrenceIdVariables>;
+
+interface GetSchedulesByRecurrenceIdRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: GetSchedulesByRecurrenceIdVariables): QueryRef<GetSchedulesByRecurrenceIdData, GetSchedulesByRecurrenceIdVariables>;
+}
+export const getSchedulesByRecurrenceIdRef: GetSchedulesByRecurrenceIdRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+getSchedulesByRecurrenceId(dc: DataConnect, vars: GetSchedulesByRecurrenceIdVariables): QueryPromise<GetSchedulesByRecurrenceIdData, GetSchedulesByRecurrenceIdVariables>;
+
+interface GetSchedulesByRecurrenceIdRef {
+  ...
+  (dc: DataConnect, vars: GetSchedulesByRecurrenceIdVariables): QueryRef<GetSchedulesByRecurrenceIdData, GetSchedulesByRecurrenceIdVariables>;
+}
+export const getSchedulesByRecurrenceIdRef: GetSchedulesByRecurrenceIdRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the getSchedulesByRecurrenceIdRef:
+```typescript
+const name = getSchedulesByRecurrenceIdRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `GetSchedulesByRecurrenceId` query requires an argument of type `GetSchedulesByRecurrenceIdVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface GetSchedulesByRecurrenceIdVariables {
+  recurrenceId: UUIDString;
+}
+```
+### Return Type
+Recall that executing the `GetSchedulesByRecurrenceId` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `GetSchedulesByRecurrenceIdData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface GetSchedulesByRecurrenceIdData {
+  schedules: ({
+    id: UUIDString;
+    scheduledDate: DateString;
+    startTime: string;
+    endTime: string;
+    status?: string | null;
+    notes?: string | null;
+    recurrenceRule?: string | null;
+    recurrenceId?: UUIDString | null;
+    client: {
+      id: UUIDString;
+      name: string;
+    } & Client_Key;
+      staff: {
+        id: UUIDString;
+        name: string;
+      } & Staff_Key;
+        serviceType?: {
+          id: UUIDString;
+          name: string;
+          category: string;
+          color?: string | null;
+        } & ServiceType_Key;
+  } & Schedule_Key)[];
+}
+```
+### Using `GetSchedulesByRecurrenceId`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, getSchedulesByRecurrenceId, GetSchedulesByRecurrenceIdVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `GetSchedulesByRecurrenceId` query requires an argument of type `GetSchedulesByRecurrenceIdVariables`:
+const getSchedulesByRecurrenceIdVars: GetSchedulesByRecurrenceIdVariables = {
+  recurrenceId: ..., 
+};
+
+// Call the `getSchedulesByRecurrenceId()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await getSchedulesByRecurrenceId(getSchedulesByRecurrenceIdVars);
+// Variables can be defined inline as well.
+const { data } = await getSchedulesByRecurrenceId({ recurrenceId: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await getSchedulesByRecurrenceId(dataConnect, getSchedulesByRecurrenceIdVars);
+
+console.log(data.schedules);
+
+// Or, you can use the `Promise` API.
+getSchedulesByRecurrenceId(getSchedulesByRecurrenceIdVars).then((response) => {
+  const data = response.data;
+  console.log(data.schedules);
+});
+```
+
+### Using `GetSchedulesByRecurrenceId`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, getSchedulesByRecurrenceIdRef, GetSchedulesByRecurrenceIdVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `GetSchedulesByRecurrenceId` query requires an argument of type `GetSchedulesByRecurrenceIdVariables`:
+const getSchedulesByRecurrenceIdVars: GetSchedulesByRecurrenceIdVariables = {
+  recurrenceId: ..., 
+};
+
+// Call the `getSchedulesByRecurrenceIdRef()` function to get a reference to the query.
+const ref = getSchedulesByRecurrenceIdRef(getSchedulesByRecurrenceIdVars);
+// Variables can be defined inline as well.
+const ref = getSchedulesByRecurrenceIdRef({ recurrenceId: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = getSchedulesByRecurrenceIdRef(dataConnect, getSchedulesByRecurrenceIdVars);
 
 // Call `executeQuery()` on the reference to execute the query.
 // You can use the `await` keyword to wait for the promise to resolve.
