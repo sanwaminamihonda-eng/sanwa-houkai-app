@@ -1,4 +1,4 @@
-# 作業状態 - 2026-01-09 (CLAUDE.md Simplification)
+# 作業状態 - 2026-01-09 (AI Notes Generation)
 
 ## プロジェクト概要
 
@@ -224,6 +224,7 @@
 | Firebase Hosting デプロイ | ✅ 完了（https://sanwa-houkai-app.web.app） |
 | 利用者一覧・詳細画面 | ✅ 完了（モバイル/Web両対応） |
 | スケジュール表示（週/日/月） | ✅ 完了（モバイル/Web両対応） |
+| AI特記事項生成 | ✅ 完了（Cloud Functions + Vertex AI Gemini） |
 
 ## ドキュメント状態
 
@@ -350,20 +351,20 @@ web/
 
 ## 今セッション完了作業
 
-- [x] CLAUDE.md簡略化 - PR #23
-  - グローバルCLAUDE.mdと重複していた開発ルールを削除
-  - 開発コマンドを実際のビルド・起動コマンドに更新
-  - 「現在のフェーズ」セクションを簡略化（詳細はhandoff参照へ誘導）
-  - 213行 → 185行（-28行）に削減
+- [x] AI特記事項生成機能 - PR #25
+  - Cloud Functions追加（functions/src/index.ts）
+  - Vertex AI Gemini 2.5 Flashで特記事項を自動生成
+  - モバイル/Web両方の記録入力画面に「AI生成」ボタン追加
+  - 選択されたサービス内容・バイタル・利用者情報から専門的な特記事項を生成
+  - aiGeneratedフラグでAI生成記録を識別可能
 
 ### 前セッション完了作業（参考）
 
+- [x] CLAUDE.md簡略化 - PR #23
 - [x] モバイル版スケジュール新規作成・編集画面 - PR #20
-- [x] ScheduleStackナビゲーション追加
-- [x] ScheduleScreen更新（FAB、編集ボタン、useFocusEffect）
 
 ## 次回アクション
 
-1. リアルタイム同期（Firestore連携）
-2. AI特記事項生成機能
-3. Web版スケジュール新規作成・編集画面（モバイルと同等機能）
+1. **Cloud Functionsデプロイ** - `firebase deploy --only functions` でAI生成APIを本番環境に反映
+2. リアルタイム同期（Firestore連携）
+3. PDF帳票生成機能
