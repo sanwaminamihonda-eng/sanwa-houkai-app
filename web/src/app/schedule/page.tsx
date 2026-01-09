@@ -21,6 +21,13 @@ import {
   Chip,
   IconButton,
   Snackbar,
+  FormControlLabel,
+  Checkbox,
+  FormGroup,
+  Divider,
+  RadioGroup,
+  Radio,
+  FormLabel,
 } from '@mui/material';
 import { DatePicker, TimePicker } from '@mui/x-date-pickers';
 import {
@@ -28,6 +35,7 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Close as CloseIcon,
+  Repeat as RepeatIcon,
 } from '@mui/icons-material';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
@@ -36,6 +44,7 @@ import interactionPlugin from '@fullcalendar/interaction';
 import { EventClickArg, DateSelectArg, EventDropArg } from '@fullcalendar/core';
 import { format, parse, startOfWeek, endOfWeek, startOfMonth, endOfMonth, addDays } from 'date-fns';
 import { ja } from 'date-fns/locale';
+import { RRule, Weekday, Options } from 'rrule';
 import { MainLayout } from '@/components/layout';
 import { useStaff } from '@/hooks/useStaff';
 import { useScheduleRealtime } from '@/hooks/useScheduleRealtime';
@@ -72,6 +81,29 @@ interface CalendarEvent {
   };
 }
 
+// 繰り返しパターンの型定義
+type RecurrenceType = 'none' | 'daily' | 'weekly' | 'biweekly' | 'monthly';
+type RecurrenceEndType = 'count' | 'until';
+
+// 曜日マッピング
+const WEEKDAYS = [
+  { key: 'MO', label: '月', rruleDay: RRule.MO },
+  { key: 'TU', label: '火', rruleDay: RRule.TU },
+  { key: 'WE', label: '水', rruleDay: RRule.WE },
+  { key: 'TH', label: '木', rruleDay: RRule.TH },
+  { key: 'FR', label: '金', rruleDay: RRule.FR },
+  { key: 'SA', label: '土', rruleDay: RRule.SA },
+  { key: 'SU', label: '日', rruleDay: RRule.SU },
+] as const;
+
+interface RecurrenceSettings {
+  type: RecurrenceType;
+  weekdays: string[];
+  endType: RecurrenceEndType;
+  count: number;
+  until: Date | null;
+}
+
 interface ScheduleFormData {
   clientId: string;
   staffId: string;
@@ -80,6 +112,7 @@ interface ScheduleFormData {
   startTime: Date | null;
   endTime: Date | null;
   notes: string;
+  recurrence: RecurrenceSettings;
 }
 
 const SERVICE_COLORS: Record<string, string> = {
@@ -95,6 +128,14 @@ const getServiceColor = (category?: string | null): string => {
   return SERVICE_COLORS[category] || SERVICE_COLORS.default;
 };
 
+const initialRecurrence: RecurrenceSettings = {
+  type: 'none',
+  weekdays: [],
+  endType: 'count',
+  count: 10,
+  until: null,
+};
+
 const initialFormData: ScheduleFormData = {
   clientId: '',
   staffId: '',
@@ -103,6 +144,7 @@ const initialFormData: ScheduleFormData = {
   startTime: null,
   endTime: null,
   notes: '',
+  recurrence: { ...initialRecurrence },
 };
 
 export default function SchedulePage() {
@@ -318,10 +360,96 @@ export default function SchedulePage() {
       startTime: startTimeObj,
       endTime: endTimeObj,
       notes: selectedSchedule.notes || '',
+      recurrence: { ...initialRecurrence },
     });
     setIsEditing(true);
     setDetailDialogOpen(false);
     setFormDialogOpen(true);
+  };
+
+  // 繰り返しルールから日付リストを生成
+  const generateRecurringDates = (startDate: Date, recurrence: RecurrenceSettings): Date[] => {
+    if (recurrence.type === 'none') {
+      return [startDate];
+    }
+
+    const options: Partial<Options> = {
+      dtstart: startDate,
+    };
+
+    switch (recurrence.type) {
+      case 'daily':
+        options.freq = RRule.DAILY;
+        break;
+      case 'weekly':
+        options.freq = RRule.WEEKLY;
+        if (recurrence.weekdays.length > 0) {
+          options.byweekday = recurrence.weekdays.map(day => {
+            const weekday = WEEKDAYS.find(w => w.key === day);
+            return weekday?.rruleDay || RRule.MO;
+          });
+        }
+        break;
+      case 'biweekly':
+        options.freq = RRule.WEEKLY;
+        options.interval = 2;
+        if (recurrence.weekdays.length > 0) {
+          options.byweekday = recurrence.weekdays.map(day => {
+            const weekday = WEEKDAYS.find(w => w.key === day);
+            return weekday?.rruleDay || RRule.MO;
+          });
+        }
+        break;
+      case 'monthly':
+        options.freq = RRule.MONTHLY;
+        break;
+    }
+
+    if (recurrence.endType === 'count') {
+      options.count = recurrence.count;
+    } else if (recurrence.until) {
+      options.until = recurrence.until;
+    }
+
+    const rule = new RRule(options as Options);
+    return rule.all();
+  };
+
+  // RRULEを文字列形式で生成
+  const generateRRuleString = (recurrence: RecurrenceSettings): string | null => {
+    if (recurrence.type === 'none') {
+      return null;
+    }
+
+    let rule = '';
+    switch (recurrence.type) {
+      case 'daily':
+        rule = 'FREQ=DAILY';
+        break;
+      case 'weekly':
+        rule = 'FREQ=WEEKLY';
+        if (recurrence.weekdays.length > 0) {
+          rule += `;BYDAY=${recurrence.weekdays.join(',')}`;
+        }
+        break;
+      case 'biweekly':
+        rule = 'FREQ=WEEKLY;INTERVAL=2';
+        if (recurrence.weekdays.length > 0) {
+          rule += `;BYDAY=${recurrence.weekdays.join(',')}`;
+        }
+        break;
+      case 'monthly':
+        rule = 'FREQ=MONTHLY';
+        break;
+    }
+
+    if (recurrence.endType === 'count') {
+      rule += `;COUNT=${recurrence.count}`;
+    } else if (recurrence.until) {
+      rule += `;UNTIL=${format(recurrence.until, 'yyyyMMdd')}T235959Z`;
+    }
+
+    return rule;
   };
 
   const handleDeleteSchedule = async () => {
@@ -366,46 +494,97 @@ export default function SchedulePage() {
       return;
     }
 
+    // 週次/隔週で曜日未選択の場合はエラー
+    if ((formData.recurrence.type === 'weekly' || formData.recurrence.type === 'biweekly') && formData.recurrence.weekdays.length === 0) {
+      setSnackbar({
+        open: true,
+        message: '繰り返しの曜日を選択してください',
+        severity: 'error',
+      });
+      return;
+    }
+
     setSaving(true);
 
     try {
-      const scheduleData = {
-        scheduledDate: format(formData.scheduledDate, 'yyyy-MM-dd'),
-        startTime: format(formData.startTime, 'HH:mm'),
-        endTime: format(formData.endTime, 'HH:mm'),
-        notes: formData.notes || null,
-      };
-
-      let scheduleId: string;
+      const startTime = format(formData.startTime, 'HH:mm');
+      const endTime = format(formData.endTime, 'HH:mm');
+      const notes = formData.notes || null;
+      const recurrenceRule = generateRRuleString(formData.recurrence);
 
       if (isEditing && selectedSchedule) {
+        // 編集時は単一予定のみ更新
         await updateSchedule(dataConnect, {
           id: selectedSchedule.id,
           clientId: formData.clientId,
           staffId: formData.staffId,
           serviceTypeId: formData.serviceTypeId || null,
-          ...scheduleData,
+          scheduledDate: format(formData.scheduledDate, 'yyyy-MM-dd'),
+          startTime,
+          endTime,
+          notes,
         });
-        scheduleId = selectedSchedule.id;
+
+        setSnackbar({
+          open: true,
+          message: 'スケジュールを更新しました',
+          severity: 'success',
+        });
+
+        await notifyScheduleUpdate(selectedSchedule.id, 'update');
       } else {
-        const result = await createSchedule(dataConnect, {
+        // 新規作成時は繰り返し予定を一括作成
+        const dates = generateRecurringDates(formData.scheduledDate, formData.recurrence);
+
+        // 親IDを生成（繰り返しの場合）
+        const recurrenceId = recurrenceRule ? crypto.randomUUID() : null;
+
+        // 最初の予定を作成して親IDを取得
+        const firstResult = await createSchedule(dataConnect, {
           facilityId,
           clientId: formData.clientId,
           staffId: formData.staffId,
           serviceTypeId: formData.serviceTypeId || null,
-          ...scheduleData,
+          scheduledDate: format(dates[0], 'yyyy-MM-dd'),
+          startTime,
+          endTime,
+          notes,
+          recurrenceRule,
+          recurrenceId,
         });
-        scheduleId = result.data.schedule_insert.id;
+
+        // 残りの予定を作成
+        if (dates.length > 1) {
+          await Promise.all(
+            dates.slice(1).map(date =>
+              createSchedule(dataConnect, {
+                facilityId,
+                clientId: formData.clientId,
+                staffId: formData.staffId,
+                serviceTypeId: formData.serviceTypeId || null,
+                scheduledDate: format(date, 'yyyy-MM-dd'),
+                startTime,
+                endTime,
+                notes,
+                recurrenceRule,
+                recurrenceId,
+              })
+            )
+          );
+        }
+
+        const message = dates.length > 1
+          ? `${dates.length}件の予定を作成しました`
+          : 'スケジュールを作成しました';
+
+        setSnackbar({
+          open: true,
+          message,
+          severity: 'success',
+        });
+
+        await notifyScheduleUpdate(firstResult.data.schedule_insert.id, 'create');
       }
-
-      setSnackbar({
-        open: true,
-        message: isEditing ? 'スケジュールを更新しました' : 'スケジュールを作成しました',
-        severity: 'success',
-      });
-
-      // Notify other users about the change
-      await notifyScheduleUpdate(scheduleId, isEditing ? 'update' : 'create');
 
       setFormDialogOpen(false);
       setSelectedSchedule(null);
@@ -700,6 +879,130 @@ export default function SchedulePage() {
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               fullWidth
             />
+
+            {/* 繰り返し設定（新規作成時のみ） */}
+            {!isEditing && (
+              <>
+                <Divider sx={{ my: 1 }} />
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                  <RepeatIcon color="action" />
+                  <Typography variant="subtitle1">繰り返し設定</Typography>
+                </Box>
+
+                <FormControl fullWidth>
+                  <InputLabel>繰り返しパターン</InputLabel>
+                  <Select
+                    value={formData.recurrence.type}
+                    label="繰り返しパターン"
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      recurrence: {
+                        ...formData.recurrence,
+                        type: e.target.value as RecurrenceType,
+                        weekdays: e.target.value === 'none' ? [] : formData.recurrence.weekdays,
+                      },
+                    })}
+                  >
+                    <MenuItem value="none">繰り返しなし</MenuItem>
+                    <MenuItem value="daily">毎日</MenuItem>
+                    <MenuItem value="weekly">毎週</MenuItem>
+                    <MenuItem value="biweekly">隔週</MenuItem>
+                    <MenuItem value="monthly">毎月</MenuItem>
+                  </Select>
+                </FormControl>
+
+                {/* 曜日選択（週次/隔週の場合） */}
+                {(formData.recurrence.type === 'weekly' || formData.recurrence.type === 'biweekly') && (
+                  <Box>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                      曜日を選択（複数可）
+                    </Typography>
+                    <FormGroup row>
+                      {WEEKDAYS.map((day) => (
+                        <FormControlLabel
+                          key={day.key}
+                          control={
+                            <Checkbox
+                              checked={formData.recurrence.weekdays.includes(day.key)}
+                              onChange={(e) => {
+                                const newWeekdays = e.target.checked
+                                  ? [...formData.recurrence.weekdays, day.key]
+                                  : formData.recurrence.weekdays.filter(d => d !== day.key);
+                                setFormData({
+                                  ...formData,
+                                  recurrence: {
+                                    ...formData.recurrence,
+                                    weekdays: newWeekdays,
+                                  },
+                                });
+                              }}
+                              size="small"
+                            />
+                          }
+                          label={day.label}
+                          sx={{ mr: 1 }}
+                        />
+                      ))}
+                    </FormGroup>
+                  </Box>
+                )}
+
+                {/* 終了条件（繰り返しありの場合） */}
+                {formData.recurrence.type !== 'none' && (
+                  <>
+                    <FormControl component="fieldset">
+                      <FormLabel component="legend">終了条件</FormLabel>
+                      <RadioGroup
+                        row
+                        value={formData.recurrence.endType}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          recurrence: {
+                            ...formData.recurrence,
+                            endType: e.target.value as RecurrenceEndType,
+                          },
+                        })}
+                      >
+                        <FormControlLabel value="count" control={<Radio size="small" />} label="回数指定" />
+                        <FormControlLabel value="until" control={<Radio size="small" />} label="終了日指定" />
+                      </RadioGroup>
+                    </FormControl>
+
+                    {formData.recurrence.endType === 'count' ? (
+                      <TextField
+                        label="繰り返し回数"
+                        type="number"
+                        value={formData.recurrence.count}
+                        onChange={(e) => setFormData({
+                          ...formData,
+                          recurrence: {
+                            ...formData.recurrence,
+                            count: Math.max(1, Math.min(52, parseInt(e.target.value) || 1)),
+                          },
+                        })}
+                        inputProps={{ min: 1, max: 52 }}
+                        helperText="1〜52回まで"
+                        fullWidth
+                      />
+                    ) : (
+                      <DatePicker
+                        label="終了日"
+                        value={formData.recurrence.until}
+                        onChange={(date) => setFormData({
+                          ...formData,
+                          recurrence: {
+                            ...formData.recurrence,
+                            until: date,
+                          },
+                        })}
+                        minDate={formData.scheduledDate || undefined}
+                        slotProps={{ textField: { fullWidth: true } }}
+                      />
+                    )}
+                  </>
+                )}
+              </>
+            )}
           </Box>
         </DialogContent>
         <DialogActions>
