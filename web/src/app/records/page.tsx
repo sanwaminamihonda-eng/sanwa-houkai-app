@@ -114,7 +114,7 @@ export default function RecordsPage() {
   };
 
   const handleViewDetail = (recordId: string) => {
-    router.push(`/records/${recordId}`);
+    router.push(`/records/detail/?id=${recordId}`);
   };
 
   const formatDate = (dateStr: string) => {
