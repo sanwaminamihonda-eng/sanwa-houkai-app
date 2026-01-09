@@ -200,6 +200,7 @@ export default function ScheduleScreen() {
         startTime: schedule.startTime,
         endTime: schedule.endTime,
         notes: schedule.notes,
+        recurrenceId: schedule.recurrenceId,
       },
     });
   };

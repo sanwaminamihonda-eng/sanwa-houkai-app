@@ -11,6 +11,8 @@ import {
   Chip,
   Divider,
   RadioButton,
+  Portal,
+  Modal,
 } from 'react-native-paper';
 import { RRule, Options } from 'rrule';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -29,6 +31,7 @@ import {
   createSchedule,
   updateSchedule,
   deleteSchedule,
+  getSchedulesByRecurrenceId,
   ListClientsData,
   ListServiceTypesData,
   ListStaffData,
@@ -42,6 +45,10 @@ type Staff = ListStaffData['staffs'][0];
 // 繰り返しパターンの型定義
 type RecurrenceType = 'none' | 'daily' | 'weekly' | 'biweekly' | 'monthly';
 type RecurrenceEndType = 'count' | 'until';
+
+// 繰り返し予定操作の選択肢
+type RecurrenceEditScope = 'single' | 'thisAndFuture' | 'all';
+type RecurrenceDeleteScope = 'single' | 'all';
 
 // 曜日マッピング
 const WEEKDAYS = [
@@ -103,6 +110,13 @@ export default function ScheduleFormScreen() {
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+
+  // 繰り返し予定操作用の状態
+  const [recurrenceEditScope, setRecurrenceEditScope] = useState<RecurrenceEditScope>('single');
+  const [recurrenceDeleteScope, setRecurrenceDeleteScope] = useState<RecurrenceDeleteScope>('single');
+  const [showEditScopeDialog, setShowEditScopeDialog] = useState(false);
+  const [showDeleteScopeDialog, setShowDeleteScopeDialog] = useState(false);
+  const [processingRecurrence, setProcessingRecurrence] = useState(false);
 
   // 繰り返し設定の状態
   const [recurrence, setRecurrence] = useState<RecurrenceSettings>({
@@ -332,6 +346,18 @@ export default function ScheduleFormScreen() {
     }
     if (!validateForm()) return;
 
+    // 編集時に繰り返し予定の場合は選択ダイアログを表示
+    if (isEditing && scheduleData?.recurrenceId && !showEditScopeDialog) {
+      setShowEditScopeDialog(true);
+      return;
+    }
+
+    performSave();
+  };
+
+  const performSave = async () => {
+    if (!facilityId) return;
+
     setSaving(true);
     try {
       const startTimeStr = formatTimeForApi(startTime);
@@ -340,25 +366,84 @@ export default function ScheduleFormScreen() {
       const recurrenceRule = generateRRuleString(recurrence);
 
       if (isEditing && scheduleData) {
-        // 編集時は単一予定のみ更新
-        await updateSchedule(dataConnect, {
-          id: scheduleData.id,
-          clientId: selectedClientId,
-          staffId: selectedStaffId,
-          serviceTypeId: selectedServiceTypeId || undefined,
-          scheduledDate: formatDateForApi(scheduledDate),
-          startTime: startTimeStr,
-          endTime: endTimeStr,
-          notes: notesStr,
-        });
-        const scheduleId = scheduleData.id;
+        // 編集範囲に応じて更新
+        if (recurrenceEditScope === 'all' && scheduleData.recurrenceId) {
+          // シリーズ全体を更新
+          const result = await getSchedulesByRecurrenceId(dataConnect, {
+            recurrenceId: scheduleData.recurrenceId,
+          });
 
-        // Notify other users about the update
-        await notifyScheduleUpdate(scheduleId, 'update');
+          await Promise.all(
+            result.data.schedules.map(schedule =>
+              updateSchedule(dataConnect, {
+                id: schedule.id,
+                clientId: selectedClientId,
+                staffId: selectedStaffId,
+                serviceTypeId: selectedServiceTypeId || undefined,
+                startTime: startTimeStr,
+                endTime: endTimeStr,
+                notes: notesStr,
+              })
+            )
+          );
 
-        Alert.alert('完了', '予定を更新しました', [
-          { text: 'OK', onPress: () => navigation.goBack() },
-        ]);
+          await notifyScheduleUpdate(scheduleData.id, 'update');
+
+          Alert.alert('完了', `${result.data.schedules.length}件の予定を更新しました`, [
+            { text: 'OK', onPress: () => navigation.goBack() },
+          ]);
+        } else if (recurrenceEditScope === 'thisAndFuture' && scheduleData.recurrenceId) {
+          // この予定以降を更新
+          const result = await getSchedulesByRecurrenceId(dataConnect, {
+            recurrenceId: scheduleData.recurrenceId,
+          });
+
+          const targetDate = scheduleData.scheduledDate;
+          const futureSchedules = result.data.schedules.filter(
+            s => s.scheduledDate >= targetDate
+          );
+
+          await Promise.all(
+            futureSchedules.map(schedule =>
+              updateSchedule(dataConnect, {
+                id: schedule.id,
+                clientId: selectedClientId,
+                staffId: selectedStaffId,
+                serviceTypeId: selectedServiceTypeId || undefined,
+                startTime: startTimeStr,
+                endTime: endTimeStr,
+                notes: notesStr,
+              })
+            )
+          );
+
+          await notifyScheduleUpdate(scheduleData.id, 'update');
+
+          Alert.alert('完了', `${futureSchedules.length}件の予定を更新しました`, [
+            { text: 'OK', onPress: () => navigation.goBack() },
+          ]);
+        } else {
+          // 単一予定のみ更新
+          await updateSchedule(dataConnect, {
+            id: scheduleData.id,
+            clientId: selectedClientId,
+            staffId: selectedStaffId,
+            serviceTypeId: selectedServiceTypeId || undefined,
+            scheduledDate: formatDateForApi(scheduledDate),
+            startTime: startTimeStr,
+            endTime: endTimeStr,
+            notes: notesStr,
+          });
+
+          await notifyScheduleUpdate(scheduleData.id, 'update');
+
+          Alert.alert('完了', '予定を更新しました', [
+            { text: 'OK', onPress: () => navigation.goBack() },
+          ]);
+        }
+
+        // 編集範囲をリセット
+        setRecurrenceEditScope('single');
       } else {
         // 新規作成時は繰り返し予定を一括作成
         const dates = generateRecurringDates(scheduledDate, recurrence);
@@ -422,33 +507,70 @@ export default function ScheduleFormScreen() {
   const handleDelete = () => {
     if (!scheduleData) return;
 
-    const scheduleId = scheduleData.id;
+    // 繰り返し予定の場合は選択ダイアログを表示
+    if (scheduleData.recurrenceId) {
+      setShowDeleteScopeDialog(true);
+      return;
+    }
 
+    // 単一予定の場合は確認後に削除
     Alert.alert('確認', 'この予定を削除しますか？', [
       { text: 'キャンセル', style: 'cancel' },
       {
         text: '削除',
         style: 'destructive',
-        onPress: async () => {
-          setDeleting(true);
-          try {
-            await deleteSchedule(dataConnect, { id: scheduleId });
-
-            // Notify other users about the deletion
-            await notifyScheduleUpdate(scheduleId, 'delete');
-
-            Alert.alert('完了', '予定を削除しました', [
-              { text: 'OK', onPress: () => navigation.goBack() },
-            ]);
-          } catch (err) {
-            console.error('Delete error:', err);
-            Alert.alert('エラー', '削除に失敗しました');
-          } finally {
-            setDeleting(false);
-          }
-        },
+        onPress: () => performDelete([scheduleData.id]),
       },
     ]);
+  };
+
+  const handleConfirmRecurrenceDelete = async () => {
+    if (!scheduleData || !scheduleData.recurrenceId) return;
+
+    setProcessingRecurrence(true);
+
+    try {
+      if (recurrenceDeleteScope === 'single') {
+        // 単一予定のみ削除
+        await performDelete([scheduleData.id]);
+      } else {
+        // シリーズ全体を削除
+        const result = await getSchedulesByRecurrenceId(dataConnect, {
+          recurrenceId: scheduleData.recurrenceId,
+        });
+        const scheduleIds = result.data.schedules.map(s => s.id);
+        await performDelete(scheduleIds);
+      }
+    } finally {
+      setProcessingRecurrence(false);
+      setShowDeleteScopeDialog(false);
+    }
+  };
+
+  const performDelete = async (scheduleIds: string[]) => {
+    setDeleting(true);
+    try {
+      // 複数の予定を削除
+      await Promise.all(
+        scheduleIds.map(id => deleteSchedule(dataConnect, { id }))
+      );
+
+      // Notify other users about the deletion
+      await notifyScheduleUpdate(scheduleIds[0], 'delete');
+
+      const message = scheduleIds.length > 1
+        ? `${scheduleIds.length}件の予定を削除しました`
+        : '予定を削除しました';
+
+      Alert.alert('完了', message, [
+        { text: 'OK', onPress: () => navigation.goBack() },
+      ]);
+    } catch (err) {
+      console.error('Delete error:', err);
+      Alert.alert('エラー', '削除に失敗しました');
+    } finally {
+      setDeleting(false);
+    }
   };
 
   if (staffLoading || loadingMasters) {
@@ -782,6 +904,91 @@ export default function ScheduleFormScreen() {
           キャンセル
         </Button>
       </ScrollView>
+
+      {/* Edit Scope Dialog */}
+      <Portal>
+        <Modal
+          visible={showEditScopeDialog}
+          onDismiss={() => !processingRecurrence && setShowEditScopeDialog(false)}
+          contentContainerStyle={[styles.modalContent, { backgroundColor: theme.colors.surface }]}
+        >
+          <Text variant="titleMedium" style={styles.modalTitle}>
+            繰り返し予定の編集
+          </Text>
+          <Text variant="bodySmall" style={styles.modalDescription}>
+            この予定は繰り返し予定です。編集範囲を選択してください。
+          </Text>
+          <RadioButton.Group
+            onValueChange={(value) => setRecurrenceEditScope(value as RecurrenceEditScope)}
+            value={recurrenceEditScope}
+          >
+            <RadioButton.Item label="この予定のみ" value="single" />
+            <RadioButton.Item label="この予定以降すべて" value="thisAndFuture" />
+            <RadioButton.Item label="シリーズ全体" value="all" />
+          </RadioButton.Group>
+          <View style={styles.modalActions}>
+            <Button
+              mode="text"
+              onPress={() => setShowEditScopeDialog(false)}
+              disabled={processingRecurrence}
+            >
+              キャンセル
+            </Button>
+            <Button
+              mode="contained"
+              onPress={() => {
+                setShowEditScopeDialog(false);
+                performSave();
+              }}
+              disabled={processingRecurrence}
+              loading={processingRecurrence}
+            >
+              続行
+            </Button>
+          </View>
+        </Modal>
+      </Portal>
+
+      {/* Delete Scope Dialog */}
+      <Portal>
+        <Modal
+          visible={showDeleteScopeDialog}
+          onDismiss={() => !processingRecurrence && setShowDeleteScopeDialog(false)}
+          contentContainerStyle={[styles.modalContent, { backgroundColor: theme.colors.surface }]}
+        >
+          <Text variant="titleMedium" style={styles.modalTitle}>
+            繰り返し予定の削除
+          </Text>
+          <Text variant="bodySmall" style={styles.modalDescription}>
+            この予定は繰り返し予定です。削除範囲を選択してください。
+          </Text>
+          <RadioButton.Group
+            onValueChange={(value) => setRecurrenceDeleteScope(value as RecurrenceDeleteScope)}
+            value={recurrenceDeleteScope}
+          >
+            <RadioButton.Item label="この予定のみ" value="single" />
+            <RadioButton.Item label="シリーズ全体" value="all" />
+          </RadioButton.Group>
+          <View style={styles.modalActions}>
+            <Button
+              mode="text"
+              onPress={() => setShowDeleteScopeDialog(false)}
+              disabled={processingRecurrence}
+            >
+              キャンセル
+            </Button>
+            <Button
+              mode="contained"
+              onPress={handleConfirmRecurrenceDelete}
+              disabled={processingRecurrence}
+              loading={processingRecurrence}
+              buttonColor={theme.colors.error}
+            >
+              削除
+            </Button>
+          </View>
+        </Modal>
+      </Portal>
     </SafeAreaView>
   );
 }
@@ -882,5 +1089,24 @@ const styles = StyleSheet.create({
   },
   countInput: {
     backgroundColor: '#FFFFFF',
+  },
+  modalContent: {
+    margin: 20,
+    padding: 20,
+    borderRadius: 12,
+  },
+  modalTitle: {
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  modalDescription: {
+    color: '#757575',
+    marginBottom: 16,
+  },
+  modalActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 16,
+    gap: 8,
   },
 });

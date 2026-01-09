@@ -347,6 +347,17 @@ export function listSchedulesByDateRange(dcOrVars, vars) {
   return executeQuery(listSchedulesByDateRangeRef(dcOrVars, vars));
 }
 
+export const getSchedulesByRecurrenceIdRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'GetSchedulesByRecurrenceId', inputVars);
+}
+getSchedulesByRecurrenceIdRef.operationName = 'GetSchedulesByRecurrenceId';
+
+export function getSchedulesByRecurrenceId(dcOrVars, vars) {
+  return executeQuery(getSchedulesByRecurrenceIdRef(dcOrVars, vars));
+}
+
 export const listSchedulesByStaffRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();

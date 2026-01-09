@@ -277,6 +277,37 @@ export interface GetClientVariables {
   id: UUIDString;
 }
 
+export interface GetSchedulesByRecurrenceIdData {
+  schedules: ({
+    id: UUIDString;
+    scheduledDate: DateString;
+    startTime: string;
+    endTime: string;
+    status?: string | null;
+    notes?: string | null;
+    recurrenceRule?: string | null;
+    recurrenceId?: UUIDString | null;
+    client: {
+      id: UUIDString;
+      name: string;
+    } & Client_Key;
+      staff: {
+        id: UUIDString;
+        name: string;
+      } & Staff_Key;
+        serviceType?: {
+          id: UUIDString;
+          name: string;
+          category: string;
+          color?: string | null;
+        } & ServiceType_Key;
+  } & Schedule_Key)[];
+}
+
+export interface GetSchedulesByRecurrenceIdVariables {
+  recurrenceId: UUIDString;
+}
+
 export interface GetStaffByFirebaseUidData {
   staffs: ({
     id: UUIDString;
@@ -469,6 +500,8 @@ export interface ListSchedulesByDateRangeData {
     endTime: string;
     status?: string | null;
     notes?: string | null;
+    recurrenceRule?: string | null;
+    recurrenceId?: UUIDString | null;
     client: {
       id: UUIDString;
       name: string;
@@ -1130,6 +1163,18 @@ export const listSchedulesByDateRangeRef: ListSchedulesByDateRangeRef;
 
 export function listSchedulesByDateRange(vars: ListSchedulesByDateRangeVariables): QueryPromise<ListSchedulesByDateRangeData, ListSchedulesByDateRangeVariables>;
 export function listSchedulesByDateRange(dc: DataConnect, vars: ListSchedulesByDateRangeVariables): QueryPromise<ListSchedulesByDateRangeData, ListSchedulesByDateRangeVariables>;
+
+interface GetSchedulesByRecurrenceIdRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: GetSchedulesByRecurrenceIdVariables): QueryRef<GetSchedulesByRecurrenceIdData, GetSchedulesByRecurrenceIdVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: GetSchedulesByRecurrenceIdVariables): QueryRef<GetSchedulesByRecurrenceIdData, GetSchedulesByRecurrenceIdVariables>;
+  operationName: string;
+}
+export const getSchedulesByRecurrenceIdRef: GetSchedulesByRecurrenceIdRef;
+
+export function getSchedulesByRecurrenceId(vars: GetSchedulesByRecurrenceIdVariables): QueryPromise<GetSchedulesByRecurrenceIdData, GetSchedulesByRecurrenceIdVariables>;
+export function getSchedulesByRecurrenceId(dc: DataConnect, vars: GetSchedulesByRecurrenceIdVariables): QueryPromise<GetSchedulesByRecurrenceIdData, GetSchedulesByRecurrenceIdVariables>;
 
 interface ListSchedulesByStaffRef {
   /* Allow users to create refs without passing in DataConnect */
