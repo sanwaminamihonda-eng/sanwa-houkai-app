@@ -17,7 +17,7 @@
 
 ## 現在のフェーズ
 
-**インフラ構築フェーズ** → **開発環境セットアップ**
+**開発環境セットアップ** → **MVP実装**
 
 ## 完了タスク
 
@@ -40,7 +40,7 @@
 - [x] CLAUDE.md AI駆動開発向け最適化
 - [x] docs/README.md 整理
 
-### Firebase Data Connect セットアップ（今回完了）
+### Firebase Data Connect セットアップ
 - [x] Firebase プロジェクト初期化（firebase.json）
 - [x] Data Connect 設定（dataconnect/dataconnect.yaml）
 - [x] GraphQL スキーマ定義（dataconnect/schema/schema.gql）
@@ -51,6 +51,15 @@
 - [x] GCP課金アカウントリンク
 - [x] Cloud SQL インスタンス作成（sanwa-houkai-db, db-f1-micro, asia-northeast1）
 - [x] Data Connect サービスデプロイ
+
+### モバイルアプリセットアップ（今回完了）
+- [x] Expo + TypeScript プロジェクト作成（mobile/）
+- [x] React Native Paper (Material Design 3) テーマ設定
+- [x] Firebase / React Navigation パッケージインストール
+- [x] 5タブ構成のボトムナビゲーション設定
+  - 記録 / 履歴 / 予定表 / 利用者 / その他
+- [x] 各画面のプレースホルダー実装
+- [x] PR #6 マージ完了
 
 ## 設計決定事項
 
@@ -88,7 +97,7 @@
 
 ## 次のステップ
 
-### Phase 1: インフラ構築（P0）
+### Phase 1: インフラ構築（P0） ✅ 完了
 
 | タスク | 状態 |
 |--------|------|
@@ -101,7 +110,7 @@
 
 | タスク | 状態 |
 |--------|------|
-| React Native / Expo + React Native Paper セットアップ | 未着手 |
+| React Native / Expo + React Native Paper セットアップ | ✅ 完了 |
 | Next.js セットアップ | 未着手 |
 | CI/CD 設定（GitHub Actions） | ✅ 完了（基本設定） |
 
@@ -162,27 +171,49 @@ DB設計時:   data-model.md
 | Tier | db-f1-micro |
 | Region | asia-northeast1-b |
 
+## モバイルアプリ構成
+
+```
+mobile/
+├── App.tsx                 # エントリーポイント（Provider設定）
+├── app.json                # Expo設定
+├── src/
+│   ├── navigation/
+│   │   └── RootNavigator.tsx   # 5タブナビゲーション
+│   ├── screens/
+│   │   ├── records/
+│   │   │   ├── RecordInputScreen.tsx
+│   │   │   └── RecordHistoryScreen.tsx
+│   │   ├── schedule/
+│   │   │   └── ScheduleScreen.tsx
+│   │   ├── clients/
+│   │   │   └── ClientListScreen.tsx
+│   │   └── settings/
+│   │       └── SettingsScreen.tsx
+│   └── theme/
+│       └── index.ts        # Material Design 3テーマ
+```
+
 ## Git状態
 
 - リポジトリ: sanwaminamihonda-eng/sanwa-houkai-app
 - ブランチ: main
-- 状態: 未コミット変更あり（Data Connect設定ファイル）
-- CI/CD: ✅ 動作確認済み（PR #4）
+- 状態: clean
+- CI/CD: ✅ 動作確認済み（PR #6）
 
 ## 今セッション完了作業
 
-- [x] Firebase Data Connect セットアップ
-  - firebase.json 作成
-  - dataconnect/ ディレクトリ構成
-  - GraphQL スキーマ（13テーブル）
-  - クエリ・ミューテーション定義
-- [x] GCP課金アカウントをプロジェクトにリンク
-- [x] Cloud SQL インスタンス作成（sanwa-houkai-db）
-- [x] Data Connect サービスデプロイ
+- [x] React Native / Expo + React Native Paper セットアップ
+  - Expo TypeScript テンプレートでプロジェクト作成
+  - React Native Paper / Firebase / React Navigation インストール
+  - Material Design 3 カスタムテーマ設定
+  - 5タブナビゲーション構成
+  - 各画面プレースホルダー実装
+- [x] PR #6 作成・レビュー・マージ
 
 ## 次回アクション
 
-1. React Native / Expo + React Native Paper セットアップ
-2. Next.js セットアップ
-3. Data Connect SDK 生成・統合
-4. 認証機能（Firebase Auth）実装
+1. Next.js セットアップ（Web管理画面）
+2. Data Connect SDK 生成・統合
+3. 認証機能（Firebase Auth）実装
+4. 記録入力画面の実装
