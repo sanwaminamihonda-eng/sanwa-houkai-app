@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+/* Material UIのCssBaselineが基本スタイルを提供するため最小限に */
+html {
+  scroll-behavior: smooth;
+}
+
+/* FullCalendar用の追加スタイル */
+.fc {
+  font-family: inherit;
+}
