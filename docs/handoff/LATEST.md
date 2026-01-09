@@ -1,4 +1,4 @@
-# 作業状態 - 2026-01-09 (Record Input Screen)
+# 作業状態 - 2026-01-09 (Record History Screen)
 
 ## プロジェクト概要
 
@@ -102,7 +102,7 @@
   - web/src/components/layout/MainLayout.tsx AuthGuardでラップ
   - web/src/components/layout/Header.tsx ログアウト機能実装
 
-### 記録入力画面実装（今回完了）
+### 記録入力画面実装
 - [x] モバイル記録入力画面
   - mobile/src/hooks/useStaff.ts 作成（スタッフ情報取得フック）
   - mobile/src/screens/records/RecordInputScreen.tsx 実装
@@ -125,6 +125,40 @@
   - date-fns パッケージ追加
 - [x] .gitignore に .serena/ 追加
 - [x] web/eslint.config.mjs に generated/ 無視追加
+
+### 履歴一覧・詳細画面実装（今回完了）
+- [x] モバイル履歴一覧画面
+  - mobile/src/screens/records/RecordHistoryScreen.tsx 実装
+    - FlatListでカード形式の一覧表示
+    - 直近30日の記録を取得（listVisitRecordsByDateRange API）
+    - 利用者フィルター（Menuコンポーネント）
+    - プルリフレッシュ対応
+    - タップで詳細画面へ遷移
+- [x] モバイル履歴詳細画面
+  - mobile/src/screens/records/RecordDetailScreen.tsx 新規作成
+    - 基本情報（利用者名、訪問日時、担当者、訪問理由）
+    - バイタル表示（脈拍、血圧）
+    - サービス内容表示（カテゴリ別Chip）
+    - 特記事項（AI生成フラグ付き）
+    - 満足度、状態変化、サービス変更必要性
+    - 作成/更新日時
+- [x] モバイルナビゲーション更新
+  - mobile/src/navigation/RootNavigator.tsx 更新
+    - RecordHistoryStackParamList 型定義追加
+    - RecordHistoryNavigator スタックナビゲーション追加
+    - 履歴タブから詳細画面への遷移対応
+- [x] Web履歴一覧画面
+  - web/src/app/records/page.tsx 実装
+    - MUI Tableでテーブル形式の一覧表示
+    - TablePaginationでページネーション対応
+    - 利用者フィルター（Select）
+    - 行クリックで詳細画面へ遷移
+- [x] Web履歴詳細画面
+  - web/src/app/records/[id]/page.tsx 新規作成
+    - MUI Grid レイアウト
+    - Card形式でセクション分け
+    - 一覧への戻るボタン
+- [x] PR #10 マージ完了
 
 ## 設計決定事項
 
@@ -186,7 +220,7 @@
 | Data Connect SDK生成・統合 | ✅ 完了 |
 | 認証機能（Google OAuth） | ✅ 完了（コード実装済み、Firebase Console設定待ち） |
 | 記録入力画面 | ✅ 完了（モバイル/Web両対応） |
-| 履歴一覧・詳細画面 | 未着手 |
+| 履歴一覧・詳細画面 | ✅ 完了（モバイル/Web両対応） |
 | 利用者一覧・詳細画面 | 未着手 |
 | スケジュール表示（週/日/月） | 未着手 |
 
@@ -313,15 +347,16 @@ web/
 
 ## 今セッション完了作業
 
-- [x] 記録入力画面実装（モバイル/Web）
-  - useStaffフック（スタッフ情報取得）
-  - 利用者選択、日時選択、訪問理由選択
-  - バイタル入力（脈拍、血圧）
-  - サービス内容選択（カテゴリ別Chip）
-  - 特記事項入力
-  - Data Connect経由でDB保存
-- [x] .gitignore に .serena/ 追加
-- [x] ESLint設定更新（generated無視）
+- [x] 履歴一覧画面実装（モバイル/Web）
+  - FlatList/MUI Tableでの一覧表示
+  - 直近30日の記録取得
+  - 利用者フィルター
+  - プルリフレッシュ/ページネーション
+- [x] 履歴詳細画面実装（モバイル/Web）
+  - 基本情報、バイタル、サービス内容、特記事項表示
+  - AI生成フラグ、満足度、状態変化等
+- [x] モバイルナビゲーション更新（スタック追加）
+- [x] PR #10 マージ完了
 
 ## 次回アクション
 
@@ -329,6 +364,5 @@ web/
    - Firebase Console → Authentication → Google プロバイダ有効化
    - GCP Console → OAuth クライアント ID 作成（Web/Android/iOS）
    - `.env.local` に実際の値を設定
-2. 履歴一覧・詳細画面の実装
+2. 利用者一覧・詳細画面の実装
 3. スケジュール画面（FullCalendar統合）
-4. 利用者一覧・詳細画面の実装
