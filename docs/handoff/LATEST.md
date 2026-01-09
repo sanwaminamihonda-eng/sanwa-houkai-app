@@ -352,15 +352,14 @@ web/
 
 ## 今セッション完了作業
 
-- [x] スケジュールリアルタイム同期機能 - PR #26
-  - firestore.rules追加（スケジュール更新通知用セキュリティルール）
-  - useScheduleRealtimeフック作成（Web/Mobile両対応）
-  - 他ユーザーがスケジュールを作成/更新/削除すると自動で画面更新
-  - Firestore onSnapshotで即座に変更を検知
-  - 自分の更新は無視（二重リフレッシュ防止）
+- [x] Firestoreルールデプロイ（リアルタイム同期有効化）
+  - `firebase deploy --only firestore:rules` 実行
+  - Firestoreデータベース（default）作成
+  - スケジュール更新通知用ルールをリリース
 
 ### 前セッション完了作業（参考）
 
+- [x] スケジュールリアルタイム同期機能 - PR #26
 - [x] AI特記事項生成機能 - PR #25
 - [x] CLAUDE.md簡略化 - PR #23
 
@@ -368,8 +367,8 @@ web/
 
 1. PDF帳票生成機能（実施報告書・訪問介護計画書）
 2. 繰り返し予定機能（毎週/毎月の定期スケジュール）
-3. Firestoreルールのデプロイ（`firebase deploy --only firestore:rules`）
 
 **デプロイ済み:**
 - Cloud Functions（generateVisitNotes）- 2026-01-09 デプロイ完了
-- リアルタイム同期コード - 2026-01-10 マージ完了（Firestoreルールデプロイ待ち）
+- リアルタイム同期コード - 2026-01-10 マージ完了
+- Firestoreルール - 2026-01-10 デプロイ完了（リアルタイム同期有効化）
