@@ -41,10 +41,10 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { EventClickArg, DateSelectArg, EventDropArg } from '@fullcalendar/core';
+import { EventClickArg, DateSelectArg, EventDropArg, EventContentArg } from '@fullcalendar/core';
 import { format, parse, startOfWeek, endOfWeek, startOfMonth, endOfMonth, addDays } from 'date-fns';
 import { ja } from 'date-fns/locale';
-import { RRule, Weekday, Options } from 'rrule';
+import { RRule, Options } from 'rrule';
 import { MainLayout } from '@/components/layout';
 import { useStaff } from '@/hooks/useStaff';
 import { useScheduleRealtime } from '@/hooks/useScheduleRealtime';
@@ -79,6 +79,7 @@ interface CalendarEvent {
   textColor: string;
   extendedProps: {
     schedule: Schedule;
+    isRecurring: boolean;
   };
 }
 
@@ -267,6 +268,7 @@ export default function SchedulePage() {
     return schedules.map((schedule) => {
       const color = getServiceColor(schedule.serviceType?.category);
       const dateStr = schedule.scheduledDate;
+      const isRecurring = !!schedule.recurrenceId;
 
       return {
         id: schedule.id,
@@ -276,7 +278,7 @@ export default function SchedulePage() {
         backgroundColor: color,
         borderColor: color,
         textColor: '#ffffff',
-        extendedProps: { schedule },
+        extendedProps: { schedule, isRecurring },
       };
     });
   }, [schedules]);
@@ -848,6 +850,24 @@ export default function SchedulePage() {
                 minute: '2-digit',
                 hour12: false,
               }}
+              eventContent={(arg: EventContentArg) => {
+                const isRecurring = arg.event.extendedProps.isRecurring;
+                return (
+                  <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5, overflow: 'hidden', width: '100%' }}>
+                    {isRecurring && (
+                      <RepeatIcon sx={{ fontSize: 14, flexShrink: 0, mt: '2px' }} />
+                    )}
+                    <Box sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
+                      <Typography variant="caption" component="div" sx={{ fontWeight: 500, lineHeight: 1.2 }}>
+                        {arg.timeText}
+                      </Typography>
+                      <Typography variant="caption" component="div" sx={{ lineHeight: 1.2 }}>
+                        {arg.event.title}
+                      </Typography>
+                    </Box>
+                  </Box>
+                );
+              }}
             />
           </CardContent>
         </Card>
@@ -909,6 +929,15 @@ export default function SchedulePage() {
                   />
                 </Box>
               </Box>
+              {selectedSchedule.recurrenceId && (
+                <Box>
+                  <Typography variant="caption" color="text.secondary">繰り返し</Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <RepeatIcon fontSize="small" color="action" />
+                    <Typography variant="body2">繰り返し予定</Typography>
+                  </Box>
+                </Box>
+              )}
               {selectedSchedule.notes && (
                 <Box>
                   <Typography variant="caption" color="text.secondary">メモ</Typography>

@@ -145,10 +145,12 @@ export default function ScheduleScreen() {
       const dateStr = schedule.scheduledDate;
       const startDateTime = dayjs(`${dateStr}T${schedule.startTime}`).toDate();
       const endDateTime = dayjs(`${dateStr}T${schedule.endTime}`).toDate();
+      const isRecurring = !!schedule.recurrenceId;
+      const recurringMark = isRecurring ? '🔄 ' : '';
 
       return {
         id: schedule.id,
-        title: `${schedule.client.name}${schedule.serviceType ? `\n${schedule.serviceType.name}` : ''}`,
+        title: `${recurringMark}${schedule.client.name}${schedule.serviceType ? `\n${schedule.serviceType.name}` : ''}`,
         start: startDateTime,
         end: endDateTime,
         color: getServiceColor(schedule.serviceType?.category),
@@ -398,6 +400,16 @@ export default function ScheduleScreen() {
                 </Chip>
               </View>
 
+              {selectedSchedule.recurrenceId && (
+                <View style={styles.detailRow}>
+                  <Text style={styles.detailLabel}>繰り返し</Text>
+                  <View style={styles.recurringRow}>
+                    <Text style={styles.recurringIcon}>🔄</Text>
+                    <Text style={styles.detailValue}>繰り返し予定</Text>
+                  </View>
+                </View>
+              )}
+
               {selectedSchedule.notes && (
                 <View style={styles.detailRow}>
                   <Text style={styles.detailLabel}>メモ</Text>
@@ -527,6 +539,14 @@ const styles = StyleSheet.create({
   },
   statusChip: {
     alignSelf: 'flex-start',
+  },
+  recurringRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  recurringIcon: {
+    fontSize: 16,
+    marginRight: 4,
   },
   modalActions: {
     flexDirection: 'row',
