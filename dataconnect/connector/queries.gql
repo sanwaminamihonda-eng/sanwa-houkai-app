@@ -302,6 +302,30 @@ query ListReportsByClient($clientId: UUID!) @auth(level: USER) {
   }
 }
 
+query ListReportsByFacility($facilityId: UUID!) @auth(level: USER) {
+  reports(
+    where: { client: { facility: { id: { eq: $facilityId } } } }
+    orderBy: [{ targetYear: DESC }, { targetMonth: DESC }]
+  ) {
+    id
+    targetYear
+    targetMonth
+    summary
+    aiGenerated
+    pdfGenerated
+    pdfUrl
+    createdAt
+    client {
+      id
+      name
+    }
+    staff {
+      id
+      name
+    }
+  }
+}
+
 query ListCarePlansByClient($clientId: UUID!) @auth(level: USER) {
   carePlans(
     where: { client: { id: { eq: $clientId } } }

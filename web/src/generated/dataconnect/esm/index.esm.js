@@ -380,6 +380,17 @@ export function listReportsByClient(dcOrVars, vars) {
   return executeQuery(listReportsByClientRef(dcOrVars, vars));
 }
 
+export const listReportsByFacilityRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'ListReportsByFacility', inputVars);
+}
+listReportsByFacilityRef.operationName = 'ListReportsByFacility';
+
+export function listReportsByFacility(dcOrVars, vars) {
+  return executeQuery(listReportsByFacilityRef(dcOrVars, vars));
+}
+
 export const listCarePlansByClientRef = (dcOrVars, vars) => {
   const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
   dcInstance._useGeneratedSdk();

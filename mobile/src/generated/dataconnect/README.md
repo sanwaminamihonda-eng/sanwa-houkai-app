@@ -22,6 +22,7 @@ This README will guide you through the process of using the generated JavaScript
   - [*ListVisitRecordsByDateRange*](#listvisitrecordsbydaterange)
   - [*GetVisitRecord*](#getvisitrecord)
   - [*ListReportsByClient*](#listreportsbyclient)
+  - [*ListReportsByFacility*](#listreportsbyfacility)
   - [*ListCarePlansByClient*](#listcareplansbyclient)
 - [**Mutations**](#mutations)
   - [*CreateClient*](#createclient)
@@ -1767,6 +1768,132 @@ const ref = listReportsByClientRef({ clientId: ..., });
 // You can also pass in a `DataConnect` instance to the `QueryRef` function.
 const dataConnect = getDataConnect(connectorConfig);
 const ref = listReportsByClientRef(dataConnect, listReportsByClientVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.reports);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.reports);
+});
+```
+
+## ListReportsByFacility
+You can execute the `ListReportsByFacility` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+listReportsByFacility(vars: ListReportsByFacilityVariables): QueryPromise<ListReportsByFacilityData, ListReportsByFacilityVariables>;
+
+interface ListReportsByFacilityRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: ListReportsByFacilityVariables): QueryRef<ListReportsByFacilityData, ListReportsByFacilityVariables>;
+}
+export const listReportsByFacilityRef: ListReportsByFacilityRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+listReportsByFacility(dc: DataConnect, vars: ListReportsByFacilityVariables): QueryPromise<ListReportsByFacilityData, ListReportsByFacilityVariables>;
+
+interface ListReportsByFacilityRef {
+  ...
+  (dc: DataConnect, vars: ListReportsByFacilityVariables): QueryRef<ListReportsByFacilityData, ListReportsByFacilityVariables>;
+}
+export const listReportsByFacilityRef: ListReportsByFacilityRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the listReportsByFacilityRef:
+```typescript
+const name = listReportsByFacilityRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `ListReportsByFacility` query requires an argument of type `ListReportsByFacilityVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface ListReportsByFacilityVariables {
+  facilityId: UUIDString;
+}
+```
+### Return Type
+Recall that executing the `ListReportsByFacility` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `ListReportsByFacilityData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface ListReportsByFacilityData {
+  reports: ({
+    id: UUIDString;
+    targetYear: number;
+    targetMonth: number;
+    summary?: string | null;
+    aiGenerated?: boolean | null;
+    pdfGenerated?: boolean | null;
+    pdfUrl?: string | null;
+    createdAt: TimestampString;
+    client: {
+      id: UUIDString;
+      name: string;
+    } & Client_Key;
+      staff: {
+        id: UUIDString;
+        name: string;
+      } & Staff_Key;
+  } & Report_Key)[];
+}
+```
+### Using `ListReportsByFacility`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, listReportsByFacility, ListReportsByFacilityVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `ListReportsByFacility` query requires an argument of type `ListReportsByFacilityVariables`:
+const listReportsByFacilityVars: ListReportsByFacilityVariables = {
+  facilityId: ..., 
+};
+
+// Call the `listReportsByFacility()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await listReportsByFacility(listReportsByFacilityVars);
+// Variables can be defined inline as well.
+const { data } = await listReportsByFacility({ facilityId: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await listReportsByFacility(dataConnect, listReportsByFacilityVars);
+
+console.log(data.reports);
+
+// Or, you can use the `Promise` API.
+listReportsByFacility(listReportsByFacilityVars).then((response) => {
+  const data = response.data;
+  console.log(data.reports);
+});
+```
+
+### Using `ListReportsByFacility`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, listReportsByFacilityRef, ListReportsByFacilityVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `ListReportsByFacility` query requires an argument of type `ListReportsByFacilityVariables`:
+const listReportsByFacilityVars: ListReportsByFacilityVariables = {
+  facilityId: ..., 
+};
+
+// Call the `listReportsByFacilityRef()` function to get a reference to the query.
+const ref = listReportsByFacilityRef(listReportsByFacilityVars);
+// Variables can be defined inline as well.
+const ref = listReportsByFacilityRef({ facilityId: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = listReportsByFacilityRef(dataConnect, listReportsByFacilityVars);
 
 // Call `executeQuery()` on the reference to execute the query.
 // You can use the `await` keyword to wait for the promise to resolve.

@@ -364,6 +364,31 @@ export interface ListReportsByClientVariables {
   clientId: UUIDString;
 }
 
+export interface ListReportsByFacilityData {
+  reports: ({
+    id: UUIDString;
+    targetYear: number;
+    targetMonth: number;
+    summary?: string | null;
+    aiGenerated?: boolean | null;
+    pdfGenerated?: boolean | null;
+    pdfUrl?: string | null;
+    createdAt: TimestampString;
+    client: {
+      id: UUIDString;
+      name: string;
+    } & Client_Key;
+      staff: {
+        id: UUIDString;
+        name: string;
+      } & Staff_Key;
+  } & Report_Key)[];
+}
+
+export interface ListReportsByFacilityVariables {
+  facilityId: UUIDString;
+}
+
 export interface ListSchedulesByDateRangeData {
   schedules: ({
     id: UUIDString;
@@ -1055,6 +1080,18 @@ export const listReportsByClientRef: ListReportsByClientRef;
 
 export function listReportsByClient(vars: ListReportsByClientVariables): QueryPromise<ListReportsByClientData, ListReportsByClientVariables>;
 export function listReportsByClient(dc: DataConnect, vars: ListReportsByClientVariables): QueryPromise<ListReportsByClientData, ListReportsByClientVariables>;
+
+interface ListReportsByFacilityRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: ListReportsByFacilityVariables): QueryRef<ListReportsByFacilityData, ListReportsByFacilityVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: ListReportsByFacilityVariables): QueryRef<ListReportsByFacilityData, ListReportsByFacilityVariables>;
+  operationName: string;
+}
+export const listReportsByFacilityRef: ListReportsByFacilityRef;
+
+export function listReportsByFacility(vars: ListReportsByFacilityVariables): QueryPromise<ListReportsByFacilityData, ListReportsByFacilityVariables>;
+export function listReportsByFacility(dc: DataConnect, vars: ListReportsByFacilityVariables): QueryPromise<ListReportsByFacilityData, ListReportsByFacilityVariables>;
 
 interface ListCarePlansByClientRef {
   /* Allow users to create refs without passing in DataConnect */
