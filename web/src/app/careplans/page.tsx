@@ -28,28 +28,33 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  TextField,
   Snackbar,
+  Grid,
   Divider,
 } from '@mui/material';
 import {
   Add as AddIcon,
   Refresh as RefreshIcon,
   Download as DownloadIcon,
-  Edit as EditIcon,
+  Visibility as ViewIcon,
+  Close as CloseIcon,
+  Person as PersonIcon,
+  CalendarToday as CalendarIcon,
 } from '@mui/icons-material';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { MainLayout } from '@/components/layout';
 import { useStaff } from '@/hooks/useStaff';
 import { dataConnect, functions, httpsCallable } from '@/lib/firebase';
 import {
   listCarePlansByFacility,
   listClients,
+  getCarePlan,
   ListCarePlansByFacilityData,
   ListClientsData,
+  GetCarePlanData,
 } from '@sanwa-houkai-app/dataconnect';
 
 type CarePlan = ListCarePlansByFacilityData['carePlans'][0];
+type CarePlanDetail = NonNullable<GetCarePlanData['carePlan']>;
 type Client = ListClientsData['clients'][0];
 
 interface Goal {
@@ -59,28 +64,17 @@ interface Goal {
 }
 
 interface GenerateCarePlanRequest {
-  carePlanId?: string;
   clientId: string;
   staffId: string;
-  currentSituation: string;
-  familyWishes: string;
-  mainSupport: string;
-  longTermGoals: Goal[];
-  shortTermGoals: Goal[];
 }
 
 interface GenerateCarePlanResponse {
   success: boolean;
+  carePlanId: string;
   pdfUrl: string;
 }
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
-
-const emptyGoal = (): Goal => ({
-  content: '',
-  startDate: null,
-  endDate: null,
-});
 
 export default function CarePlansPage() {
   const { staff, facilityId, loading: staffLoading } = useStaff();
@@ -97,19 +91,18 @@ export default function CarePlansPage() {
 
   // Dialog state
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingCarePlanId, setEditingCarePlanId] = useState<string | null>(null);
   const [selectedClientId, setSelectedClientId] = useState<string>('');
-  const [currentSituation, setCurrentSituation] = useState('');
-  const [familyWishes, setFamilyWishes] = useState('');
-  const [mainSupport, setMainSupport] = useState('');
-  const [longTermGoals, setLongTermGoals] = useState<Goal[]>([emptyGoal(), emptyGoal(), emptyGoal()]);
-  const [shortTermGoals, setShortTermGoals] = useState<Goal[]>([emptyGoal(), emptyGoal(), emptyGoal()]);
   const [generating, setGenerating] = useState(false);
 
   // Snackbar state
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
+
+  // Detail dialog state
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [selectedCarePlan, setSelectedCarePlan] = useState<CarePlanDetail | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
 
   const fetchData = useCallback(async () => {
     if (!facilityId) return;
@@ -147,43 +140,8 @@ export default function CarePlansPage() {
     setLoading(false);
   };
 
-  const resetForm = () => {
-    setEditingCarePlanId(null);
-    setSelectedClientId('');
-    setCurrentSituation('');
-    setFamilyWishes('');
-    setMainSupport('');
-    setLongTermGoals([emptyGoal(), emptyGoal(), emptyGoal()]);
-    setShortTermGoals([emptyGoal(), emptyGoal(), emptyGoal()]);
-  };
-
   const handleOpenDialog = () => {
-    resetForm();
-    setDialogOpen(true);
-  };
-
-  const handleEditCarePlan = (carePlan: CarePlan) => {
-    setEditingCarePlanId(carePlan.id);
-    setSelectedClientId(carePlan.client.id);
-    setCurrentSituation(carePlan.currentSituation || '');
-    setFamilyWishes(carePlan.familyWishes || '');
-    setMainSupport(carePlan.mainSupport || '');
-
-    // Parse goals from JSON
-    const parsedLongTermGoals = carePlan.longTermGoals as Goal[] | null;
-    const parsedShortTermGoals = carePlan.shortTermGoals as Goal[] | null;
-
-    setLongTermGoals(
-      parsedLongTermGoals && parsedLongTermGoals.length > 0
-        ? [...parsedLongTermGoals, ...Array(3 - parsedLongTermGoals.length).fill(emptyGoal())].slice(0, 3)
-        : [emptyGoal(), emptyGoal(), emptyGoal()]
-    );
-    setShortTermGoals(
-      parsedShortTermGoals && parsedShortTermGoals.length > 0
-        ? [...parsedShortTermGoals, ...Array(3 - parsedShortTermGoals.length).fill(emptyGoal())].slice(0, 3)
-        : [emptyGoal(), emptyGoal(), emptyGoal()]
-    );
-
+    setSelectedClientId('');
     setDialogOpen(true);
   };
 
@@ -191,28 +149,6 @@ export default function CarePlansPage() {
     if (!generating) {
       setDialogOpen(false);
     }
-  };
-
-  const updateGoal = (
-    goals: Goal[],
-    setGoals: React.Dispatch<React.SetStateAction<Goal[]>>,
-    index: number,
-    field: keyof Goal,
-    value: string | Date | null
-  ) => {
-    const newGoals = [...goals];
-    if (field === 'startDate' || field === 'endDate') {
-      newGoals[index] = {
-        ...newGoals[index],
-        [field]: value instanceof Date ? value.toISOString().split('T')[0] : null,
-      };
-    } else {
-      newGoals[index] = {
-        ...newGoals[index],
-        [field]: value as string,
-      };
-    }
-    setGoals(newGoals);
   };
 
   const handleGenerateCarePlan = async () => {
@@ -238,23 +174,13 @@ export default function CarePlansPage() {
         'generateCarePlan'
       );
 
-      // Filter out empty goals
-      const filteredLongTermGoals = longTermGoals.filter((g) => g.content.trim());
-      const filteredShortTermGoals = shortTermGoals.filter((g) => g.content.trim());
-
       const result = await generateCarePlan({
-        carePlanId: editingCarePlanId || undefined,
         clientId: selectedClientId,
         staffId: staff.id,
-        currentSituation,
-        familyWishes,
-        mainSupport,
-        longTermGoals: filteredLongTermGoals,
-        shortTermGoals: filteredShortTermGoals,
       });
 
       if (result.data.success) {
-        setSnackbarMessage(editingCarePlanId ? '計画書を更新しました' : '計画書を作成しました');
+        setSnackbarMessage('計画書を生成しました');
         setSnackbarSeverity('success');
         setSnackbarOpen(true);
 
@@ -275,15 +201,54 @@ export default function CarePlansPage() {
     }
   };
 
+  const handleViewDetail = async (carePlanId: string) => {
+    setDetailDialogOpen(true);
+    setDetailLoading(true);
+    setSelectedCarePlan(null);
+
+    try {
+      const result = await getCarePlan(dataConnect, { id: carePlanId });
+      if (result.data.carePlan) {
+        setSelectedCarePlan(result.data.carePlan);
+      }
+    } catch (err) {
+      console.error('Failed to load care plan:', err);
+      setSnackbarMessage('計画書の読み込みに失敗しました');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      setDetailDialogOpen(false);
+    } finally {
+      setDetailLoading(false);
+    }
+  };
+
+  const handleCloseDetailDialog = () => {
+    setDetailDialogOpen(false);
+    setSelectedCarePlan(null);
+  };
+
   const handleDownload = (pdfUrl: string | null | undefined) => {
     if (pdfUrl) {
       window.open(pdfUrl, '_blank');
     }
   };
 
-  const formatDate = (dateStr: string) => {
+  const formatDate = (dateStr: string | null | undefined) => {
+    if (!dateStr) return '';
     const date = new Date(dateStr);
     return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
+  };
+
+  const parseGoals = (goalsData: unknown): Goal[] => {
+    if (!goalsData) return [];
+    try {
+      if (typeof goalsData === 'string') {
+        return JSON.parse(goalsData);
+      }
+      return goalsData as Goal[];
+    } catch {
+      return [];
+    }
   };
 
   const filteredCarePlans = filterClientId
@@ -382,18 +347,16 @@ export default function CarePlansPage() {
               <TableHead>
                 <TableRow>
                   <TableCell>利用者</TableCell>
-                  <TableCell>主な支援内容</TableCell>
-                  <TableCell>長期目標</TableCell>
-                  <TableCell>短期目標</TableCell>
                   <TableCell>作成日</TableCell>
-                  <TableCell>作成者</TableCell>
+                  <TableCell>担当者</TableCell>
+                  <TableCell>PDF</TableCell>
                   <TableCell align="center">操作</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {paginatedCarePlans.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} align="center" sx={{ py: 8 }}>
+                    <TableCell colSpan={5} align="center" sx={{ py: 8 }}>
                       <Typography color="text.secondary">
                         {filterClientId
                           ? 'この利用者の計画書はありません'
@@ -410,58 +373,41 @@ export default function CarePlansPage() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  paginatedCarePlans.map((carePlan) => {
-                    const longTermGoalsData = carePlan.longTermGoals as Goal[] | null;
-                    const shortTermGoalsData = carePlan.shortTermGoals as Goal[] | null;
-                    const longTermCount = longTermGoalsData?.filter((g) => g.content)?.length || 0;
-                    const shortTermCount = shortTermGoalsData?.filter((g) => g.content)?.length || 0;
-
-                    return (
-                      <TableRow key={carePlan.id} hover>
-                        <TableCell>
-                          <Typography fontWeight={500}>{carePlan.client.name}</Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Typography
-                            variant="body2"
-                            sx={{
-                              maxWidth: 200,
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap',
-                            }}
-                          >
-                            {carePlan.mainSupport || '（未設定）'}
-                          </Typography>
-                        </TableCell>
-                        <TableCell>
-                          <Chip
-                            label={`${longTermCount}件`}
-                            size="small"
-                            color={longTermCount > 0 ? 'primary' : 'default'}
-                            variant={longTermCount > 0 ? 'filled' : 'outlined'}
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Chip
-                            label={`${shortTermCount}件`}
-                            size="small"
-                            color={shortTermCount > 0 ? 'secondary' : 'default'}
-                            variant={shortTermCount > 0 ? 'filled' : 'outlined'}
-                          />
-                        </TableCell>
-                        <TableCell>{formatDate(carePlan.createdAt)}</TableCell>
-                        <TableCell>
-                          <Chip label={carePlan.staff.name} size="small" variant="outlined" />
-                        </TableCell>
-                        <TableCell align="center">
-                          <Tooltip title="編集">
+                  paginatedCarePlans.map((carePlan) => (
+                    <TableRow
+                      key={carePlan.id}
+                      hover
+                      sx={{ cursor: 'pointer' }}
+                      onClick={() => handleViewDetail(carePlan.id)}
+                    >
+                      <TableCell>
+                        <Typography fontWeight={500}>
+                          {carePlan.client.name}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>{formatDate(carePlan.createdAt)}</TableCell>
+                      <TableCell>
+                        <Chip label={carePlan.staff.name} size="small" variant="outlined" />
+                      </TableCell>
+                      <TableCell>
+                        {carePlan.pdfUrl ? (
+                          <Chip label="生成済み" size="small" color="success" />
+                        ) : (
+                          <Chip label="未生成" size="small" variant="outlined" />
+                        )}
+                      </TableCell>
+                      <TableCell align="center">
+                        <Box display="flex" justifyContent="center" gap={1}>
+                          <Tooltip title="詳細を表示">
                             <IconButton
                               size="small"
                               color="primary"
-                              onClick={() => handleEditCarePlan(carePlan)}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleViewDetail(carePlan.id);
+                              }}
                             >
-                              <EditIcon fontSize="small" />
+                              <ViewIcon fontSize="small" />
                             </IconButton>
                           </Tooltip>
                           {carePlan.pdfUrl && (
@@ -469,16 +415,19 @@ export default function CarePlansPage() {
                               <IconButton
                                 size="small"
                                 color="primary"
-                                onClick={() => handleDownload(carePlan.pdfUrl)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDownload(carePlan.pdfUrl);
+                                }}
                               >
                                 <DownloadIcon fontSize="small" />
                               </IconButton>
                             </Tooltip>
                           )}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  ))
                 )}
               </TableBody>
             </Table>
@@ -498,21 +447,18 @@ export default function CarePlansPage() {
           />
         </Card>
 
-        {/* Create/Edit Care Plan Dialog */}
-        <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="md" fullWidth>
-          <DialogTitle>
-            {editingCarePlanId ? '訪問介護計画書を編集' : '訪問介護計画書を作成'}
-          </DialogTitle>
+        {/* Create Care Plan Dialog */}
+        <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
+          <DialogTitle>訪問介護計画書を作成</DialogTitle>
           <DialogContent>
             <Box sx={{ pt: 2, display: 'flex', flexDirection: 'column', gap: 3 }}>
-              {/* 利用者選択 */}
-              <FormControl fullWidth disabled={!!editingCarePlanId}>
+              <FormControl fullWidth>
                 <InputLabel>利用者 *</InputLabel>
                 <Select
                   value={selectedClientId}
                   label="利用者 *"
                   onChange={(e) => setSelectedClientId(e.target.value)}
-                  disabled={generating || !!editingCarePlanId}
+                  disabled={generating}
                 >
                   {clients.map((client) => (
                     <MenuItem key={client.id} value={client.id}>
@@ -522,107 +468,9 @@ export default function CarePlansPage() {
                 </Select>
               </FormControl>
 
-              <Divider />
-
-              {/* 基本情報 */}
-              <TextField
-                label="利用者の生活現状"
-                multiline
-                rows={3}
-                value={currentSituation}
-                onChange={(e) => setCurrentSituation(e.target.value)}
-                disabled={generating}
-                placeholder="利用者の現在の生活状況を記入してください"
-              />
-
-              <TextField
-                label="利用者及び家族の意向・希望"
-                multiline
-                rows={3}
-                value={familyWishes}
-                onChange={(e) => setFamilyWishes(e.target.value)}
-                disabled={generating}
-                placeholder="利用者及び家族の意向・希望を記入してください"
-              />
-
-              <TextField
-                label="主な支援内容"
-                multiline
-                rows={3}
-                value={mainSupport}
-                onChange={(e) => setMainSupport(e.target.value)}
-                disabled={generating}
-                placeholder="提供する主な支援内容を記入してください"
-              />
-
-              <Divider />
-
-              {/* 長期目標 */}
-              <Typography variant="subtitle1" fontWeight={600}>
-                長期目標（最大3件）
-              </Typography>
-              {longTermGoals.map((goal, index) => (
-                <Box key={`long-${index}`} sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
-                  <TextField
-                    label={`長期目標 ${index + 1}`}
-                    fullWidth
-                    value={goal.content}
-                    onChange={(e) => updateGoal(longTermGoals, setLongTermGoals, index, 'content', e.target.value)}
-                    disabled={generating}
-                    size="small"
-                  />
-                  <DatePicker
-                    label="開始日"
-                    value={goal.startDate ? new Date(goal.startDate) : null}
-                    onChange={(date) => updateGoal(longTermGoals, setLongTermGoals, index, 'startDate', date)}
-                    disabled={generating}
-                    slotProps={{ textField: { size: 'small', sx: { minWidth: 150 } } }}
-                  />
-                  <DatePicker
-                    label="終了日"
-                    value={goal.endDate ? new Date(goal.endDate) : null}
-                    onChange={(date) => updateGoal(longTermGoals, setLongTermGoals, index, 'endDate', date)}
-                    disabled={generating}
-                    slotProps={{ textField: { size: 'small', sx: { minWidth: 150 } } }}
-                  />
-                </Box>
-              ))}
-
-              <Divider />
-
-              {/* 短期目標 */}
-              <Typography variant="subtitle1" fontWeight={600}>
-                短期目標（最大3件）
-              </Typography>
-              {shortTermGoals.map((goal, index) => (
-                <Box key={`short-${index}`} sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
-                  <TextField
-                    label={`短期目標 ${index + 1}`}
-                    fullWidth
-                    value={goal.content}
-                    onChange={(e) => updateGoal(shortTermGoals, setShortTermGoals, index, 'content', e.target.value)}
-                    disabled={generating}
-                    size="small"
-                  />
-                  <DatePicker
-                    label="開始日"
-                    value={goal.startDate ? new Date(goal.startDate) : null}
-                    onChange={(date) => updateGoal(shortTermGoals, setShortTermGoals, index, 'startDate', date)}
-                    disabled={generating}
-                    slotProps={{ textField: { size: 'small', sx: { minWidth: 150 } } }}
-                  />
-                  <DatePicker
-                    label="終了日"
-                    value={goal.endDate ? new Date(goal.endDate) : null}
-                    onChange={(date) => updateGoal(shortTermGoals, setShortTermGoals, index, 'endDate', date)}
-                    disabled={generating}
-                    slotProps={{ textField: { size: 'small', sx: { minWidth: 150 } } }}
-                  />
-                </Box>
-              ))}
-
               <Alert severity="info" sx={{ mt: 1 }}>
-                計画書の内容を入力し、PDFを生成します。生成されたPDFは自動的にダウンロードされます。
+                利用者の情報と過去の訪問記録から、AIが訪問介護計画書を自動生成します。
+                生成後、内容を確認・編集できます。
               </Alert>
             </Box>
           </DialogContent>
@@ -636,8 +484,221 @@ export default function CarePlansPage() {
               disabled={generating || !selectedClientId}
               startIcon={generating ? <CircularProgress size={20} /> : <AddIcon />}
             >
-              {generating ? '生成中...' : editingCarePlanId ? '更新する' : '生成する'}
+              {generating ? '生成中...' : '生成する'}
             </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Detail Dialog */}
+        <Dialog
+          open={detailDialogOpen}
+          onClose={handleCloseDetailDialog}
+          maxWidth="md"
+          fullWidth
+        >
+          <DialogTitle>
+            <Box display="flex" alignItems="center" justifyContent="space-between">
+              <Typography variant="h6">計画書詳細</Typography>
+              <IconButton onClick={handleCloseDetailDialog} size="small">
+                <CloseIcon />
+              </IconButton>
+            </Box>
+          </DialogTitle>
+          <DialogContent dividers>
+            {detailLoading ? (
+              <Box display="flex" justifyContent="center" alignItems="center" py={8}>
+                <CircularProgress />
+              </Box>
+            ) : selectedCarePlan ? (
+              <Box>
+                {/* Client Info */}
+                <Card sx={{ mb: 3 }}>
+                  <CardContent>
+                    <Box display="flex" alignItems="center" gap={2} mb={2}>
+                      <PersonIcon color="primary" />
+                      <Typography variant="h5" fontWeight={600}>
+                        {selectedCarePlan.client.name}
+                      </Typography>
+                    </Box>
+                    <Box display="flex" gap={3} flexWrap="wrap">
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <CalendarIcon fontSize="small" color="action" />
+                        <Typography variant="body2" color="text.secondary">
+                          作成日:
+                        </Typography>
+                        <Typography variant="body1">
+                          {formatDate(selectedCarePlan.createdAt)}
+                        </Typography>
+                      </Box>
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <Typography variant="body2" color="text.secondary">
+                          担当者:
+                        </Typography>
+                        <Chip label={selectedCarePlan.staff.name} size="small" variant="outlined" />
+                      </Box>
+                    </Box>
+                  </CardContent>
+                </Card>
+
+                {/* PDF Button */}
+                {selectedCarePlan.pdfUrl && (
+                  <Button
+                    variant="contained"
+                    startIcon={<DownloadIcon />}
+                    onClick={() => handleDownload(selectedCarePlan.pdfUrl)}
+                    sx={{ mb: 3 }}
+                  >
+                    PDFを開く
+                  </Button>
+                )}
+
+                <Grid container spacing={3}>
+                  {/* Current Situation */}
+                  {selectedCarePlan.currentSituation && (
+                    <Grid size={{ xs: 12, md: 6 }}>
+                      <Card sx={{ height: '100%' }}>
+                        <CardContent>
+                          <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+                            利用者の生活現状
+                          </Typography>
+                          <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.8 }}>
+                            {selectedCarePlan.currentSituation}
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  )}
+
+                  {/* Family Wishes */}
+                  {selectedCarePlan.familyWishes && (
+                    <Grid size={{ xs: 12, md: 6 }}>
+                      <Card sx={{ height: '100%' }}>
+                        <CardContent>
+                          <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+                            利用者及び家族の意向・希望
+                          </Typography>
+                          <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.8 }}>
+                            {selectedCarePlan.familyWishes}
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  )}
+
+                  {/* Main Support */}
+                  {selectedCarePlan.mainSupport && (
+                    <Grid size={12}>
+                      <Card>
+                        <CardContent>
+                          <Typography variant="subtitle1" fontWeight={600} gutterBottom>
+                            主な支援内容
+                          </Typography>
+                          <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.8 }}>
+                            {selectedCarePlan.mainSupport}
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  )}
+
+                  {/* Long Term Goals */}
+                  {parseGoals(selectedCarePlan.longTermGoals).length > 0 && (
+                    <Grid size={{ xs: 12, md: 6 }}>
+                      <Card sx={{ height: '100%' }}>
+                        <CardContent>
+                          <Typography variant="subtitle1" fontWeight={600} gutterBottom color="primary">
+                            長期目標
+                          </Typography>
+                          {parseGoals(selectedCarePlan.longTermGoals).map((goal, index) => (
+                            goal.content && (
+                              <Paper
+                                key={`long-${index}`}
+                                variant="outlined"
+                                sx={{ p: 2, mb: 2, bgcolor: 'primary.50' }}
+                              >
+                                <Box display="flex" alignItems="center" gap={1} mb={1}>
+                                  <Chip
+                                    label={index + 1}
+                                    size="small"
+                                    color="primary"
+                                    sx={{ fontWeight: 600 }}
+                                  />
+                                  {(goal.startDate || goal.endDate) && (
+                                    <Typography variant="caption" color="text.secondary">
+                                      {formatDate(goal.startDate)} - {formatDate(goal.endDate)}
+                                    </Typography>
+                                  )}
+                                </Box>
+                                <Typography variant="body2" sx={{ lineHeight: 1.8 }}>
+                                  {goal.content}
+                                </Typography>
+                              </Paper>
+                            )
+                          ))}
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  )}
+
+                  {/* Short Term Goals */}
+                  {parseGoals(selectedCarePlan.shortTermGoals).length > 0 && (
+                    <Grid size={{ xs: 12, md: 6 }}>
+                      <Card sx={{ height: '100%' }}>
+                        <CardContent>
+                          <Typography variant="subtitle1" fontWeight={600} gutterBottom color="secondary">
+                            短期目標
+                          </Typography>
+                          {parseGoals(selectedCarePlan.shortTermGoals).map((goal, index) => (
+                            goal.content && (
+                              <Paper
+                                key={`short-${index}`}
+                                variant="outlined"
+                                sx={{ p: 2, mb: 2, bgcolor: 'secondary.50' }}
+                              >
+                                <Box display="flex" alignItems="center" gap={1} mb={1}>
+                                  <Chip
+                                    label={index + 1}
+                                    size="small"
+                                    color="secondary"
+                                    sx={{ fontWeight: 600 }}
+                                  />
+                                  {(goal.startDate || goal.endDate) && (
+                                    <Typography variant="caption" color="text.secondary">
+                                      {formatDate(goal.startDate)} - {formatDate(goal.endDate)}
+                                    </Typography>
+                                  )}
+                                </Box>
+                                <Typography variant="body2" sx={{ lineHeight: 1.8 }}>
+                                  {goal.content}
+                                </Typography>
+                              </Paper>
+                            )
+                          ))}
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  )}
+                </Grid>
+
+                {/* Metadata */}
+                <Divider sx={{ my: 3 }} />
+                <Box display="flex" gap={3} justifyContent="flex-end">
+                  <Typography variant="body2" color="text.secondary">
+                    作成: {new Date(selectedCarePlan.createdAt).toLocaleString('ja-JP')}
+                  </Typography>
+                  {selectedCarePlan.updatedAt !== selectedCarePlan.createdAt && (
+                    <Typography variant="body2" color="text.secondary">
+                      更新: {new Date(selectedCarePlan.updatedAt).toLocaleString('ja-JP')}
+                    </Typography>
+                  )}
+                </Box>
+              </Box>
+            ) : (
+              <Alert severity="error">計画書が見つかりません</Alert>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDetailDialog}>閉じる</Button>
           </DialogActions>
         </Dialog>
 
