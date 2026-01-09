@@ -23,9 +23,10 @@ import { DatePicker, TimePicker } from '@mui/x-date-pickers';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { ja } from 'date-fns/locale';
+import AutoFixHighIcon from '@mui/icons-material/AutoFixHigh';
 import { MainLayout } from '@/components/layout';
 import { useStaff } from '@/hooks/useStaff';
-import { dataConnect } from '@/lib/firebase';
+import { dataConnect, functions, httpsCallable } from '@/lib/firebase';
 import {
   listClients,
   listVisitReasons,
@@ -73,6 +74,8 @@ export default function NewRecordPage() {
   const [selectedServices, setSelectedServices] = useState<SelectedServices>({});
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
+  const [generatingNotes, setGeneratingNotes] = useState(false);
+  const [aiGenerated, setAiGenerated] = useState(false);
 
   // Notification
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({
@@ -156,6 +159,61 @@ export default function NewRecordPage() {
     return services;
   };
 
+  const formatDateDisplay = (date: Date) => {
+    return date.toLocaleDateString('ja-JP', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
+  };
+
+  const handleGenerateNotes = async () => {
+    if (!selectedClientId) {
+      setSnackbar({ open: true, message: '利用者を選択してください', severity: 'error' });
+      return;
+    }
+
+    const services = buildServicesPayload();
+    if (services.length === 0) {
+      setSnackbar({ open: true, message: 'サービス内容を1つ以上選択してください', severity: 'error' });
+      return;
+    }
+
+    const selectedClient = clients.find((c) => c.id === selectedClientId);
+    const selectedReason = visitReasons.find((r) => r.id === visitReasonId);
+
+    setGeneratingNotes(true);
+    try {
+      const generateVisitNotes = httpsCallable<
+        {
+          clientName: string;
+          visitDate: string;
+          visitReason?: string;
+          services: typeof services;
+          vitals?: Vitals;
+        },
+        { notes: string; aiGenerated: boolean }
+      >(functions, 'generateVisitNotes');
+
+      const result = await generateVisitNotes({
+        clientName: selectedClient?.name || '',
+        visitDate: visitDate ? formatDateDisplay(visitDate) : '',
+        visitReason: selectedReason?.name,
+        services,
+        vitals: Object.keys(vitals).length > 0 ? vitals : undefined,
+      });
+
+      setNotes(result.data.notes);
+      setAiGenerated(true);
+      setSnackbar({ open: true, message: 'AIが特記事項を生成しました', severity: 'success' });
+    } catch (err) {
+      console.error('AI generation error:', err);
+      setSnackbar({ open: true, message: 'AI生成に失敗しました。手動で入力してください。', severity: 'error' });
+    } finally {
+      setGeneratingNotes(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!staff || !facilityId) {
       setSnackbar({ open: true, message: 'スタッフ情報が取得できません', severity: 'error' });
@@ -188,6 +246,7 @@ export default function NewRecordPage() {
         vitals: Object.keys(vitals).length > 0 ? vitals : undefined,
         services,
         notes: notes || undefined,
+        aiGenerated: aiGenerated || undefined,
       });
 
       setSnackbar({ open: true, message: '記録を保存しました', severity: 'success' });
@@ -197,6 +256,7 @@ export default function NewRecordPage() {
       setVitals({});
       setSelectedServices({});
       setNotes('');
+      setAiGenerated(false);
     } catch (err) {
       console.error('Save error:', err);
       setSnackbar({ open: true, message: '保存に失敗しました', severity: 'error' });
@@ -378,9 +438,25 @@ export default function NewRecordPage() {
             <Divider sx={{ my: 3 }} />
 
             {/* Notes */}
-            <Typography variant="h6" gutterBottom>
-              特記事項
-            </Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+              <Typography variant="h6">
+                特記事項
+              </Typography>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={generatingNotes ? <CircularProgress size={16} /> : <AutoFixHighIcon />}
+                onClick={handleGenerateNotes}
+                disabled={generatingNotes || !selectedClientId}
+              >
+                AI生成
+              </Button>
+            </Box>
+            {aiGenerated && (
+              <Typography variant="body2" color="primary" sx={{ mb: 1 }}>
+                AIにより生成されました（編集可能）
+              </Typography>
+            )}
             <TextField
               multiline
               rows={4}

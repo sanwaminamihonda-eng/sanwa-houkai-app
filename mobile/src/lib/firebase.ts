@@ -1,6 +1,7 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getDataConnect } from 'firebase/data-connect';
+import { getFunctions, httpsCallable } from 'firebase/functions';
 import { connectorConfig } from '@sanwa-houkai-app/dataconnect';
 
 const firebaseConfig = {
@@ -21,4 +22,7 @@ const auth = getAuth(app);
 // Initialize Data Connect
 const dataConnect = getDataConnect(app, connectorConfig);
 
-export { app, auth, dataConnect };
+// Initialize Functions (asia-northeast1)
+const functions = getFunctions(app, 'asia-northeast1');
+
+export { app, auth, dataConnect, functions, httpsCallable };

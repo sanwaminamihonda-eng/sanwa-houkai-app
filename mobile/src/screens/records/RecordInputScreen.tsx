@@ -15,7 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Picker } from '@react-native-picker/picker';
 import { useStaff } from '../../hooks/useStaff';
-import { dataConnect } from '../../lib/firebase';
+import { dataConnect, functions, httpsCallable } from '../../lib/firebase';
 import {
   listClients,
   listVisitReasons,
@@ -67,6 +67,8 @@ export default function RecordInputScreen() {
   const [selectedServices, setSelectedServices] = useState<SelectedServices>({});
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
+  const [generatingNotes, setGeneratingNotes] = useState(false);
+  const [aiGenerated, setAiGenerated] = useState(false);
 
   // Load master data
   useEffect(() => {
@@ -161,6 +163,53 @@ export default function RecordInputScreen() {
     return services;
   };
 
+  const handleGenerateNotes = async () => {
+    if (!selectedClientId) {
+      Alert.alert('入力エラー', '利用者を選択してください');
+      return;
+    }
+
+    const services = buildServicesPayload();
+    if (services.length === 0) {
+      Alert.alert('入力エラー', 'サービス内容を1つ以上選択してください');
+      return;
+    }
+
+    const selectedClient = clients.find((c) => c.id === selectedClientId);
+    const selectedReason = visitReasons.find((r) => r.id === visitReasonId);
+
+    setGeneratingNotes(true);
+    try {
+      const generateVisitNotes = httpsCallable<
+        {
+          clientName: string;
+          visitDate: string;
+          visitReason?: string;
+          services: typeof services;
+          vitals?: Vitals;
+        },
+        { notes: string; aiGenerated: boolean }
+      >(functions, 'generateVisitNotes');
+
+      const result = await generateVisitNotes({
+        clientName: selectedClient?.name || '',
+        visitDate: formatDate(visitDate),
+        visitReason: selectedReason?.name,
+        services,
+        vitals: Object.keys(vitals).length > 0 ? vitals : undefined,
+      });
+
+      setNotes(result.data.notes);
+      setAiGenerated(true);
+      Alert.alert('完了', 'AIが特記事項を生成しました');
+    } catch (err) {
+      console.error('AI generation error:', err);
+      Alert.alert('エラー', 'AI生成に失敗しました。手動で入力してください。');
+    } finally {
+      setGeneratingNotes(false);
+    }
+  };
+
   const handleSave = async () => {
     if (!staff || !facilityId) {
       Alert.alert('エラー', 'スタッフ情報が取得できません');
@@ -189,6 +238,7 @@ export default function RecordInputScreen() {
         vitals: Object.keys(vitals).length > 0 ? vitals : undefined,
         services,
         notes: notes || undefined,
+        aiGenerated: aiGenerated || undefined,
       });
 
       Alert.alert('完了', '記録を保存しました', [
@@ -200,6 +250,7 @@ export default function RecordInputScreen() {
             setVitals({});
             setSelectedServices({});
             setNotes('');
+            setAiGenerated(false);
           },
         },
       ]);
@@ -417,15 +468,37 @@ export default function RecordInputScreen() {
         <Divider style={styles.divider} />
 
         {/* Notes */}
-        <Text variant="titleMedium" style={styles.sectionTitle}>
-          特記事項
-        </Text>
+        <View style={styles.notesTitleRow}>
+          <Text variant="titleMedium" style={styles.sectionTitle}>
+            特記事項
+          </Text>
+          <Button
+            mode="outlined"
+            onPress={handleGenerateNotes}
+            loading={generatingNotes}
+            disabled={generatingNotes || !selectedClientId}
+            compact
+            icon="auto-fix"
+          >
+            AI生成
+          </Button>
+        </View>
+        {aiGenerated && (
+          <Text variant="bodySmall" style={styles.aiGeneratedLabel}>
+            AIにより生成されました（編集可能）
+          </Text>
+        )}
         <TextInput
           mode="outlined"
           multiline
           numberOfLines={4}
           value={notes}
-          onChangeText={setNotes}
+          onChangeText={(text) => {
+            setNotes(text);
+            if (aiGenerated && text !== notes) {
+              // If user edits AI-generated text, keep the flag but allow editing
+            }
+          }}
           placeholder="利用者の状態や気づいたことを記入..."
           style={styles.notesInput}
         />
@@ -533,6 +606,16 @@ const styles = StyleSheet.create({
   },
   chip: {
     marginBottom: 4,
+  },
+  notesTitleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  aiGeneratedLabel: {
+    color: '#2196F3',
+    marginBottom: 8,
   },
   notesInput: {
     backgroundColor: '#FFFFFF',
