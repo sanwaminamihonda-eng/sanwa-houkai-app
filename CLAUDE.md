@@ -138,47 +138,36 @@ Phase 3
 
 ## 開発ルール
 
+グローバル開発標準（~/.claude/CLAUDE.md）に加え、以下のプロジェクト固有ルールを適用:
+
 1. **設計変更時**: docs/ を更新
-2. **重要決定時**: ADR を作成（docs/adr/）
-3. **セッション終了時**: handoff/LATEST.md を更新
-4. **コミット**: 作業単位を小さく、こまめに
-5. **mainへ直接push禁止**: 全ての変更（ドキュメント更新含む）は featureブランチ → PR → マージ
+2. **セッション終了時**: docs/handoff/LATEST.md を更新
 
-### ブランチ運用（必須）
+### ブランチ命名規則
 
-```
-# 全ての変更は以下のフローで行う（例外なし）
-git checkout -b feature/xxx  # または docs/xxx, fix/xxx
-# ... 作業 ...
-git add -A && git commit -m "メッセージ"
-git push -u origin feature/xxx
-gh pr create --title "タイトル" --body "説明"
-gh pr merge N --squash --delete-branch
-git checkout main && git pull
-```
-
-**禁止事項:**
-- `git push origin main` の直接実行
-- mainブランチでの直接コミット
-- ドキュメントのみの変更でもPRをスキップすること
+- `feature/xxx` - 機能追加
+- `fix/xxx` - バグ修正
+- `docs/xxx` - ドキュメント更新
 
 ## 開発コマンド
 
 ```bash
-# 環境ロード確認
-direnv allow
+# モバイル開発
+cd mobile && npx expo start
 
-# Firebase CLI
-firebase login
-firebase projects:list
+# Web開発
+cd web && npm run dev
+
+# Data Connect SDK再生成
+firebase dataconnect:sdk:generate
+
+# Firebaseデプロイ
 firebase deploy
 
-# GCP CLI
-gcloud auth list
+# 環境確認
+direnv allow
 gcloud config list
 ```
-
-※ビルド・テストコマンドは開発環境構築後に追加
 
 ## 作業再開時
 
@@ -188,25 +177,8 @@ gcloud config list
 
 ## 現在のフェーズ
 
-**開発環境セットアップ完了** → **MVP実装**
+**MVP実装中** - Phase 1完了、Phase 2進行中
 
-完了済み:
-- [x] Firebase Data Connect 有効化・デプロイ
-- [x] React Native / Expo + React Native Paper セットアップ（mobile/）
-- [x] Next.js + Material UI セットアップ（web/）
-- [x] Cloud SQL インスタンス作成（sanwa-houkai-db）
-- [x] GraphQL スキーマ定義（13テーブル）
-- [x] CI/CD 設定（GitHub Actions）
-- [x] Data Connect SDK 生成・統合（モバイル/Web両対応）
-- [x] Firebase Auth（Google OAuth）実装・Console設定完了
-- [x] 記録入力画面の実装（モバイル/Web両対応）
-- [x] 履歴一覧・詳細画面の実装（モバイル/Web両対応）
-- [x] Firebase Hosting デプロイ設定・稼働確認（https://sanwa-houkai-app.web.app）
-- [x] 利用者一覧・詳細画面の実装（モバイル/Web両対応）
-- [x] スケジュール画面の実装（FullCalendar / react-native-big-calendar）
-- [x] スケジュール新規作成・編集画面の実装（モバイル）
+- 本番URL: https://sanwa-houkai-app.web.app
 
-次のステップ:
-1. リアルタイム同期（Firestore連携）
-2. AI特記事項生成機能
-3. Web版スケジュール新規作成・編集画面
+詳細な進捗・次のアクションは `docs/handoff/LATEST.md` を参照
