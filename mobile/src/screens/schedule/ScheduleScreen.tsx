@@ -15,8 +15,12 @@ import {
 } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Calendar, ICalendarEventBase, Mode } from 'react-native-big-calendar';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ja';
+
+import { ScheduleStackParamList } from '../../navigation/RootNavigator';
 
 import { useStaff } from '../../hooks/useStaff';
 import { dataConnect } from '../../lib/firebase';
@@ -54,8 +58,11 @@ const VIEW_OPTIONS = [
   { value: 'month' as Mode, label: '月' },
 ];
 
+type ScheduleScreenNavigationProp = NativeStackNavigationProp<ScheduleStackParamList, 'ScheduleList'>;
+
 export default function ScheduleScreen() {
   const theme = useTheme();
+  const navigation = useNavigation<ScheduleScreenNavigationProp>();
   const { facilityId, loading: staffLoading } = useStaff();
 
   const [schedules, setSchedules] = useState<Schedule[]>([]);
@@ -109,17 +116,20 @@ export default function ScheduleScreen() {
     }
   }, [facilityId, currentDate, viewMode, getDateRange]);
 
-  useEffect(() => {
-    if (!facilityId) return;
+  // Reload data when screen is focused (e.g., after form submit)
+  useFocusEffect(
+    useCallback(() => {
+      if (!facilityId) return;
 
-    const loadData = async () => {
-      setLoading(true);
-      await fetchSchedules();
-      setLoading(false);
-    };
+      const loadData = async () => {
+        setLoading(true);
+        await fetchSchedules();
+        setLoading(false);
+      };
 
-    loadData();
-  }, [facilityId, fetchSchedules]);
+      loadData();
+    }, [facilityId, fetchSchedules])
+  );
 
   // Convert schedules to calendar events
   const events: CalendarEvent[] = useMemo(() => {
@@ -165,7 +175,25 @@ export default function ScheduleScreen() {
   };
 
   const handleAddSchedule = () => {
-    Alert.alert('新規予定', 'スケジュール作成画面は次の更新で実装されます');
+    navigation.navigate('ScheduleForm', {
+      initialDate: dayjs(currentDate).format('YYYY-MM-DD'),
+    });
+  };
+
+  const handleEditSchedule = (schedule: Schedule) => {
+    setDetailModalVisible(false);
+    navigation.navigate('ScheduleForm', {
+      schedule: {
+        id: schedule.id,
+        clientId: schedule.client.id,
+        staffId: schedule.staff.id,
+        serviceTypeId: schedule.serviceType?.id,
+        scheduledDate: schedule.scheduledDate,
+        startTime: schedule.startTime,
+        endTime: schedule.endTime,
+        notes: schedule.notes,
+      },
+    });
   };
 
   const formatDateRange = (): string => {
@@ -375,6 +403,14 @@ export default function ScheduleScreen() {
                   style={styles.modalButton}
                 >
                   閉じる
+                </Button>
+                <Button
+                  mode="contained"
+                  onPress={() => handleEditSchedule(selectedSchedule)}
+                  style={styles.modalButton}
+                  icon="pencil"
+                >
+                  編集
                 </Button>
               </View>
             </ScrollView>
