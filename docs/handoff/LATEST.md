@@ -1,4 +1,4 @@
-# 作業状態 - 2026-01-10 (Realtime Schedule Sync)
+# 作業状態 - 2026-01-10 (Firestore Rules Deployed)
 
 ## プロジェクト概要
 
