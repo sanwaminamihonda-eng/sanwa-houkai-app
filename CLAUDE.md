@@ -142,7 +142,25 @@ Phase 3
 2. **重要決定時**: ADR を作成（docs/adr/）
 3. **セッション終了時**: handoff/LATEST.md を更新
 4. **コミット**: 作業単位を小さく、こまめに
-5. **mainへ直接push禁止**: featureブランチ → PR → マージ
+5. **mainへ直接push禁止**: 全ての変更（ドキュメント更新含む）は featureブランチ → PR → マージ
+
+### ブランチ運用（必須）
+
+```
+# 全ての変更は以下のフローで行う（例外なし）
+git checkout -b feature/xxx  # または docs/xxx, fix/xxx
+# ... 作業 ...
+git add -A && git commit -m "メッセージ"
+git push -u origin feature/xxx
+gh pr create --title "タイトル" --body "説明"
+gh pr merge N --squash --delete-branch
+git checkout main && git pull
+```
+
+**禁止事項:**
+- `git push origin main` の直接実行
+- mainブランチでの直接コミット
+- ドキュメントのみの変更でもPRをスキップすること
 
 ## 開発コマンド
 
