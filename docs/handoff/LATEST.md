@@ -1,4 +1,4 @@
-# 作業状態 - 2026-01-10 (Firestore Rules Deployed)
+# 作業状態 - 2026-01-10 (PDF Report Generation)
 
 ## プロジェクト概要
 
@@ -352,23 +352,36 @@ web/
 
 ## 今セッション完了作業
 
-- [x] Firestoreルールデプロイ（リアルタイム同期有効化）
-  - `firebase deploy --only firestore:rules` 実行
-  - Firestoreデータベース（default）作成
-  - スケジュール更新通知用ルールをリリース
+- [x] PDF帳票生成機能（実施報告書）実装
+  - Cloud Storage設定（firebase.json, storage.rules）
+  - pdfkit + 日本語フォント（IPAexゴシック）導入
+  - generateReport Cloud Function実装
+    - PostgreSQL直接接続で訪問記録取得
+    - pdfkitでPDF生成
+    - Cloud Storageにアップロード
+    - AI月次要約生成（Vertex AI Gemini）
+  - Web報告書画面実装（web/src/app/reports/page.tsx）
+    - 報告書一覧テーブル
+    - 報告書作成ダイアログ
+    - Cloud Function呼び出し
+  - Data Connect クエリ追加（ListReportsByFacility）
+  - Cloud Functionsデプロイ完了（generateReport）
 
 ### 前セッション完了作業（参考）
 
+- [x] Firestoreルールデプロイ（リアルタイム同期有効化）
 - [x] スケジュールリアルタイム同期機能 - PR #26
 - [x] AI特記事項生成機能 - PR #25
-- [x] CLAUDE.md簡略化 - PR #23
 
 ## 次回アクション
 
-1. PDF帳票生成機能（実施報告書・訪問介護計画書）
-2. 繰り返し予定機能（毎週/毎月の定期スケジュール）
+1. **Firebase Storage初期セットアップ（必須）**
+   - Firebase ConsoleでStorageを有効化
+   - `firebase deploy --only storage` でルールをデプロイ
+2. 訪問介護計画書PDF生成機能
+3. 繰り返し予定機能（毎週/毎月の定期スケジュール）
 
 **デプロイ済み:**
-- Cloud Functions（generateVisitNotes）- 2026-01-09 デプロイ完了
+- Cloud Functions（generateVisitNotes, generateReport）- 2026-01-10 デプロイ完了
 - リアルタイム同期コード - 2026-01-10 マージ完了
-- Firestoreルール - 2026-01-10 デプロイ完了（リアルタイム同期有効化）
+- Firestoreルール - 2026-01-10 デプロイ完了
