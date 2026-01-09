@@ -180,9 +180,10 @@ gcloud config list
 - [x] GraphQL スキーマ定義（13テーブル）
 - [x] CI/CD 設定（GitHub Actions）
 - [x] Data Connect SDK 生成・統合（モバイル/Web両対応）
+- [x] Firebase Auth（Google OAuth）実装（コード実装済み）
 
 次のステップ:
-1. 認証機能（Firebase Auth）実装
+1. Firebase Console設定（Google認証有効化、OAuth クライアントID作成）
 2. 記録入力画面の実装
 3. スケジュール画面（FullCalendar統合）
 4. 履歴一覧・詳細画面
