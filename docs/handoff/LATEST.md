@@ -365,6 +365,9 @@ web/
 
 ## 次回アクション
 
-1. **Cloud Functionsデプロイ** - `firebase deploy --only functions` でAI生成APIを本番環境に反映
-2. リアルタイム同期（Firestore連携）
-3. PDF帳票生成機能
+1. リアルタイム同期（Firestore連携）
+2. PDF帳票生成機能
+3. 繰り返し予定機能
+
+**デプロイ済み:**
+- Cloud Functions（generateVisitNotes）- 2026-01-09 デプロイ完了
