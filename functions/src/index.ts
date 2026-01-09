@@ -8,7 +8,7 @@ import PDFDocument from "pdfkit";
 const PROJECT_ID = "sanwa-houkai-app";
 const LOCATION = "asia-northeast1";
 const MODEL_ID = "gemini-2.5-flash-preview-05-20";
-const BUCKET_NAME = `${PROJECT_ID}.firebasestorage.app`;
+const BUCKET_NAME = `${PROJECT_ID}-reports`;
 
 // Firebase Admin SDK初期化
 admin.initializeApp();
