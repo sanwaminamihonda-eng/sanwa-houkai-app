@@ -72,7 +72,7 @@
 - [x] FullCalendar パッケージインストール済み
 - [x] PR #7 マージ完了
 
-### Data Connect SDK統合（今回完了）
+### Data Connect SDK統合
 - [x] connector.yaml をモバイル/Web両方に出力する設定に修正
 - [x] `firebase dataconnect:sdk:generate` でSDK生成
 - [x] モバイルアプリ（Expo）へのSDK統合
@@ -82,6 +82,25 @@
   - web/src/lib/firebase.ts にData Connect初期化追加
 - [x] 両アプリでビルド成功確認
 - [x] PR #8 マージ完了
+
+### Firebase Auth（Google OAuth）実装（今回完了）
+- [x] モバイルアプリ認証機能
+  - expo-auth-session / expo-web-browser / expo-crypto パッケージ追加
+  - mobile/src/lib/firebase.ts にAuth初期化追加
+  - mobile/src/contexts/AuthContext.tsx 作成（認証状態管理）
+  - mobile/src/screens/auth/LoginScreen.tsx 作成（ログイン画面）
+  - mobile/src/navigation/RootNavigator.tsx 認証分岐追加
+  - mobile/App.tsx AuthProviderでラップ
+  - mobile/src/screens/settings/SettingsScreen.tsx ログアウト機能追加
+  - mobile/app.json にscheme追加（sanwa-houkai）
+  - mobile/.env.example にGoogle Client ID追加
+- [x] Webアプリ認証機能
+  - web/src/contexts/AuthContext.tsx 作成（認証状態管理）
+  - web/src/app/login/page.tsx 作成（ログインページ）
+  - web/src/components/AuthGuard.tsx 作成（認証ガード）
+  - web/src/components/ThemeRegistry.tsx AuthProviderでラップ
+  - web/src/components/layout/MainLayout.tsx AuthGuardでラップ
+  - web/src/components/layout/Header.tsx ログアウト機能実装
 
 ## 設計決定事項
 
@@ -141,7 +160,7 @@
 | タスク | 状態 |
 |--------|------|
 | Data Connect SDK生成・統合 | ✅ 完了 |
-| 認証機能（Google OAuth） | 未着手 |
+| 認証機能（Google OAuth） | ✅ 完了（コード実装済み、Firebase Console設定待ち） |
 | 記録入力画面 | 未着手 |
 | 履歴一覧・詳細画面 | 未着手 |
 | 利用者一覧・詳細画面 | 未着手 |
@@ -198,17 +217,21 @@ DB設計時:   data-model.md
 
 ```
 mobile/
-├── App.tsx                 # エントリーポイント（Provider設定）
-├── app.json                # Expo設定
-├── .env.example            # Firebase環境変数テンプレート
+├── App.tsx                 # エントリーポイント（AuthProvider設定）
+├── app.json                # Expo設定（scheme: sanwa-houkai）
+├── .env.example            # Firebase + Google OAuth環境変数テンプレート
 ├── src/
+│   ├── contexts/
+│   │   └── AuthContext.tsx # 認証状態管理
 │   ├── generated/
 │   │   └── dataconnect/    # Data Connect生成SDK
 │   ├── lib/
-│   │   └── firebase.ts     # Firebase/Data Connect初期化
+│   │   └── firebase.ts     # Firebase/Auth/Data Connect初期化
 │   ├── navigation/
-│   │   └── RootNavigator.tsx   # 5タブナビゲーション
+│   │   └── RootNavigator.tsx   # 認証分岐 + 5タブナビゲーション
 │   ├── screens/
+│   │   ├── auth/
+│   │   │   └── LoginScreen.tsx     # ログイン画面
 │   │   ├── records/
 │   │   │   ├── RecordInputScreen.tsx
 │   │   │   └── RecordHistoryScreen.tsx
@@ -217,7 +240,7 @@ mobile/
 │   │   ├── clients/
 │   │   │   └── ClientListScreen.tsx
 │   │   └── settings/
-│   │       └── SettingsScreen.tsx
+│   │       └── SettingsScreen.tsx  # ログアウト機能付き
 │   └── theme/
 │       └── index.ts        # Material Design 3テーマ
 ```
@@ -230,6 +253,7 @@ web/
 │   ├── app/
 │   │   ├── page.tsx               # ダッシュボード
 │   │   ├── layout.tsx             # ルートレイアウト
+│   │   ├── login/page.tsx         # ログインページ
 │   │   ├── records/
 │   │   │   ├── page.tsx           # 履歴一覧
 │   │   │   └── new/page.tsx       # 記録入力
@@ -240,14 +264,17 @@ web/
 │   │   └── settings/page.tsx      # 設定
 │   ├── components/
 │   │   ├── layout/
-│   │   │   ├── MainLayout.tsx     # メインレイアウト
+│   │   │   ├── MainLayout.tsx     # メインレイアウト（AuthGuard付き）
 │   │   │   ├── Sidebar.tsx        # サイドナビゲーション
-│   │   │   └── Header.tsx         # ヘッダー
-│   │   └── ThemeRegistry.tsx      # MUIテーマプロバイダー
+│   │   │   └── Header.tsx         # ヘッダー（ログアウト機能付き）
+│   │   ├── AuthGuard.tsx          # 認証ガード
+│   │   └── ThemeRegistry.tsx      # MUIテーマ + AuthProvider
+│   ├── contexts/
+│   │   └── AuthContext.tsx        # 認証状態管理
 │   ├── generated/
 │   │   └── dataconnect/           # Data Connect生成SDK
 │   ├── lib/
-│   │   └── firebase.ts            # Firebase/Data Connect設定
+│   │   └── firebase.ts            # Firebase/Auth/Data Connect設定
 │   └── theme/
 │       └── index.ts               # MUIカスタムテーマ
 └── .env.example                   # 環境変数テンプレート
@@ -262,17 +289,20 @@ web/
 
 ## 今セッション完了作業
 
-- [x] Data Connect SDK生成・統合
-  - connector.yaml をモバイル/Web両方へ出力設定
-  - `firebase dataconnect:sdk:generate` でSDK生成
-  - 13テーブルの型安全なクエリ・ミューテーション利用可能
-  - モバイル: mobile/src/lib/firebase.ts, mobile/.env.example
-  - Web: web/src/lib/firebase.ts にData Connect初期化追加
-- [x] PR #8 作成・レビュー・マージ
+- [x] Firebase Auth（Google OAuth）実装
+  - モバイル: expo-auth-session + Firebase Web SDK 方式
+  - Web: signInWithPopup 方式
+  - 認証状態管理（AuthContext）
+  - ログイン画面（LoginScreen / login/page.tsx）
+  - 認証ガード（RootNavigator分岐 / AuthGuard）
+  - ログアウト機能（SettingsScreen / Header）
 
 ## 次回アクション
 
-1. 認証機能（Firebase Auth）実装
+1. **Firebase Console設定**（認証動作確認の前提）
+   - Firebase Console → Authentication → Google プロバイダ有効化
+   - GCP Console → OAuth クライアント ID 作成（Web/Android/iOS）
+   - `.env.local` に実際の値を設定
 2. 記録入力画面の実装
 3. スケジュール画面（FullCalendar統合）
 4. 履歴一覧・詳細画面

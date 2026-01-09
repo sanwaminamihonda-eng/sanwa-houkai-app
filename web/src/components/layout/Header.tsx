@@ -10,15 +10,17 @@ import {
   Avatar,
   Menu,
   MenuItem,
+  Divider,
 } from '@mui/material';
-import { AccountCircle as AccountIcon } from '@mui/icons-material';
 import { DRAWER_WIDTH } from './Sidebar';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface HeaderProps {
   title?: string;
 }
 
 export default function Header({ title = '訪問介護記録管理' }: HeaderProps) {
+  const { user, signOut } = useAuth();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -27,6 +29,11 @@ export default function Header({ title = '訪問介護記録管理' }: HeaderPro
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleLogout = async () => {
+    handleClose();
+    await signOut();
   };
 
   return (
@@ -53,8 +60,11 @@ export default function Header({ title = '訪問介護記録管理' }: HeaderPro
             onClick={handleMenu}
             color="inherit"
           >
-            <Avatar sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}>
-              <AccountIcon />
+            <Avatar
+              sx={{ width: 32, height: 32, bgcolor: 'primary.main' }}
+              src={user?.photoURL || undefined}
+            >
+              {user?.displayName?.[0] || user?.email?.[0] || '?'}
             </Avatar>
           </IconButton>
           <Menu
@@ -72,8 +82,18 @@ export default function Header({ title = '訪問介護記録管理' }: HeaderPro
             open={Boolean(anchorEl)}
             onClose={handleClose}
           >
-            <MenuItem onClick={handleClose}>プロフィール</MenuItem>
-            <MenuItem onClick={handleClose}>ログアウト</MenuItem>
+            <MenuItem disabled sx={{ opacity: 1 }}>
+              <Box>
+                <Typography variant="body2" fontWeight="medium">
+                  {user?.displayName || 'ユーザー'}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {user?.email}
+                </Typography>
+              </Box>
+            </MenuItem>
+            <Divider />
+            <MenuItem onClick={handleLogout}>ログアウト</MenuItem>
           </Menu>
         </Box>
       </Toolbar>

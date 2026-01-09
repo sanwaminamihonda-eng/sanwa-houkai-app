@@ -1,21 +1,84 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { Text, useTheme } from 'react-native-paper';
+import { View, StyleSheet, ScrollView } from 'react-native';
+import { Text, useTheme, List, Avatar, Button, Divider } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function SettingsScreen() {
   const theme = useTheme();
+  const { user, signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <View style={styles.content}>
-        <Text variant="headlineMedium" style={{ color: theme.colors.primary }}>
-          その他
-        </Text>
-        <Text variant="bodyMedium" style={styles.placeholder}>
-          設定・帳票メニュー（実装予定）
-        </Text>
-      </View>
+      <ScrollView>
+        <View style={styles.header}>
+          <Text variant="headlineMedium" style={{ color: theme.colors.primary }}>
+            その他
+          </Text>
+        </View>
+
+        <View style={styles.userSection}>
+          <Avatar.Image
+            size={64}
+            source={{ uri: user?.photoURL || undefined }}
+            style={styles.avatar}
+          />
+          <View style={styles.userInfo}>
+            <Text variant="titleMedium">{user?.displayName || 'ユーザー'}</Text>
+            <Text variant="bodySmall" style={styles.email}>
+              {user?.email}
+            </Text>
+          </View>
+        </View>
+
+        <Divider style={styles.divider} />
+
+        <List.Section>
+          <List.Subheader>メニュー</List.Subheader>
+          <List.Item
+            title="帳票一覧"
+            description="報告書・計画書の出力"
+            left={(props) => <List.Icon {...props} icon="file-document-outline" />}
+            right={(props) => <List.Icon {...props} icon="chevron-right" />}
+          />
+          <List.Item
+            title="支援者管理"
+            description="職員情報の管理"
+            left={(props) => <List.Icon {...props} icon="account-group" />}
+            right={(props) => <List.Icon {...props} icon="chevron-right" />}
+          />
+          <List.Item
+            title="設定"
+            description="アプリの設定"
+            left={(props) => <List.Icon {...props} icon="cog" />}
+            right={(props) => <List.Icon {...props} icon="chevron-right" />}
+          />
+        </List.Section>
+
+        <Divider style={styles.divider} />
+
+        <View style={styles.logoutSection}>
+          <Button
+            mode="outlined"
+            onPress={handleLogout}
+            icon="logout"
+            textColor={theme.colors.error}
+            style={styles.logoutButton}
+          >
+            ログアウト
+          </Button>
+        </View>
+
+        <View style={styles.versionSection}>
+          <Text variant="bodySmall" style={styles.versionText}>
+            バージョン 1.0.0
+          </Text>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -25,14 +88,41 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FAFAFA',
   },
-  content: {
+  header: {
+    padding: 16,
+    paddingBottom: 8,
+  },
+  userSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    backgroundColor: '#FFFFFF',
+  },
+  avatar: {
+    backgroundColor: '#E0E0E0',
+  },
+  userInfo: {
+    marginLeft: 16,
     flex: 1,
+  },
+  email: {
+    color: '#757575',
+    marginTop: 2,
+  },
+  divider: {
+    marginVertical: 8,
+  },
+  logoutSection: {
+    padding: 16,
+  },
+  logoutButton: {
+    borderColor: '#F44336',
+  },
+  versionSection: {
     padding: 16,
     alignItems: 'center',
-    justifyContent: 'center',
   },
-  placeholder: {
-    marginTop: 8,
-    color: '#757575',
+  versionText: {
+    color: '#9E9E9E',
   },
 });

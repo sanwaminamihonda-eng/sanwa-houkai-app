@@ -1,4 +1,5 @@
 import { initializeApp, getApps } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
 import { getDataConnect } from 'firebase/data-connect';
 import { connectorConfig } from '@sanwa-houkai-app/dataconnect';
 
@@ -14,7 +15,10 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 
+// Initialize Auth
+const auth = getAuth(app);
+
 // Initialize Data Connect
 const dataConnect = getDataConnect(app, connectorConfig);
 
-export { app, dataConnect };
+export { app, auth, dataConnect };
