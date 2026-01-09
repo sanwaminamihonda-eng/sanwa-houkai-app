@@ -1,4 +1,4 @@
-# 作業状態 - 2026-01-09 (Record History Screen)
+# 作業状態 - 2026-01-09 (Firebase Hosting Deploy)
 
 ## プロジェクト概要
 
@@ -218,9 +218,10 @@
 | タスク | 状態 |
 |--------|------|
 | Data Connect SDK生成・統合 | ✅ 完了 |
-| 認証機能（Google OAuth） | ✅ 完了（コード実装済み、Firebase Console設定待ち） |
+| 認証機能（Google OAuth） | ✅ 完了（コード実装・Console設定完了） |
 | 記録入力画面 | ✅ 完了（モバイル/Web両対応） |
 | 履歴一覧・詳細画面 | ✅ 完了（モバイル/Web両対応） |
+| Firebase Hosting デプロイ | ✅ 完了（https://sanwa-houkai-app.web.app） |
 | 利用者一覧・詳細画面 | 未着手 |
 | スケジュール表示（週/日/月） | 未着手 |
 
@@ -343,26 +344,29 @@ web/
 - リポジトリ: sanwaminamihonda-eng/sanwa-houkai-app
 - ブランチ: main
 - 状態: clean
-- CI/CD: ✅ 動作確認済み（PR #6, #7, #8）
+- CI/CD: ✅ 動作確認済み（PR #6, #7, #8, #10, #11, #12）
+- デプロイ: ✅ Firebase Hosting 自動デプロイ（main push時）
 
 ## 今セッション完了作業
 
-- [x] 履歴一覧画面実装（モバイル/Web）
-  - FlatList/MUI Tableでの一覧表示
-  - 直近30日の記録取得
-  - 利用者フィルター
-  - プルリフレッシュ/ページネーション
-- [x] 履歴詳細画面実装（モバイル/Web）
-  - 基本情報、バイタル、サービス内容、特記事項表示
-  - AI生成フラグ、満足度、状態変化等
-- [x] モバイルナビゲーション更新（スタック追加）
-- [x] PR #10 マージ完了
+- [x] Firebase Hosting デプロイ設定
+  - firebase.json にhosting設定追加
+  - .github/workflows/deploy.yml 作成（mainへのpushで自動デプロイ）
+  - next.config.ts を静的エクスポート設定に変更
+  - web/src/app/records/[id] → web/src/app/records/detail?id= に変更（静的エクスポート対応）
+  - web/src/lib/firebase.ts をビルド時対応に修正
+  - PR #12 マージ
+- [x] GitHub Secrets設定（CLI）
+  - Firebase Webアプリ作成（sanwa-houkai-web）
+  - 7つのSecrets設定（FIREBASE_API_KEY, AUTH_DOMAIN, PROJECT_ID, STORAGE_BUCKET, MESSAGING_SENDER_ID, APP_ID, SERVICE_ACCOUNT）
+  - GitHub Actions用サービスアカウント作成（github-actions-deploy）
+- [x] Firebase Auth Console設定
+  - Google認証プロバイダ有効化
+- [x] デプロイ実行・確認
+  - https://sanwa-houkai-app.web.app で稼働確認
+- [x] ローカル開発用 web/.env.local 作成
 
 ## 次回アクション
 
-1. **Firebase Console設定**（認証動作確認の前提）
-   - Firebase Console → Authentication → Google プロバイダ有効化
-   - GCP Console → OAuth クライアント ID 作成（Web/Android/iOS）
-   - `.env.local` に実際の値を設定
-2. 利用者一覧・詳細画面の実装
-3. スケジュール画面（FullCalendar統合）
+1. 利用者一覧・詳細画面の実装
+2. スケジュール画面（FullCalendar統合）
