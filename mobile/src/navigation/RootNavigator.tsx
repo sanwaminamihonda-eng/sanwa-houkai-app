@@ -10,6 +10,7 @@ import { useAuth } from '../contexts/AuthContext';
 import LoginScreen from '../screens/auth/LoginScreen';
 import RecordInputScreen from '../screens/records/RecordInputScreen';
 import RecordHistoryScreen from '../screens/records/RecordHistoryScreen';
+import RecordDetailScreen from '../screens/records/RecordDetailScreen';
 import ScheduleScreen from '../screens/schedule/ScheduleScreen';
 import ClientListScreen from '../screens/clients/ClientListScreen';
 import SettingsScreen from '../screens/settings/SettingsScreen';
@@ -21,14 +22,29 @@ export type RootStackParamList = {
 
 export type MainTabParamList = {
   RecordInput: undefined;
-  RecordHistory: undefined;
+  RecordHistoryStack: undefined;
   Schedule: undefined;
   ClientList: undefined;
   Settings: undefined;
 };
 
+export type RecordHistoryStackParamList = {
+  RecordHistory: undefined;
+  RecordDetail: { recordId: string };
+};
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
+const RecordHistoryStack = createNativeStackNavigator<RecordHistoryStackParamList>();
+
+function RecordHistoryNavigator() {
+  return (
+    <RecordHistoryStack.Navigator screenOptions={{ headerShown: false }}>
+      <RecordHistoryStack.Screen name="RecordHistory" component={RecordHistoryScreen} />
+      <RecordHistoryStack.Screen name="RecordDetail" component={RecordDetailScreen} />
+    </RecordHistoryStack.Navigator>
+  );
+}
 
 function MainTabs() {
   const theme = useTheme();
@@ -62,8 +78,8 @@ function MainTabs() {
         }}
       />
       <Tab.Screen
-        name="RecordHistory"
-        component={RecordHistoryScreen}
+        name="RecordHistoryStack"
+        component={RecordHistoryNavigator}
         options={{
           tabBarLabel: '履歴',
           tabBarIcon: ({ color, size }) => (
