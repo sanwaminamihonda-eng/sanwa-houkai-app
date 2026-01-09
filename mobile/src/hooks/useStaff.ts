@@ -19,18 +19,12 @@ export function useStaff(): UseStaffResult {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchStaff = async () => {
-    if (!user) {
-      setStaff(null);
-      setLoading(false);
-      return;
-    }
-
+  const fetchStaff = async (uid: string) => {
     setLoading(true);
     setError(null);
 
     try {
-      const result = await getStaffByFirebaseUid(dataConnect, { uid: user.uid });
+      const result = await getStaffByFirebaseUid(dataConnect, { uid });
       if (result.data.staffs.length > 0) {
         setStaff(result.data.staffs[0]);
       } else {
@@ -45,14 +39,25 @@ export function useStaff(): UseStaffResult {
   };
 
   useEffect(() => {
-    fetchStaff();
-  }, [user?.uid]);
+    if (!user) {
+      setStaff(null);
+      setLoading(false);
+      return;
+    }
+    fetchStaff(user.uid);
+  }, [user]);
+
+  const refetch = async () => {
+    if (user) {
+      await fetchStaff(user.uid);
+    }
+  };
 
   return {
     staff,
     facilityId: staff?.facility.id ?? null,
     loading,
     error,
-    refetch: fetchStaff,
+    refetch,
   };
 }
