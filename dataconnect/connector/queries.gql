@@ -1,0 +1,319 @@
+# =============================================
+# クエリ定義
+# =============================================
+
+# ---------------------
+# マスタデータ取得
+# ---------------------
+
+query ListCareLevels @auth(level: USER) {
+  careLevels(orderBy: [{ sortOrder: ASC }]) {
+    id
+    name
+    sortOrder
+  }
+}
+
+query ListVisitReasons @auth(level: USER) {
+  visitReasons(orderBy: [{ sortOrder: ASC }]) {
+    id
+    name
+    sortOrder
+  }
+}
+
+query ListServiceTypes($facilityId: UUID!) @auth(level: USER) {
+  serviceTypes(where: { facility: { id: { eq: $facilityId } } }, orderBy: [{ sortOrder: ASC }]) {
+    id
+    code
+    name
+    category
+    color
+    sortOrder
+  }
+}
+
+query ListServiceItems($serviceTypeId: UUID!) @auth(level: USER) {
+  serviceItems(where: { serviceType: { id: { eq: $serviceTypeId } } }, orderBy: [{ sortOrder: ASC }]) {
+    id
+    name
+    sortOrder
+  }
+}
+
+# ---------------------
+# 職員
+# ---------------------
+
+query GetStaffByFirebaseUid($uid: String!) @auth(level: USER) {
+  staffs(where: { firebaseUid: { eq: $uid }, isActive: { eq: true } }, limit: 1) {
+    id
+    name
+    email
+    role
+    facility {
+      id
+      name
+    }
+  }
+}
+
+query ListStaff($facilityId: UUID!) @auth(level: USER) {
+  staffs(where: { facility: { id: { eq: $facilityId } }, isActive: { eq: true } }, orderBy: [{ name: ASC }]) {
+    id
+    name
+    email
+    role
+  }
+}
+
+# ---------------------
+# 利用者
+# ---------------------
+
+query ListClients($facilityId: UUID!) @auth(level: USER) {
+  clients(where: { facility: { id: { eq: $facilityId } }, isActive: { eq: true } }, orderBy: [{ nameKana: ASC }]) {
+    id
+    name
+    nameKana
+    gender
+    careLevel {
+      name
+    }
+    phone
+    addressPrefecture
+    addressCity
+  }
+}
+
+query GetClient($id: UUID!) @auth(level: USER) {
+  client(id: $id) {
+    id
+    name
+    nameKana
+    gender
+    birthDate
+    careLevel {
+      id
+      name
+    }
+    addressPrefecture
+    addressCity
+    phone
+    careManager
+    careOffice
+    emergencyPhone
+    emergencyName
+    emergencyRelation
+    assessment
+    lastAssessmentDate
+    regularServices
+    notes
+    isActive
+    createdAt
+    updatedAt
+  }
+}
+
+# ---------------------
+# スケジュール
+# ---------------------
+
+query ListSchedulesByDateRange(
+  $facilityId: UUID!
+  $startDate: Date!
+  $endDate: Date!
+) @auth(level: USER) {
+  schedules(
+    where: {
+      facility: { id: { eq: $facilityId } }
+      scheduledDate: { ge: $startDate, le: $endDate }
+    }
+    orderBy: [{ scheduledDate: ASC }, { startTime: ASC }]
+  ) {
+    id
+    scheduledDate
+    startTime
+    endTime
+    status
+    notes
+    client {
+      id
+      name
+    }
+    staff {
+      id
+      name
+    }
+    serviceType {
+      id
+      name
+      category
+      color
+    }
+  }
+}
+
+query ListSchedulesByStaff(
+  $staffId: UUID!
+  $startDate: Date!
+  $endDate: Date!
+) @auth(level: USER) {
+  schedules(
+    where: {
+      staff: { id: { eq: $staffId } }
+      scheduledDate: { ge: $startDate, le: $endDate }
+    }
+    orderBy: [{ scheduledDate: ASC }, { startTime: ASC }]
+  ) {
+    id
+    scheduledDate
+    startTime
+    endTime
+    status
+    notes
+    client {
+      id
+      name
+    }
+    serviceType {
+      id
+      name
+      category
+      color
+    }
+  }
+}
+
+# ---------------------
+# 訪問記録
+# ---------------------
+
+query ListVisitRecordsByClient(
+  $clientId: UUID!
+  $limit: Int = 20
+) @auth(level: USER) {
+  visitRecords(
+    where: { client: { id: { eq: $clientId } } }
+    orderBy: [{ visitDate: DESC }, { startTime: DESC }]
+    limit: $limit
+  ) {
+    id
+    visitDate
+    startTime
+    endTime
+    vitals
+    services
+    notes
+    staff {
+      id
+      name
+    }
+    visitReason {
+      name
+    }
+  }
+}
+
+query ListVisitRecordsByDateRange(
+  $facilityId: UUID!
+  $startDate: Date!
+  $endDate: Date!
+) @auth(level: USER) {
+  visitRecords(
+    where: {
+      client: { facility: { id: { eq: $facilityId } } }
+      visitDate: { ge: $startDate, le: $endDate }
+    }
+    orderBy: [{ visitDate: DESC }, { startTime: DESC }]
+  ) {
+    id
+    visitDate
+    startTime
+    endTime
+    vitals
+    services
+    notes
+    client {
+      id
+      name
+    }
+    staff {
+      id
+      name
+    }
+  }
+}
+
+query GetVisitRecord($id: UUID!) @auth(level: USER) {
+  visitRecord(id: $id) {
+    id
+    visitDate
+    startTime
+    endTime
+    vitals
+    services
+    notes
+    aiGenerated
+    aiInput
+    satisfaction
+    satisfactionReason
+    conditionChange
+    conditionChangeDetail
+    serviceChangeNeeded
+    serviceChangeDetail
+    attachments
+    client {
+      id
+      name
+    }
+    staff {
+      id
+      name
+    }
+    visitReason {
+      id
+      name
+    }
+    schedule {
+      id
+    }
+    createdAt
+    updatedAt
+  }
+}
+
+# ---------------------
+# 帳票
+# ---------------------
+
+query ListReportsByClient($clientId: UUID!) @auth(level: USER) {
+  reports(
+    where: { client: { id: { eq: $clientId } } }
+    orderBy: [{ targetYear: DESC }, { targetMonth: DESC }]
+  ) {
+    id
+    targetYear
+    targetMonth
+    summary
+    pdfGenerated
+    pdfUrl
+    createdAt
+  }
+}
+
+query ListCarePlansByClient($clientId: UUID!) @auth(level: USER) {
+  carePlans(
+    where: { client: { id: { eq: $clientId } } }
+    orderBy: [{ createdAt: DESC }]
+  ) {
+    id
+    currentSituation
+    familyWishes
+    mainSupport
+    longTermGoals
+    shortTermGoals
+    pdfUrl
+    createdAt
+  }
+}

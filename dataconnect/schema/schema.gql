@@ -1,0 +1,196 @@
+# =============================================
+# 訪問介護記録アプリ - Firebase Data Connect Schema
+# =============================================
+
+# ---------------------
+# マスタテーブル
+# ---------------------
+
+# 要介護度マスタ
+type CareLevel @table(name: "care_levels") {
+  id: UUID! @default(expr: "uuidV4()")
+  name: String!
+  sortOrder: Int @col(name: "sort_order")
+}
+
+# 訪問理由マスタ
+type VisitReason @table(name: "visit_reasons") {
+  id: UUID! @default(expr: "uuidV4()")
+  name: String!
+  sortOrder: Int @col(name: "sort_order")
+}
+
+# 目標文例マスタ
+type GoalTemplate @table(name: "goal_templates") {
+  id: UUID! @default(expr: "uuidV4()")
+  supportType: String! @col(name: "support_type")
+  goalType: String! @col(name: "goal_type")
+  content: String!
+  sortOrder: Int @col(name: "sort_order")
+}
+
+# AIプロンプトマスタ
+type Prompt @table(name: "prompts") {
+  id: UUID! @default(expr: "uuidV4()")
+  title: String!
+  content: String!
+  sortOrder: Int @col(name: "sort_order")
+}
+
+# ---------------------
+# 事業所関連
+# ---------------------
+
+# 事業所
+type Facility @table(name: "facilities") {
+  id: UUID! @default(expr: "uuidV4()")
+  name: String!
+  address: String
+  phone: String
+  createdAt: Timestamp! @col(name: "created_at") @default(expr: "request.time")
+  updatedAt: Timestamp! @col(name: "updated_at") @default(expr: "request.time")
+}
+
+# サービス種類（身体介護/生活援助/自立支援）
+type ServiceType @table(name: "service_types") {
+  id: UUID! @default(expr: "uuidV4()")
+  facility: Facility!
+  code: String
+  name: String!
+  category: String!
+  color: String
+  sortOrder: Int @col(name: "sort_order")
+}
+
+# サービス項目（排泄介助、掃除など）
+type ServiceItem @table(name: "service_items") {
+  id: UUID! @default(expr: "uuidV4()")
+  serviceType: ServiceType!
+  name: String!
+  sortOrder: Int @col(name: "sort_order")
+}
+
+# ---------------------
+# 職員・利用者
+# ---------------------
+
+# 職員
+type Staff @table(name: "staff") {
+  id: UUID! @default(expr: "uuidV4()")
+  facility: Facility!
+  firebaseUid: String @col(name: "firebase_uid")
+  name: String!
+  email: String
+  role: String @default(value: "staff")
+  isActive: Boolean! @col(name: "is_active") @default(value: true)
+  createdAt: Timestamp! @col(name: "created_at") @default(expr: "request.time")
+  updatedAt: Timestamp! @col(name: "updated_at") @default(expr: "request.time")
+}
+
+# 利用者
+type Client @table(name: "clients") {
+  id: UUID! @default(expr: "uuidV4()")
+  facility: Facility!
+  name: String!
+  nameKana: String @col(name: "name_kana")
+  gender: String
+  birthDate: Date @col(name: "birth_date")
+  careLevel: CareLevel
+  addressPrefecture: String @col(name: "address_prefecture")
+  addressCity: String @col(name: "address_city")
+  phone: String
+  careManager: String @col(name: "care_manager")
+  careOffice: String @col(name: "care_office")
+  emergencyPhone: String @col(name: "emergency_phone")
+  emergencyName: String @col(name: "emergency_name")
+  emergencyRelation: String @col(name: "emergency_relation")
+  assessment: Any
+  lastAssessmentDate: Date @col(name: "last_assessment_date")
+  regularServices: Any @col(name: "regular_services")
+  notes: String
+  isActive: Boolean! @col(name: "is_active") @default(value: true)
+  createdAt: Timestamp! @col(name: "created_at") @default(expr: "request.time")
+  updatedAt: Timestamp! @col(name: "updated_at") @default(expr: "request.time")
+}
+
+# ---------------------
+# スケジュール・記録
+# ---------------------
+
+# スケジュール（予定）
+type Schedule @table(name: "schedules") {
+  id: UUID! @default(expr: "uuidV4()")
+  facility: Facility!
+  client: Client!
+  staff: Staff!
+  serviceType: ServiceType
+  scheduledDate: Date! @col(name: "scheduled_date")
+  startTime: String! @col(name: "start_time")
+  endTime: String! @col(name: "end_time")
+  status: String @default(value: "scheduled")
+  recurrenceRule: String @col(name: "recurrence_rule")
+  recurrenceId: UUID @col(name: "recurrence_id")
+  notes: String
+  createdAt: Timestamp! @col(name: "created_at") @default(expr: "request.time")
+  updatedAt: Timestamp! @col(name: "updated_at") @default(expr: "request.time")
+}
+
+# 訪問記録（実績）
+type VisitRecord @table(name: "visit_records") {
+  id: UUID! @default(expr: "uuidV4()")
+  schedule: Schedule
+  client: Client!
+  staff: Staff!
+  visitDate: Date! @col(name: "visit_date")
+  visitReason: VisitReason
+  startTime: String! @col(name: "start_time")
+  endTime: String! @col(name: "end_time")
+  vitals: Any
+  services: Any!
+  notes: String
+  aiGenerated: Boolean @col(name: "ai_generated") @default(value: false)
+  aiInput: String @col(name: "ai_input")
+  satisfaction: String
+  satisfactionReason: String @col(name: "satisfaction_reason")
+  conditionChange: String @col(name: "condition_change")
+  conditionChangeDetail: String @col(name: "condition_change_detail")
+  serviceChangeNeeded: String @col(name: "service_change_needed")
+  serviceChangeDetail: String @col(name: "service_change_detail")
+  attachments: [String] @col(name: "attachments")
+  createdAt: Timestamp! @col(name: "created_at") @default(expr: "request.time")
+  updatedAt: Timestamp! @col(name: "updated_at") @default(expr: "request.time")
+}
+
+# ---------------------
+# 帳票
+# ---------------------
+
+# 実施報告書
+type Report @table(name: "reports") {
+  id: UUID! @default(expr: "uuidV4()")
+  client: Client!
+  staff: Staff!
+  targetYear: Int! @col(name: "target_year")
+  targetMonth: Int! @col(name: "target_month")
+  summary: String
+  aiGenerated: Boolean @col(name: "ai_generated") @default(value: false)
+  pdfUrl: String @col(name: "pdf_url")
+  pdfGenerated: Boolean @col(name: "pdf_generated") @default(value: false)
+  createdAt: Timestamp! @col(name: "created_at") @default(expr: "request.time")
+  updatedAt: Timestamp! @col(name: "updated_at") @default(expr: "request.time")
+}
+
+# ケアプラン（訪問介護計画書）
+type CarePlan @table(name: "care_plans") {
+  id: UUID! @default(expr: "uuidV4()")
+  client: Client!
+  staff: Staff!
+  currentSituation: String @col(name: "current_situation")
+  familyWishes: String @col(name: "family_wishes")
+  mainSupport: String @col(name: "main_support")
+  longTermGoals: Any @col(name: "long_term_goals")
+  shortTermGoals: Any @col(name: "short_term_goals")
+  pdfUrl: String @col(name: "pdf_url")
+  createdAt: Timestamp! @col(name: "created_at") @default(expr: "request.time")
+  updatedAt: Timestamp! @col(name: "updated_at") @default(expr: "request.time")
+}

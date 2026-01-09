@@ -17,7 +17,7 @@
 
 ## 現在のフェーズ
 
-**設計フェーズ完了** → **インフラ構築フェーズ**
+**インフラ構築フェーズ** → **開発環境セットアップ**
 
 ## 完了タスク
 
@@ -30,7 +30,7 @@
 - [x] GCP/Firebase プロジェクト作成
 - [x] direnv 環境自動切り替え設定
 
-### ドキュメント整備（今回完了）
+### ドキュメント整備
 - [x] AppSheetドキュメントをMarkdownに変換（docs/md/）
 - [x] 現行システム仕様書作成（docs/legacy/appsheet-spec.md）
 - [x] UI設計ガイドライン作成（docs/ui/design-guidelines.md）
@@ -39,6 +39,18 @@
 - [x] データモデル詳細化（docs/data-model.md）
 - [x] CLAUDE.md AI駆動開発向け最適化
 - [x] docs/README.md 整理
+
+### Firebase Data Connect セットアップ（今回完了）
+- [x] Firebase プロジェクト初期化（firebase.json）
+- [x] Data Connect 設定（dataconnect/dataconnect.yaml）
+- [x] GraphQL スキーマ定義（dataconnect/schema/schema.gql）
+  - 13テーブル: CareLevel, VisitReason, GoalTemplate, Prompt, Facility, ServiceType, ServiceItem, Staff, Client, Schedule, VisitRecord, Report, CarePlan
+- [x] クエリ・ミューテーション定義
+  - dataconnect/connector/queries.gql
+  - dataconnect/connector/mutations.gql
+- [x] GCP課金アカウントリンク
+- [x] Cloud SQL インスタンス作成（sanwa-houkai-db, db-f1-micro, asia-northeast1）
+- [x] Data Connect サービスデプロイ
 
 ## 設計決定事項
 
@@ -80,10 +92,10 @@
 
 | タスク | 状態 |
 |--------|------|
-| Firebase Data Connect 有効化 | 未着手 |
-| Cloud SQL インスタンス作成 | 未着手 |
-| PostgreSQL スキーマ適用 | 未着手 |
-| Data Connect GraphQL スキーマ作成 | 未着手 |
+| Firebase Data Connect 有効化 | ✅ 完了 |
+| Cloud SQL インスタンス作成 | ✅ 完了 |
+| PostgreSQL スキーマ適用 | ✅ 完了（自動） |
+| Data Connect GraphQL スキーマ作成 | ✅ 完了 |
 
 ### Phase 2: 開発環境（P0）
 
@@ -130,18 +142,47 @@ DB設計時:   data-model.md
 詳細カラム: docs/md/Application_Documentation.md
 ```
 
+## インフラ情報
+
+### Firebase Data Connect
+
+| 項目 | 値 |
+|------|-----|
+| Service ID | sanwa-houkai-service |
+| Location | asia-northeast1 |
+| Connector ID | default |
+
+### Cloud SQL
+
+| 項目 | 値 |
+|------|-----|
+| Instance | sanwa-houkai-db |
+| Database | fdcdb |
+| Version | PostgreSQL 15 |
+| Tier | db-f1-micro |
+| Region | asia-northeast1-b |
+
 ## Git状態
 
 - リポジトリ: sanwaminamihonda-eng/sanwa-houkai-app
 - ブランチ: main
-- 最新コミット: 0a402c1
-- 状態: Clean
+- 状態: 未コミット変更あり（Data Connect設定ファイル）
 - CI/CD: ✅ 動作確認済み（PR #4）
 
 ## 今セッション完了作業
 
-- [x] Application Documentation.pdf を `docs/archive/` にアーカイブ
-- [x] GitHub Actions CI/CD 基本設定（PR #4）
-  - セキュリティチェック（シークレットファイル検出）
-  - ドキュメント検証（必須ファイル存在確認）
-  - lint/testジョブ（開発環境セットアップ後に有効化）
+- [x] Firebase Data Connect セットアップ
+  - firebase.json 作成
+  - dataconnect/ ディレクトリ構成
+  - GraphQL スキーマ（13テーブル）
+  - クエリ・ミューテーション定義
+- [x] GCP課金アカウントをプロジェクトにリンク
+- [x] Cloud SQL インスタンス作成（sanwa-houkai-db）
+- [x] Data Connect サービスデプロイ
+
+## 次回アクション
+
+1. React Native / Expo + React Native Paper セットアップ
+2. Next.js セットアップ
+3. Data Connect SDK 生成・統合
+4. 認証機能（Firebase Auth）実装
