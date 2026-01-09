@@ -61,7 +61,7 @@
 - [x] 各画面のプレースホルダー実装
 - [x] PR #6 マージ完了
 
-### Web管理画面セットアップ（今回完了）
+### Web管理画面セットアップ
 - [x] Next.js 16 + TypeScript + TailwindCSS プロジェクト作成（web/）
 - [x] Material UI v7 カスタムテーマ設定（モバイルとカラー統一）
 - [x] Firebase SDK 設定（環境変数テンプレート付き）
@@ -71,6 +71,17 @@
   - 記録入力 / 履歴一覧 / スケジュール / 利用者 / 支援者 / 帳票 / 設定
 - [x] FullCalendar パッケージインストール済み
 - [x] PR #7 マージ完了
+
+### Data Connect SDK統合（今回完了）
+- [x] connector.yaml をモバイル/Web両方に出力する設定に修正
+- [x] `firebase dataconnect:sdk:generate` でSDK生成
+- [x] モバイルアプリ（Expo）へのSDK統合
+  - mobile/src/lib/firebase.ts 作成
+  - mobile/.env.example 作成
+- [x] Webアプリ（Next.js）へのSDK統合
+  - web/src/lib/firebase.ts にData Connect初期化追加
+- [x] 両アプリでビルド成功確認
+- [x] PR #8 マージ完了
 
 ## 設計決定事項
 
@@ -129,6 +140,7 @@
 
 | タスク | 状態 |
 |--------|------|
+| Data Connect SDK生成・統合 | ✅ 完了 |
 | 認証機能（Google OAuth） | 未着手 |
 | 記録入力画面 | 未着手 |
 | 履歴一覧・詳細画面 | 未着手 |
@@ -188,7 +200,12 @@ DB設計時:   data-model.md
 mobile/
 ├── App.tsx                 # エントリーポイント（Provider設定）
 ├── app.json                # Expo設定
+├── .env.example            # Firebase環境変数テンプレート
 ├── src/
+│   ├── generated/
+│   │   └── dataconnect/    # Data Connect生成SDK
+│   ├── lib/
+│   │   └── firebase.ts     # Firebase/Data Connect初期化
 │   ├── navigation/
 │   │   └── RootNavigator.tsx   # 5タブナビゲーション
 │   ├── screens/
@@ -227,8 +244,10 @@ web/
 │   │   │   ├── Sidebar.tsx        # サイドナビゲーション
 │   │   │   └── Header.tsx         # ヘッダー
 │   │   └── ThemeRegistry.tsx      # MUIテーマプロバイダー
+│   ├── generated/
+│   │   └── dataconnect/           # Data Connect生成SDK
 │   ├── lib/
-│   │   └── firebase.ts            # Firebase設定
+│   │   └── firebase.ts            # Firebase/Data Connect設定
 │   └── theme/
 │       └── index.ts               # MUIカスタムテーマ
 └── .env.example                   # 環境変数テンプレート
@@ -239,21 +258,21 @@ web/
 - リポジトリ: sanwaminamihonda-eng/sanwa-houkai-app
 - ブランチ: main
 - 状態: clean
-- CI/CD: ✅ 動作確認済み（PR #6, #7）
+- CI/CD: ✅ 動作確認済み（PR #6, #7, #8）
 
 ## 今セッション完了作業
 
-- [x] Next.js Web管理画面セットアップ
-  - Next.js 16 + TypeScript + TailwindCSS
-  - Material UI v7 カスタムテーマ（モバイルとカラー統一）
-  - サイドナビゲーション付きレイアウト
-  - ダッシュボード + 各画面プレースホルダー
-  - Firebase SDK / FullCalendar インストール
-- [x] PR #7 作成・レビュー・マージ
+- [x] Data Connect SDK生成・統合
+  - connector.yaml をモバイル/Web両方へ出力設定
+  - `firebase dataconnect:sdk:generate` でSDK生成
+  - 13テーブルの型安全なクエリ・ミューテーション利用可能
+  - モバイル: mobile/src/lib/firebase.ts, mobile/.env.example
+  - Web: web/src/lib/firebase.ts にData Connect初期化追加
+- [x] PR #8 作成・レビュー・マージ
 
 ## 次回アクション
 
-1. Data Connect SDK 生成・統合
-2. 認証機能（Firebase Auth）実装
-3. 記録入力画面の実装
-4. スケジュール画面（FullCalendar統合）
+1. 認証機能（Firebase Auth）実装
+2. 記録入力画面の実装
+3. スケジュール画面（FullCalendar統合）
+4. 履歴一覧・詳細画面
