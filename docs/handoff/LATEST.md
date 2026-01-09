@@ -1,4 +1,4 @@
-# 作業状態 - 2026-01-10 (Care Plan PDF Generation)
+# 作業状態 - 2026-01-10 (Mobile Care Plan Display)
 
 ## プロジェクト概要
 
@@ -347,22 +347,30 @@ web/
 - リポジトリ: sanwaminamihonda-eng/sanwa-houkai-app
 - ブランチ: main
 - 状態: clean
-- CI/CD: ✅ 動作確認済み（PR #6, #7, #8, #10, #11, #12, #14, #16, #25, #26, #28, #29, #30）
+- CI/CD: ✅ 動作確認済み（PR #6, #7, #8, #10, #11, #12, #14, #16, #25, #26, #28, #29, #30, #31）
 - デプロイ: ✅ Firebase Hosting 自動デプロイ（main push時）
 
 ## 今セッション完了作業
 
-- [x] 繰り返し予定の編集・削除改善 - PR #30
-  - GetSchedulesByRecurrenceIdクエリ追加（同じシリーズの予定を取得）
-  - ListSchedulesByDateRangeクエリにrecurrenceRule, recurrenceIdフィールド追加
-  - Web: 編集時の選択ダイアログ（この予定のみ/以降すべて/シリーズ全体）
-  - Web: 削除時の選択ダイアログ（この予定のみ/シリーズ全体）
-  - Mobile: 編集時の選択ダイアログ（RadioButton.Group使用）
-  - Mobile: 削除時の選択ダイアログ（RadioButton.Group使用）
-  - シリーズ全体の一括更新・削除に対応
+- [x] モバイル計画書表示機能 - PR #31
+  - CarePlansScreen.tsx（計画書一覧画面）
+    - FlatListでカード形式の一覧表示
+    - 利用者フィルター（Menuコンポーネント）
+    - プルリフレッシュ対応
+    - 戻るボタン付きヘッダー
+  - CarePlanDetailScreen.tsx（計画書詳細画面）
+    - 利用者情報、作成日、担当者表示
+    - 生活現状、家族の意向・希望、主な支援内容
+    - 長期目標・短期目標（期間表示付き）
+    - PDFを開くボタン（Linking.openURL）
+  - ナビゲーション更新
+    - SettingsStackParamList、CarePlansStackParamList追加
+    - SettingsNavigator、CarePlansNavigator追加
+    - 設定画面の「帳票一覧」から遷移可能
 
 ### 前セッション完了作業（参考）
 
+- [x] 繰り返し予定の編集・削除改善 - PR #30
 - [x] 繰り返し予定機能 - PR #29
 - [x] 訪問介護計画書PDF生成機能 - PR #28
 - [x] PDF帳票生成機能（実施報告書）- PR #27
@@ -373,8 +381,8 @@ web/
 
 ## 次回アクション
 
-1. モバイルアプリでの計画書表示機能
-2. 繰り返し予定のカレンダー上での視覚的識別（アイコン等）
+1. 繰り返し予定のカレンダー上での視覚的識別（アイコン等）
+2. 実施報告書のモバイル表示機能
 3. オフライン対応検討
 
 **デプロイ済み:**
