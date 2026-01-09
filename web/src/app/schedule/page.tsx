@@ -38,6 +38,7 @@ import { format, parse, startOfWeek, endOfWeek, startOfMonth, endOfMonth, addDay
 import { ja } from 'date-fns/locale';
 import { MainLayout } from '@/components/layout';
 import { useStaff } from '@/hooks/useStaff';
+import { useScheduleRealtime } from '@/hooks/useScheduleRealtime';
 import { dataConnect } from '@/lib/firebase';
 import {
   listSchedulesByDateRange,
@@ -188,6 +189,13 @@ export default function SchedulePage() {
     }
   }, [facilityId]);
 
+  // Realtime sync
+  const { notifyScheduleUpdate } = useScheduleRealtime({
+    facilityId,
+    staffId: staff?.id || null,
+    onUpdate: fetchSchedules,
+  });
+
   useEffect(() => {
     if (!facilityId) return;
 
@@ -265,6 +273,8 @@ export default function SchedulePage() {
         severity: 'success',
       });
 
+      // Notify other users about the update
+      await notifyScheduleUpdate(schedule.id, 'update');
       await fetchSchedules();
     } catch (err) {
       console.error('Failed to update schedule:', err);
@@ -319,14 +329,19 @@ export default function SchedulePage() {
 
     if (!confirm('このスケジュールを削除しますか？')) return;
 
+    const scheduleId = selectedSchedule.id;
+
     try {
-      await deleteSchedule(dataConnect, { id: selectedSchedule.id });
+      await deleteSchedule(dataConnect, { id: scheduleId });
 
       setSnackbar({
         open: true,
         message: 'スケジュールを削除しました',
         severity: 'success',
       });
+
+      // Notify other users about the deletion
+      await notifyScheduleUpdate(scheduleId, 'delete');
 
       setDetailDialogOpen(false);
       setSelectedSchedule(null);
@@ -361,6 +376,8 @@ export default function SchedulePage() {
         notes: formData.notes || null,
       };
 
+      let scheduleId: string;
+
       if (isEditing && selectedSchedule) {
         await updateSchedule(dataConnect, {
           id: selectedSchedule.id,
@@ -369,14 +386,16 @@ export default function SchedulePage() {
           serviceTypeId: formData.serviceTypeId || null,
           ...scheduleData,
         });
+        scheduleId = selectedSchedule.id;
       } else {
-        await createSchedule(dataConnect, {
+        const result = await createSchedule(dataConnect, {
           facilityId,
           clientId: formData.clientId,
           staffId: formData.staffId,
           serviceTypeId: formData.serviceTypeId || null,
           ...scheduleData,
         });
+        scheduleId = result.data.schedule_insert.id;
       }
 
       setSnackbar({
@@ -384,6 +403,9 @@ export default function SchedulePage() {
         message: isEditing ? 'スケジュールを更新しました' : 'スケジュールを作成しました',
         severity: 'success',
       });
+
+      // Notify other users about the change
+      await notifyScheduleUpdate(scheduleId, isEditing ? 'update' : 'create');
 
       setFormDialogOpen(false);
       setSelectedSchedule(null);

@@ -23,6 +23,7 @@ import 'dayjs/locale/ja';
 import { ScheduleStackParamList } from '../../navigation/RootNavigator';
 
 import { useStaff } from '../../hooks/useStaff';
+import { useScheduleRealtime } from '../../hooks/useScheduleRealtime';
 import { dataConnect } from '../../lib/firebase';
 import {
   listSchedulesByDateRange,
@@ -63,7 +64,7 @@ type ScheduleScreenNavigationProp = NativeStackNavigationProp<ScheduleStackParam
 export default function ScheduleScreen() {
   const theme = useTheme();
   const navigation = useNavigation<ScheduleScreenNavigationProp>();
-  const { facilityId, loading: staffLoading } = useStaff();
+  const { facilityId, staff, loading: staffLoading } = useStaff();
 
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [loading, setLoading] = useState(true);
@@ -115,6 +116,13 @@ export default function ScheduleScreen() {
       setError('スケジュールの読み込みに失敗しました');
     }
   }, [facilityId, currentDate, viewMode, getDateRange]);
+
+  // Realtime sync - listen for updates from other users
+  useScheduleRealtime({
+    facilityId,
+    staffId: staff?.id || null,
+    onUpdate: fetchSchedules,
+  });
 
   // Reload data when screen is focused (e.g., after form submit)
   useFocusEffect(

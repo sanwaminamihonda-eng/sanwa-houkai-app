@@ -1,0 +1,20 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 認証必須
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // スケジュール更新通知
+    // facilities/{facilityId}/schedule_updates/{docId}
+    match /facilities/{facilityId}/schedule_updates/{docId} {
+      // 認証済みユーザーは読み取り可能
+      allow read: if isAuthenticated();
+
+      // 認証済みユーザーは書き込み可能
+      allow write: if isAuthenticated();
+    }
+  }
+}

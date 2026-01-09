@@ -16,6 +16,7 @@ import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { useStaff } from '../../hooks/useStaff';
+import { useScheduleRealtime } from '../../hooks/useScheduleRealtime';
 import { dataConnect } from '../../lib/firebase';
 import {
   listClients,
@@ -43,6 +44,13 @@ export default function ScheduleFormScreen() {
   const route = useRoute<ScheduleFormRouteProp>();
 
   const { facilityId, staff: currentStaff, loading: staffLoading } = useStaff();
+
+  // Realtime sync notification
+  const { notifyScheduleUpdate } = useScheduleRealtime({
+    facilityId,
+    staffId: currentStaff?.id || null,
+    onUpdate: () => {}, // Form screen doesn't need to respond to updates
+  });
 
   // Determine if editing
   const scheduleData = route.params?.schedule;
@@ -186,6 +194,8 @@ export default function ScheduleFormScreen() {
 
     setSaving(true);
     try {
+      let scheduleId: string;
+
       if (isEditing && scheduleData) {
         await updateSchedule(dataConnect, {
           id: scheduleData.id,
@@ -197,11 +207,16 @@ export default function ScheduleFormScreen() {
           endTime: formatTimeForApi(endTime),
           notes: notes || undefined,
         });
+        scheduleId = scheduleData.id;
+
+        // Notify other users about the update
+        await notifyScheduleUpdate(scheduleId, 'update');
+
         Alert.alert('完了', '予定を更新しました', [
           { text: 'OK', onPress: () => navigation.goBack() },
         ]);
       } else {
-        await createSchedule(dataConnect, {
+        const result = await createSchedule(dataConnect, {
           facilityId,
           clientId: selectedClientId,
           staffId: selectedStaffId,
@@ -211,6 +226,11 @@ export default function ScheduleFormScreen() {
           endTime: formatTimeForApi(endTime),
           notes: notes || undefined,
         });
+        scheduleId = result.data.schedule_insert.id;
+
+        // Notify other users about the creation
+        await notifyScheduleUpdate(scheduleId, 'create');
+
         Alert.alert('完了', '予定を作成しました', [
           { text: 'OK', onPress: () => navigation.goBack() },
         ]);
@@ -226,6 +246,8 @@ export default function ScheduleFormScreen() {
   const handleDelete = () => {
     if (!scheduleData) return;
 
+    const scheduleId = scheduleData.id;
+
     Alert.alert('確認', 'この予定を削除しますか？', [
       { text: 'キャンセル', style: 'cancel' },
       {
@@ -234,7 +256,11 @@ export default function ScheduleFormScreen() {
         onPress: async () => {
           setDeleting(true);
           try {
-            await deleteSchedule(dataConnect, { id: scheduleData.id });
+            await deleteSchedule(dataConnect, { id: scheduleId });
+
+            // Notify other users about the deletion
+            await notifyScheduleUpdate(scheduleId, 'delete');
+
             Alert.alert('完了', '予定を削除しました', [
               { text: 'OK', onPress: () => navigation.goBack() },
             ]);
