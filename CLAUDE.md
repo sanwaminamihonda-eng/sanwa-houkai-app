@@ -170,16 +170,17 @@ gcloud config list
 
 ## 現在のフェーズ
 
-**インフラ構築完了** → **開発環境セットアップ**
+**開発環境セットアップ** → **MVP実装**
 
 完了済み:
 - [x] Firebase Data Connect 有効化・デプロイ
+- [x] React Native / Expo + React Native Paper セットアップ（mobile/）
 - [x] Cloud SQL インスタンス作成（sanwa-houkai-db）
 - [x] GraphQL スキーマ定義（13テーブル）
 - [x] CI/CD 設定（GitHub Actions）
 
 次のステップ:
-1. React Native / Expo + React Native Paper セットアップ
-2. Next.js セットアップ
-3. Data Connect SDK 生成・統合
-4. 認証機能（Firebase Auth）実装
+1. Next.js セットアップ（Web管理画面）
+2. Data Connect SDK 生成・統合
+3. 認証機能（Firebase Auth）実装
+4. 記録入力画面の実装
