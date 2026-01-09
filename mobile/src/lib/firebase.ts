@@ -1,5 +1,6 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 import { getDataConnect } from 'firebase/data-connect';
 import { getFunctions, httpsCallable } from 'firebase/functions';
 import { connectorConfig } from '@sanwa-houkai-app/dataconnect';
@@ -19,10 +20,13 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0
 // Initialize Auth
 const auth = getAuth(app);
 
+// Initialize Firestore
+const db = getFirestore(app);
+
 // Initialize Data Connect
 const dataConnect = getDataConnect(app, connectorConfig);
 
 // Initialize Functions (asia-northeast1)
 const functions = getFunctions(app, 'asia-northeast1');
 
-export { app, auth, dataConnect, functions, httpsCallable };
+export { app, auth, db, dataConnect, functions, httpsCallable };
