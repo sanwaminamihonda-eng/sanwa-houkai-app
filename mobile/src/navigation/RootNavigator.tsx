@@ -16,6 +16,8 @@ import ScheduleFormScreen from '../screens/schedule/ScheduleFormScreen';
 import ClientListScreen from '../screens/clients/ClientListScreen';
 import ClientDetailScreen from '../screens/clients/ClientDetailScreen';
 import SettingsScreen from '../screens/settings/SettingsScreen';
+import CarePlansScreen from '../screens/careplans/CarePlansScreen';
+import CarePlanDetailScreen from '../screens/careplans/CarePlanDetailScreen';
 
 export type RootStackParamList = {
   Login: undefined;
@@ -58,11 +60,23 @@ export type ClientStackParamList = {
   ClientDetail: { clientId: string };
 };
 
+export type SettingsStackParamList = {
+  SettingsMain: undefined;
+  CarePlansStack: undefined;
+};
+
+export type CarePlansStackParamList = {
+  CarePlansList: undefined;
+  CarePlanDetail: { carePlanId: string };
+};
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tab = createBottomTabNavigator<MainTabParamList>();
 const RecordHistoryStack = createNativeStackNavigator<RecordHistoryStackParamList>();
 const ScheduleStack = createNativeStackNavigator<ScheduleStackParamList>();
 const ClientStack = createNativeStackNavigator<ClientStackParamList>();
+const SettingsStack = createNativeStackNavigator<SettingsStackParamList>();
+const CarePlansStack = createNativeStackNavigator<CarePlansStackParamList>();
 
 function RecordHistoryNavigator() {
   return (
@@ -88,6 +102,24 @@ function ClientNavigator() {
       <ClientStack.Screen name="ClientList" component={ClientListScreen} />
       <ClientStack.Screen name="ClientDetail" component={ClientDetailScreen} />
     </ClientStack.Navigator>
+  );
+}
+
+function CarePlansNavigator() {
+  return (
+    <CarePlansStack.Navigator screenOptions={{ headerShown: false }}>
+      <CarePlansStack.Screen name="CarePlansList" component={CarePlansScreen} />
+      <CarePlansStack.Screen name="CarePlanDetail" component={CarePlanDetailScreen} />
+    </CarePlansStack.Navigator>
+  );
+}
+
+function SettingsNavigator() {
+  return (
+    <SettingsStack.Navigator screenOptions={{ headerShown: false }}>
+      <SettingsStack.Screen name="SettingsMain" component={SettingsScreen} />
+      <SettingsStack.Screen name="CarePlansStack" component={CarePlansNavigator} />
+    </SettingsStack.Navigator>
   );
 }
 
@@ -154,7 +186,7 @@ function MainTabs() {
       />
       <Tab.Screen
         name="Settings"
-        component={SettingsScreen}
+        component={SettingsNavigator}
         options={{
           tabBarLabel: 'その他',
           tabBarIcon: ({ color, size }) => (
