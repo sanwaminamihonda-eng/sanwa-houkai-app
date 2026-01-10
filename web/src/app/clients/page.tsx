@@ -120,7 +120,7 @@ export default function ClientsPage() {
 
   if (staffLoading || loading) {
     return (
-      <MainLayout title="利用者管理">
+      <MainLayout title="利用者管理" showBackButton backHref="/">
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
           <CircularProgress />
         </Box>
@@ -130,7 +130,7 @@ export default function ClientsPage() {
 
   if (!facilityId) {
     return (
-      <MainLayout title="利用者管理">
+      <MainLayout title="利用者管理" showBackButton backHref="/">
         <Alert severity="error">
           スタッフ情報が見つかりません。管理者にお問い合わせください。
         </Alert>
@@ -140,14 +140,14 @@ export default function ClientsPage() {
 
   if (error) {
     return (
-      <MainLayout title="利用者管理">
+      <MainLayout title="利用者管理" showBackButton backHref="/">
         <Alert severity="error">{error}</Alert>
       </MainLayout>
     );
   }
 
   return (
-    <MainLayout title="利用者管理">
+    <MainLayout title="利用者管理" showBackButton backHref="/">
       <Box>
         {/* Search & Actions */}
         <Card sx={{ mb: 3 }}>

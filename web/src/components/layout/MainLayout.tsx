@@ -9,14 +9,16 @@ import AuthGuard from '../AuthGuard';
 interface MainLayoutProps {
   children: React.ReactNode;
   title?: string;
+  showBackButton?: boolean;
+  backHref?: string;
 }
 
-export default function MainLayout({ children, title }: MainLayoutProps) {
+export default function MainLayout({ children, title, showBackButton, backHref }: MainLayoutProps) {
   return (
     <AuthGuard>
       <Box sx={{ display: 'flex', minHeight: '100vh' }}>
         <Sidebar />
-        <Header title={title} />
+        <Header title={title} showBackButton={showBackButton} backHref={backHref} />
         <Box
           component="main"
           sx={{

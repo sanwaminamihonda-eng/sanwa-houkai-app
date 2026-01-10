@@ -12,14 +12,19 @@ import {
   MenuItem,
   Divider,
 } from '@mui/material';
+import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
+import { useRouter } from 'next/navigation';
 import { DRAWER_WIDTH } from './Sidebar';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface HeaderProps {
   title?: string;
+  showBackButton?: boolean;
+  backHref?: string;
 }
 
-export default function Header({ title = '訪問介護記録管理' }: HeaderProps) {
+export default function Header({ title = '訪問介護記録管理', showBackButton = false, backHref }: HeaderProps) {
+  const router = useRouter();
   const { user, signOut } = useAuth();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
@@ -48,6 +53,17 @@ export default function Header({ title = '訪問介護記録管理' }: HeaderPro
       }}
     >
       <Toolbar>
+        {showBackButton && (
+          <IconButton
+            edge="start"
+            color="inherit"
+            aria-label="戻る"
+            onClick={() => backHref ? router.push(backHref) : router.back()}
+            sx={{ mr: 2 }}
+          >
+            <ArrowBackIcon />
+          </IconButton>
+        )}
         <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
           {title}
         </Typography>

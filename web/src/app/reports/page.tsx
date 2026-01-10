@@ -239,7 +239,7 @@ export default function ReportsPage() {
 
   if (staffLoading || loading) {
     return (
-      <MainLayout title="帳票・報告">
+      <MainLayout title="帳票・報告" showBackButton backHref="/">
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
           <CircularProgress />
         </Box>
@@ -249,7 +249,7 @@ export default function ReportsPage() {
 
   if (!facilityId) {
     return (
-      <MainLayout title="帳票・報告">
+      <MainLayout title="帳票・報告" showBackButton backHref="/">
         <Alert severity="error">
           スタッフ情報が見つかりません。管理者にお問い合わせください。
         </Alert>
@@ -259,14 +259,14 @@ export default function ReportsPage() {
 
   if (error) {
     return (
-      <MainLayout title="帳票・報告">
+      <MainLayout title="帳票・報告" showBackButton backHref="/">
         <Alert severity="error">{error}</Alert>
       </MainLayout>
     );
   }
 
   return (
-    <MainLayout title="帳票・報告">
+    <MainLayout title="帳票・報告" showBackButton backHref="/">
       <Box>
         {/* Header */}
         <Card sx={{ mb: 3 }}>

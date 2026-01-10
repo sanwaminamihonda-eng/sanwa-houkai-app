@@ -172,7 +172,7 @@ export default function RecordsPage() {
 
   if (staffLoading || loading) {
     return (
-      <MainLayout title="履歴一覧">
+      <MainLayout title="履歴一覧" showBackButton backHref="/">
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
           <CircularProgress />
         </Box>
@@ -182,7 +182,7 @@ export default function RecordsPage() {
 
   if (!facilityId) {
     return (
-      <MainLayout title="履歴一覧">
+      <MainLayout title="履歴一覧" showBackButton backHref="/">
         <Alert severity="error">
           スタッフ情報が見つかりません。管理者にお問い合わせください。
         </Alert>
@@ -192,14 +192,14 @@ export default function RecordsPage() {
 
   if (error) {
     return (
-      <MainLayout title="履歴一覧">
+      <MainLayout title="履歴一覧" showBackButton backHref="/">
         <Alert severity="error">{error}</Alert>
       </MainLayout>
     );
   }
 
   return (
-    <MainLayout title="履歴一覧">
+    <MainLayout title="履歴一覧" showBackButton backHref="/">
       <Box>
         {/* Filters */}
         <Card sx={{ mb: 3 }}>
