@@ -1,4 +1,4 @@
-# 作業状態 - 2026-01-11 (Mobile Responsive)
+# 作業状態 - 2026-01-11 (Responsive Lists)
 
 ## プロジェクト概要
 
@@ -347,31 +347,34 @@ web/
 - リポジトリ: sanwaminamihonda-eng/sanwa-houkai-app
 - ブランチ: main
 - 状態: clean
-- CI/CD: ✅ 動作確認済み（PR #6, #7, #8, #10, #11, #12, #14, #16, #25, #26, #28, #29, #30, #31, #32, #33, #34, #35, #36, #37, #38, #39, #40, #41, #42, #43, #44, #45, #46, #47, #48, #49）
+- CI/CD: ✅ 動作確認済み（PR #6, #7, #8, #10, #11, #12, #14, #16, #25, #26, #28, #29, #30, #31, #32, #33, #34, #35, #36, #37, #38, #39, #40, #41, #42, #43, #44, #45, #46, #47, #48, #49, #50）
 - デプロイ: ✅ Firebase Hosting 自動デプロイ（main push時）
 
 ## 今セッション完了作業
 
-- [x] カレンダーモバイル表示最適化 - PR #49 ✅ マージ完了
-  - CSS media queriesでモバイル向けスタイル追加
-    - ツールバー縦積み、フォントサイズ調整
-    - 日付ヘッダー、時間ラベル、イベントのコンパクト化
-  - 「新規予定」ボタンをモバイルではアイコンのみに変更
-  - Alertリセットボタンをテキストからアイコンボタンに変更
-  - Alertメッセージをモバイル用に短縮
-  - モバイルE2Eテスト追加（5件）: 週/日/月表示、ハンバーガーメニュー、イベント表示
-
-- [x] レスポンシブレイアウト修正（CSS版）- PR #48 ✅ マージ完了
-  - useMediaQuery（JS）からCSS media queriesに変更
-  - 原因: Next.js静的エクスポートでuseMediaQueryがSSR時にfalseを返す
-  - 修正: DualDrawerパターン（temporary + permanent）でCSS display切り替え
-  - Sidebar.tsx, DemoSidebar.tsx, Header.tsx, DemoHeader.tsx, MainLayout.tsx, DemoLayout.tsx
-
-- [x] レスポンシブレイアウト追加（初回試行）- PR #47 ✅ マージ完了
-  - useMediaQueryでモバイル/デスクトップ判定
-  - サイドバー切り替え実装（※静的エクスポートで動作せずPR #48で再修正）
+- [x] レスポンシブリストコンポーネント追加 - PR #50 ✅ マージ完了
+  - ResponsiveList共通コンポーネント作成（デスクトップ: テーブル、モバイル: カード）
+  - 各ページ用コンポーネント作成:
+    - Records: RecordsTable, RecordListItem
+    - Clients: ClientsTable, ClientListItem
+    - Reports: ReportsTable, ReportListItem
+    - CarePlans: CarePlansTable, CarePlanListItem
+  - 全ページをResponsiveListに移行（本番/デモ共通）
+  - E2Eテスト追加: responsive-lists-desktop.spec.ts, responsive-lists-mobile.spec.ts
+  - E2Eテスト修正: セレクタ問題（h4, dialog）を解決
 
 ### 前セッション完了作業
+
+- [x] カレンダーモバイル表示最適化 - PR #49 ✅ マージ完了
+  - CSS media queriesでモバイル向けスタイル追加
+  - 「新規予定」ボタンをモバイルではアイコンのみに変更
+
+- [x] レスポンシブレイアウト修正（CSS版）- PR #48 ✅ マージ完了
+  - DualDrawerパターン（temporary + permanent）でCSS display切り替え
+
+- [x] レスポンシブレイアウト追加 - PR #47 ✅ マージ完了
+
+### 前々セッション完了作業
 
 - [x] カレンダービュー切り替え修正 - PR #46 ✅ マージ完了
   - ビュー切り替え（日/週/月）が動作しない問題を修正
