@@ -17,6 +17,7 @@ import {
   Chip,
 } from '@mui/material';
 import {
+  Dashboard as DashboardIcon,
   EditNote as RecordIcon,
   History as HistoryIcon,
   CalendarMonth as ScheduleIcon,
@@ -29,6 +30,7 @@ import {
 const DRAWER_WIDTH = 240;
 
 const menuItems = [
+  { text: 'ダッシュボード', icon: <DashboardIcon />, href: '/demo' },
   { text: '記録入力', icon: <RecordIcon />, href: '/demo/records/new' },
   { text: '履歴一覧', icon: <HistoryIcon />, href: '/demo/records' },
   { text: 'スケジュール', icon: <ScheduleIcon />, href: '/demo/schedule' },
