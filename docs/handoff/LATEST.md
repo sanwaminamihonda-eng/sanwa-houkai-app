@@ -398,10 +398,12 @@ web/
 
 ## 次回アクション
 
-1. **PR #35 マージ後**: シードデータ投入とデプロイ
-   - `gcloud sql connect sanwa-houkai-db --user=postgres --database=fdcdb`
-   - `\i dataconnect/seed/demo-seed.sql`
-   - `firebase deploy`
+1. **デモ環境デプロイ**: シードデータ投入とデプロイ
+   ```bash
+   gcloud sql connect sanwa-houkai-db --user=postgres --database=fdcdb
+   \i dataconnect/seed/demo-seed.sql
+   firebase deploy
+   ```
 2. オフライン対応検討
 3. 追加機能の要望に応じて実装
 
