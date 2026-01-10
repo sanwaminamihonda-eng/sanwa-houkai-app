@@ -126,7 +126,10 @@ export default function DemoSchedulePage() {
     if (!facilityId) return;
 
     const loadSchedules = async () => {
-      setLoading(true);
+      // Only show loading on initial load, not on view changes
+      if (schedules.length === 0) {
+        setLoading(true);
+      }
       await fetchSchedules();
       setLoading(false);
     };
@@ -202,16 +205,18 @@ export default function DemoSchedulePage() {
     await fetchSchedules(true);
   }, [fetchSchedules]);
 
-  if (loading) {
+  // Show error if any
+  if (error) {
+    return <Alert severity="error">{error}</Alert>;
+  }
+
+  // Show loading overlay on initial load only
+  if (loading && schedules.length === 0) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
         <CircularProgress />
       </Box>
     );
-  }
-
-  if (error) {
-    return <Alert severity="error">{error}</Alert>;
   }
 
   return (

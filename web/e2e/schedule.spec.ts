@@ -25,27 +25,31 @@ test.describe('Demo Schedule Page', () => {
     await expect(page.locator('.fc-timeGridWeek-button, .fc-dayGridMonth-button').first()).toBeVisible();
   });
 
-  test.skip('should be able to switch calendar views', async ({ page }) => {
+  test('should be able to switch calendar views', async ({ page }) => {
     // カレンダーが読み込まれるまで待機
     await expect(page.locator('.fc')).toBeVisible({ timeout: 30000 });
+    await page.waitForTimeout(2000);
+
+    // 初期表示は週ビュー
+    await expect(page.locator('.fc-timeGridWeek-view')).toBeVisible();
 
     // 月表示に切り替え
     const monthButton = page.locator('.fc-dayGridMonth-button');
-    if (await monthButton.isVisible()) {
-      await monthButton.click();
-      // 月表示のロード待機
-      await page.waitForTimeout(2000);
-      await expect(page.locator('.fc-daygrid-body')).toBeVisible({ timeout: 10000 });
-    }
+    await monthButton.click();
+    await page.waitForTimeout(2000);
+    await expect(page.locator('.fc-dayGridMonth-view')).toBeVisible({ timeout: 10000 });
 
-    // 週表示に切り替え
+    // 日表示に切り替え
+    const dayButton = page.locator('.fc-timeGridDay-button');
+    await dayButton.click();
+    await page.waitForTimeout(2000);
+    await expect(page.locator('.fc-timeGridDay-view')).toBeVisible({ timeout: 10000 });
+
+    // 週表示に戻す
     const weekButton = page.locator('.fc-timeGridWeek-button');
-    if (await weekButton.isVisible()) {
-      await weekButton.click();
-      // 週表示のロード待機
-      await page.waitForTimeout(2000);
-      await expect(page.locator('.fc-timegrid-body')).toBeVisible({ timeout: 10000 });
-    }
+    await weekButton.click();
+    await page.waitForTimeout(2000);
+    await expect(page.locator('.fc-timeGridWeek-view')).toBeVisible({ timeout: 10000 });
   });
 
   test.skip('should navigate to previous/next periods', async ({ page }) => {
