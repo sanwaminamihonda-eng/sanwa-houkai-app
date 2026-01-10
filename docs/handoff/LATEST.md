@@ -1,4 +1,4 @@
-# 作業状態 - 2026-01-10 (Web Care Plans Display)
+# 作業状態 - 2026-01-10 (Demo Pages)
 
 ## プロジェクト概要
 
@@ -352,6 +352,17 @@ web/
 
 ## 今セッション完了作業
 
+- [x] デモ専用ページ実装 - PR #35（レビュー中）
+  - `/demo/*` パスでアクセス可能（認証不要）
+  - DemoContext、DemoLayout、DemoSidebar、DemoHeader作成
+  - `@auth(level: PUBLIC)` でデモ用クエリ・ミューテーション追加
+  - シードデータSQL作成（`dataconnect/seed/demo-seed.sql`）
+  - リセット機能Cloud Function追加（`resetDemoData`）
+  - ログインページ・ダッシュボードからデモへの導線追加
+  - CLAUDE.mdにブランチ運用ルール明記
+
+### 前セッション完了作業
+
 - [x] Web版計画書表示機能 - PR #34
   - 計画書一覧ページ（テーブル形式、利用者フィルタ、ページネーション）
   - 詳細表示（モーダルダイアログ方式）
@@ -387,9 +398,12 @@ web/
 
 ## 次回アクション
 
-1. オフライン対応検討
-2. 追加機能の要望に応じて実装
-3. ドキュメント監査（/doc-audit コマンド新設済み）
+1. **PR #35 マージ後**: シードデータ投入とデプロイ
+   - `gcloud sql connect sanwa-houkai-db --user=postgres --database=fdcdb`
+   - `\i dataconnect/seed/demo-seed.sql`
+   - `firebase deploy`
+2. オフライン対応検討
+3. 追加機能の要望に応じて実装
 
 **デプロイ済み:**
 - Cloud Functions（generateVisitNotes, generateReport, generateCarePlan）- 2026-01-10 デプロイ完了

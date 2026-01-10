@@ -7,6 +7,7 @@ import {
   CalendarMonth as ScheduleIcon,
   People as ClientsIcon,
   TrendingUp as StatsIcon,
+  PlayArrow as PlayArrowIcon,
 } from '@mui/icons-material';
 import Link from 'next/link';
 import { MainLayout } from '@/components/layout';
@@ -144,6 +145,30 @@ export default function Home() {
             </Grid>
           </Grid>
         </Box>
+
+        {/* Demo Link */}
+        <Card sx={{ mt: 5, bgcolor: 'grey.50', border: '1px dashed', borderColor: 'grey.300' }}>
+          <CardContent sx={{ textAlign: 'center', py: 3 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1 }}>
+              <PlayArrowIcon sx={{ color: 'secondary.main', mr: 1 }} />
+              <Typography variant="h6">
+                デモ環境をお試しください
+              </Typography>
+            </Box>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              サンプルデータで機能をお試しいただけます（ログイン不要）
+            </Typography>
+            <Button
+              component={Link}
+              href="/demo"
+              variant="outlined"
+              color="secondary"
+              startIcon={<PlayArrowIcon />}
+            >
+              デモを見る
+            </Button>
+          </CardContent>
+        </Card>
       </Box>
     </MainLayout>
   );

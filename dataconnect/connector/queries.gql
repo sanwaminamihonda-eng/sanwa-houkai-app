@@ -457,3 +457,303 @@ query ListGoalTemplates @auth(level: USER) {
     sortOrder
   }
 }
+
+# =============================================
+# デモ用クエリ（認証不要）
+# =============================================
+
+query DemoListCareLevels @auth(level: PUBLIC) {
+  careLevels(orderBy: [{ sortOrder: ASC }]) {
+    id
+    name
+    sortOrder
+  }
+}
+
+query DemoListVisitReasons @auth(level: PUBLIC) {
+  visitReasons(orderBy: [{ sortOrder: ASC }]) {
+    id
+    name
+    sortOrder
+  }
+}
+
+query DemoListServiceTypes($facilityId: UUID!) @auth(level: PUBLIC) {
+  serviceTypes(where: { facility: { id: { eq: $facilityId } } }, orderBy: [{ sortOrder: ASC }]) {
+    id
+    code
+    name
+    category
+    color
+    sortOrder
+  }
+}
+
+query DemoListServiceItems($serviceTypeId: UUID!) @auth(level: PUBLIC) {
+  serviceItems(where: { serviceType: { id: { eq: $serviceTypeId } } }, orderBy: [{ sortOrder: ASC }]) {
+    id
+    name
+    sortOrder
+  }
+}
+
+query DemoListStaff($facilityId: UUID!) @auth(level: PUBLIC) {
+  staffs(where: { facility: { id: { eq: $facilityId } }, isActive: { eq: true } }, orderBy: [{ name: ASC }]) {
+    id
+    name
+    email
+    role
+  }
+}
+
+query DemoListClients($facilityId: UUID!) @auth(level: PUBLIC) {
+  clients(where: { facility: { id: { eq: $facilityId } }, isActive: { eq: true } }, orderBy: [{ nameKana: ASC }]) {
+    id
+    name
+    nameKana
+    gender
+    careLevel {
+      name
+    }
+    phone
+    addressPrefecture
+    addressCity
+  }
+}
+
+query DemoGetClient($id: UUID!) @auth(level: PUBLIC) {
+  client(id: $id) {
+    id
+    name
+    nameKana
+    gender
+    birthDate
+    careLevel {
+      id
+      name
+    }
+    addressPrefecture
+    addressCity
+    phone
+    careManager
+    careOffice
+    emergencyPhone
+    emergencyName
+    emergencyRelation
+    assessment
+    lastAssessmentDate
+    regularServices
+    notes
+    isActive
+    createdAt
+    updatedAt
+  }
+}
+
+query DemoListSchedulesByDateRange(
+  $facilityId: UUID!
+  $startDate: Date!
+  $endDate: Date!
+) @auth(level: PUBLIC) {
+  schedules(
+    where: {
+      facility: { id: { eq: $facilityId } }
+      scheduledDate: { ge: $startDate, le: $endDate }
+    }
+    orderBy: [{ scheduledDate: ASC }, { startTime: ASC }]
+  ) {
+    id
+    scheduledDate
+    startTime
+    endTime
+    status
+    notes
+    recurrenceRule
+    recurrenceId
+    client {
+      id
+      name
+    }
+    staff {
+      id
+      name
+    }
+    serviceType {
+      id
+      name
+      category
+      color
+    }
+  }
+}
+
+query DemoGetSchedulesByRecurrenceId($recurrenceId: UUID!) @auth(level: PUBLIC) {
+  schedules(
+    where: { recurrenceId: { eq: $recurrenceId } }
+    orderBy: [{ scheduledDate: ASC }, { startTime: ASC }]
+  ) {
+    id
+    scheduledDate
+    startTime
+    endTime
+    status
+    notes
+    recurrenceRule
+    recurrenceId
+    client {
+      id
+      name
+    }
+    staff {
+      id
+      name
+    }
+    serviceType {
+      id
+      name
+      category
+      color
+    }
+  }
+}
+
+query DemoListVisitRecordsByDateRange(
+  $facilityId: UUID!
+  $startDate: Date!
+  $endDate: Date!
+) @auth(level: PUBLIC) {
+  visitRecords(
+    where: {
+      client: { facility: { id: { eq: $facilityId } } }
+      visitDate: { ge: $startDate, le: $endDate }
+    }
+    orderBy: [{ visitDate: DESC }, { startTime: DESC }]
+  ) {
+    id
+    visitDate
+    startTime
+    endTime
+    vitals
+    services
+    notes
+    client {
+      id
+      name
+    }
+    staff {
+      id
+      name
+    }
+  }
+}
+
+query DemoGetVisitRecord($id: UUID!) @auth(level: PUBLIC) {
+  visitRecord(id: $id) {
+    id
+    visitDate
+    startTime
+    endTime
+    vitals
+    services
+    notes
+    aiGenerated
+    aiInput
+    satisfaction
+    satisfactionReason
+    conditionChange
+    conditionChangeDetail
+    serviceChangeNeeded
+    serviceChangeDetail
+    attachments
+    client {
+      id
+      name
+    }
+    staff {
+      id
+      name
+    }
+    visitReason {
+      id
+      name
+    }
+    schedule {
+      id
+    }
+    createdAt
+    updatedAt
+  }
+}
+
+query DemoListReportsByFacility($facilityId: UUID!) @auth(level: PUBLIC) {
+  reports(
+    where: { client: { facility: { id: { eq: $facilityId } } } }
+    orderBy: [{ targetYear: DESC }, { targetMonth: DESC }]
+  ) {
+    id
+    targetYear
+    targetMonth
+    summary
+    aiGenerated
+    pdfGenerated
+    pdfUrl
+    createdAt
+    client {
+      id
+      name
+    }
+    staff {
+      id
+      name
+    }
+  }
+}
+
+query DemoListCarePlansByFacility($facilityId: UUID!) @auth(level: PUBLIC) {
+  carePlans(
+    where: { client: { facility: { id: { eq: $facilityId } } } }
+    orderBy: [{ createdAt: DESC }]
+  ) {
+    id
+    currentSituation
+    familyWishes
+    mainSupport
+    longTermGoals
+    shortTermGoals
+    pdfUrl
+    createdAt
+    client {
+      id
+      name
+    }
+    staff {
+      id
+      name
+    }
+  }
+}
+
+query DemoGetCarePlan($id: UUID!) @auth(level: PUBLIC) {
+  carePlan(id: $id) {
+    id
+    currentSituation
+    familyWishes
+    mainSupport
+    longTermGoals
+    shortTermGoals
+    pdfUrl
+    createdAt
+    updatedAt
+    client {
+      id
+      name
+      careLevel {
+        name
+      }
+    }
+    staff {
+      id
+      name
+    }
+  }
+}
