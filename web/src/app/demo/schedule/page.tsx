@@ -1,141 +1,176 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import {
-  Box,
-  Card,
-  CardContent,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Chip,
-  IconButton,
-  CircularProgress,
-  Alert,
-  Tooltip,
-  Typography,
-  Button,
-  ButtonGroup,
-} from '@mui/material';
-import {
-  Refresh as RefreshIcon,
-  ChevronLeft as ChevronLeftIcon,
-  ChevronRight as ChevronRightIcon,
-} from '@mui/icons-material';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { Box, CircularProgress, Alert, Typography } from '@mui/material';
+import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, addDays } from 'date-fns';
 import { useDemoContext } from '@/contexts/DemoContext';
 import { dataConnect } from '@/lib/firebase';
-import { demoListSchedulesByDateRange, DemoListSchedulesByDateRangeData } from '@sanwa-houkai-app/dataconnect';
+import {
+  demoListSchedulesByDateRange,
+  DemoListSchedulesByDateRangeData,
+  demoGetSchedulesByRecurrenceId,
+  demoListClients,
+  DemoListClientsData,
+  demoListStaff,
+  DemoListStaffData,
+  demoListServiceTypes,
+  DemoListServiceTypesData,
+  demoCreateSchedule,
+  demoUpdateSchedule,
+  demoDeleteSchedule,
+} from '@sanwa-houkai-app/dataconnect';
+import {
+  ScheduleCalendarView,
+  ScheduleForCalendar,
+  ClientOption,
+  StaffOption,
+  ServiceTypeOption,
+  ScheduleApiHandlers,
+  CreateScheduleInput,
+  UpdateScheduleInput,
+} from '@/components/schedule';
 
 type Schedule = DemoListSchedulesByDateRangeData['schedules'][0];
+type Client = DemoListClientsData['clients'][0];
+type StaffMember = DemoListStaffData['staffs'][0];
+type ServiceType = DemoListServiceTypesData['serviceTypes'][0];
 
 export default function DemoSchedulePage() {
-  const { facilityId } = useDemoContext();
+  const { facilityId, staffId } = useDemoContext();
 
   const [schedules, setSchedules] = useState<Schedule[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
+  const [staffList, setStaffList] = useState<StaffMember[]>([]);
+  const [serviceTypes, setServiceTypes] = useState<ServiceType[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [currentView, setCurrentView] = useState<string>('timeGridWeek');
 
-  const formatDateForApi = (date: Date) => {
-    return date.toISOString().split('T')[0];
-  };
+  // Calculate date range based on current view
+  const getDateRange = useCallback((date: Date, view: string) => {
+    if (view === 'dayGridMonth') {
+      const start = startOfMonth(date);
+      const end = endOfMonth(date);
+      return {
+        start: addDays(startOfWeek(start, { weekStartsOn: 1 }), -7),
+        end: addDays(endOfWeek(end, { weekStartsOn: 1 }), 7),
+      };
+    } else if (view === 'timeGridWeek') {
+      return {
+        start: startOfWeek(date, { weekStartsOn: 1 }),
+        end: endOfWeek(date, { weekStartsOn: 1 }),
+      };
+    } else {
+      return { start: date, end: date };
+    }
+  }, []);
 
-  const getWeekRange = (date: Date) => {
-    const start = new Date(date);
-    start.setDate(start.getDate() - start.getDay());
-    const end = new Date(start);
-    end.setDate(end.getDate() + 6);
-    return { start, end };
-  };
+  const fetchSchedules = useCallback(async () => {
+    if (!facilityId) return;
 
-  const fetchData = useCallback(async () => {
+    const { start, end } = getDateRange(currentDate, currentView);
+
     try {
-      const dc = dataConnect;
-      const { start, end } = getWeekRange(currentDate);
-
-      const result = await demoListSchedulesByDateRange(dc, {
+      const result = await demoListSchedulesByDateRange(dataConnect, {
         facilityId,
-        startDate: formatDateForApi(start),
-        endDate: formatDateForApi(end),
+        startDate: format(start, 'yyyy-MM-dd'),
+        endDate: format(end, 'yyyy-MM-dd'),
       });
-
       setSchedules(result.data.schedules);
       setError(null);
     } catch (err) {
-      console.error('Failed to load schedules:', err);
-      setError('データの読み込みに失敗しました');
+      console.error('Failed to fetch schedules:', err);
+      setError('スケジュールの読み込みに失敗しました');
     }
-  }, [facilityId, currentDate]);
+  }, [facilityId, currentDate, currentView, getDateRange]);
+
+  const fetchMasterData = useCallback(async () => {
+    if (!facilityId) return;
+
+    try {
+      const [clientsResult, staffResult, serviceTypesResult] = await Promise.all([
+        demoListClients(dataConnect, { facilityId }),
+        demoListStaff(dataConnect, { facilityId }),
+        demoListServiceTypes(dataConnect, { facilityId }),
+      ]);
+
+      setClients(clientsResult.data.clients);
+      setStaffList(staffResult.data.staffs);
+      setServiceTypes(serviceTypesResult.data.serviceTypes);
+    } catch (err) {
+      console.error('Failed to fetch master data:', err);
+    }
+  }, [facilityId]);
 
   useEffect(() => {
+    if (!facilityId) return;
+
     const loadData = async () => {
       setLoading(true);
-      await fetchData();
+      await Promise.all([fetchSchedules(), fetchMasterData()]);
       setLoading(false);
     };
 
     loadData();
-  }, [fetchData]);
+  }, [facilityId, fetchSchedules, fetchMasterData]);
 
-  const handleRefresh = async () => {
-    setLoading(true);
-    await fetchData();
-    setLoading(false);
-  };
+  // Handle date range change from calendar
+  const handleDateRangeChange = useCallback((date: Date, _: Date, view: string) => {
+    setCurrentDate(date);
+    setCurrentView(view);
+  }, []);
 
-  const handlePrevWeek = () => {
-    const newDate = new Date(currentDate);
-    newDate.setDate(newDate.getDate() - 7);
-    setCurrentDate(newDate);
-  };
+  // API handlers for dependency injection (demo version)
+  const apiHandlers: ScheduleApiHandlers = useMemo(() => ({
+    createSchedule: async (data: CreateScheduleInput) => {
+      const result = await demoCreateSchedule(dataConnect, data);
+      return { id: result.data.schedule_insert.id };
+    },
+    updateSchedule: async (id: string, data: UpdateScheduleInput) => {
+      await demoUpdateSchedule(dataConnect, { id, ...data });
+    },
+    deleteSchedule: async (id: string) => {
+      await demoDeleteSchedule(dataConnect, { id });
+    },
+    getSchedulesByRecurrenceId: async (recurrenceId: string) => {
+      const result = await demoGetSchedulesByRecurrenceId(dataConnect, { recurrenceId });
+      return result.data.schedules as ScheduleForCalendar[];
+    },
+    notifyUpdate: async () => {
+      // Demo does not use realtime sync (noop)
+    },
+  }), []);
 
-  const handleNextWeek = () => {
-    const newDate = new Date(currentDate);
-    newDate.setDate(newDate.getDate() + 7);
-    setCurrentDate(newDate);
-  };
+  // Convert to common types
+  const schedulesForCalendar: ScheduleForCalendar[] = useMemo(() => {
+    return schedules.map(s => ({
+      ...s,
+      serviceType: s.serviceType ? {
+        id: s.serviceType.id,
+        name: s.serviceType.name,
+        category: s.serviceType.category,
+        color: s.serviceType.color,
+      } : null,
+    }));
+  }, [schedules]);
 
-  const handleToday = () => {
-    setCurrentDate(new Date());
-  };
+  const clientOptions: ClientOption[] = useMemo(() => {
+    return clients.map(c => ({ id: c.id, name: c.name }));
+  }, [clients]);
 
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
-    return `${date.getMonth() + 1}/${date.getDate()} (${weekdays[date.getDay()]})`;
-  };
+  const staffOptions: StaffOption[] = useMemo(() => {
+    return staffList.map(s => ({ id: s.id, name: s.name }));
+  }, [staffList]);
 
-  const formatTimeRange = (start: string, end: string) => {
-    return `${start.slice(0, 5)}-${end.slice(0, 5)}`;
-  };
-
-  const getStatusColor = (status: string | null | undefined) => {
-    switch (status) {
-      case 'completed':
-        return 'success';
-      case 'cancelled':
-        return 'error';
-      default:
-        return 'primary';
-    }
-  };
-
-  const getStatusLabel = (status: string | null | undefined) => {
-    switch (status) {
-      case 'completed':
-        return '完了';
-      case 'cancelled':
-        return 'キャンセル';
-      default:
-        return '予定';
-    }
-  };
-
-  const { start, end } = getWeekRange(currentDate);
+  const serviceTypeOptions: ServiceTypeOption[] = useMemo(() => {
+    return serviceTypes.map(st => ({
+      id: st.id,
+      name: st.name,
+      category: st.category,
+    }));
+  }, [serviceTypes]);
 
   if (loading) {
     return (
@@ -155,94 +190,19 @@ export default function DemoSchedulePage() {
         スケジュール
       </Typography>
 
-      {/* Navigation */}
-      <Card sx={{ mb: 3 }}>
-        <CardContent>
-          <Box display="flex" alignItems="center" justifyContent="space-between">
-            <ButtonGroup variant="outlined" size="small">
-              <Button onClick={handlePrevWeek}>
-                <ChevronLeftIcon />
-              </Button>
-              <Button onClick={handleToday}>今日</Button>
-              <Button onClick={handleNextWeek}>
-                <ChevronRightIcon />
-              </Button>
-            </ButtonGroup>
-
-            <Typography variant="h6">
-              {start.getMonth() + 1}/{start.getDate()} - {end.getMonth() + 1}/{end.getDate()}
-            </Typography>
-
-            <Tooltip title="更新">
-              <IconButton onClick={handleRefresh} color="primary">
-                <RefreshIcon />
-              </IconButton>
-            </Tooltip>
-          </Box>
-        </CardContent>
-      </Card>
-
-      {/* Schedule Table */}
-      <Card>
-        <TableContainer component={Paper} elevation={0}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>日付</TableCell>
-                <TableCell>時間</TableCell>
-                <TableCell>利用者</TableCell>
-                <TableCell>担当</TableCell>
-                <TableCell>サービス</TableCell>
-                <TableCell>ステータス</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {schedules.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 8 }}>
-                    <Typography color="text.secondary">
-                      この週のスケジュールはありません
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                schedules.map((schedule) => (
-                  <TableRow key={schedule.id} hover>
-                    <TableCell>{formatDate(schedule.scheduledDate)}</TableCell>
-                    <TableCell>{formatTimeRange(schedule.startTime, schedule.endTime)}</TableCell>
-                    <TableCell>
-                      <Typography fontWeight={500}>{schedule.client.name}</Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Chip label={schedule.staff.name} size="small" variant="outlined" />
-                    </TableCell>
-                    <TableCell>
-                      {schedule.serviceType && (
-                        <Chip
-                          label={schedule.serviceType.name}
-                          size="small"
-                          sx={{
-                            bgcolor: schedule.serviceType.color || '#607D8B',
-                            color: 'white',
-                          }}
-                        />
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <Chip
-                        label={getStatusLabel(schedule.status)}
-                        size="small"
-                        color={getStatusColor(schedule.status)}
-                        variant="outlined"
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Card>
+      <ScheduleCalendarView
+        schedules={schedulesForCalendar}
+        clients={clientOptions}
+        staffList={staffOptions}
+        serviceTypes={serviceTypeOptions}
+        loading={false}
+        error={null}
+        currentStaffId={staffId}
+        facilityId={facilityId}
+        apiHandlers={apiHandlers}
+        onRefetch={fetchSchedules}
+        onDateRangeChange={handleDateRangeChange}
+      />
     </Box>
   );
 }
