@@ -139,7 +139,10 @@ export default function SchedulePage() {
     if (!facilityId) return;
 
     const loadSchedules = async () => {
-      setLoading(true);
+      // Only show loading on initial load, not on view changes
+      if (schedules.length === 0) {
+        setLoading(true);
+      }
       await fetchSchedules();
       setLoading(false);
     };
@@ -209,7 +212,8 @@ export default function SchedulePage() {
     }));
   }, [serviceTypes]);
 
-  if (staffLoading || loading) {
+  // Show loading only on initial load (before schedules are loaded)
+  if (staffLoading || (loading && schedules.length === 0)) {
     return (
       <MainLayout title="スケジュール" showBackButton backHref="/">
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
