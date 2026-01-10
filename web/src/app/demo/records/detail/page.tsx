@@ -1,0 +1,319 @@
+'use client';
+
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Chip,
+  CircularProgress,
+  Alert,
+  Button,
+  Grid,
+  Divider,
+  Paper,
+} from '@mui/material';
+import {
+  ArrowBack as ArrowBackIcon,
+  Person as PersonIcon,
+  AccessTime as AccessTimeIcon,
+  CalendarToday as CalendarIcon,
+  SmartToy as AiIcon,
+} from '@mui/icons-material';
+import { dataConnect } from '@/lib/firebase';
+import { demoGetVisitRecord, DemoGetVisitRecordData } from '@sanwa-houkai-app/dataconnect';
+
+type VisitRecord = NonNullable<DemoGetVisitRecordData['visitRecord']>;
+
+interface Service {
+  typeId: string;
+  typeName: string;
+  items: { id: string; name: string }[];
+}
+
+interface Vitals {
+  pulse?: number;
+  bloodPressureHigh?: number;
+  bloodPressureLow?: number;
+}
+
+function RecordDetailContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const recordId = searchParams.get('id');
+
+  const [record, setRecord] = useState<VisitRecord | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!recordId) {
+      setError('記録IDが指定されていません');
+      setLoading(false);
+      return;
+    }
+
+    const fetchRecord = async () => {
+      try {
+        const result = await demoGetVisitRecord(dataConnect, { id: recordId });
+        if (result.data.visitRecord) {
+          setRecord(result.data.visitRecord);
+        } else {
+          setError('記録が見つかりません');
+        }
+      } catch (err) {
+        console.error('Failed to load record:', err);
+        setError('記録の読み込みに失敗しました');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecord();
+  }, [recordId]);
+
+  const formatDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
+    return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日 (${weekdays[date.getDay()]})`;
+  };
+
+  const formatTimeRange = (start: string, end: string) => {
+    return `${start.slice(0, 5)} - ${end.slice(0, 5)}`;
+  };
+
+  const parseServices = (servicesData: unknown): Service[] => {
+    if (!servicesData) return [];
+    try {
+      if (typeof servicesData === 'string') {
+        return JSON.parse(servicesData);
+      }
+      return servicesData as Service[];
+    } catch {
+      return [];
+    }
+  };
+
+  const parseVitals = (vitalsData: unknown): Vitals | null => {
+    if (!vitalsData) return null;
+    try {
+      if (typeof vitalsData === 'string') {
+        return JSON.parse(vitalsData);
+      }
+      return vitalsData as Vitals;
+    } catch {
+      return null;
+    }
+  };
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error || !record) {
+    return (
+      <>
+        <Box mb={2}>
+          <Button
+            startIcon={<ArrowBackIcon />}
+            onClick={() => router.push('/demo/records')}
+          >
+            一覧に戻る
+          </Button>
+        </Box>
+        <Alert severity="error">{error || '記録が見つかりません'}</Alert>
+      </>
+    );
+  }
+
+  const services = parseServices(record.services);
+  const vitals = parseVitals(record.vitals);
+
+  return (
+    <>
+      <Box mb={3}>
+        <Button
+          startIcon={<ArrowBackIcon />}
+          onClick={() => router.push('/demo/records')}
+        >
+          一覧に戻る
+        </Button>
+      </Box>
+
+      <Grid container spacing={3}>
+        {/* Basic Info */}
+        <Grid size={12}>
+          <Card>
+            <CardContent>
+              <Typography variant="h5" fontWeight={600} gutterBottom>
+                {record.client.name}
+              </Typography>
+              <Box display="flex" flexWrap="wrap" gap={3} mt={2}>
+                <Box display="flex" alignItems="center" gap={1}>
+                  <CalendarIcon color="action" />
+                  <Typography>{formatDate(record.visitDate)}</Typography>
+                </Box>
+                <Box display="flex" alignItems="center" gap={1}>
+                  <AccessTimeIcon color="action" />
+                  <Typography>{formatTimeRange(record.startTime, record.endTime)}</Typography>
+                </Box>
+                <Box display="flex" alignItems="center" gap={1}>
+                  <PersonIcon color="action" />
+                  <Chip label={record.staff.name} variant="outlined" />
+                </Box>
+                {record.visitReason && (
+                  <Chip label={record.visitReason.name} color="primary" variant="outlined" />
+                )}
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Vitals */}
+        {vitals && (vitals.pulse || vitals.bloodPressureHigh || vitals.bloodPressureLow) && (
+          <Grid size={{ xs: 12, md: 4 }}>
+            <Card sx={{ height: '100%' }}>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  バイタル
+                </Typography>
+                <Box display="flex" gap={3} flexWrap="wrap">
+                  {vitals.pulse && (
+                    <Paper
+                      variant="outlined"
+                      sx={{ p: 2, textAlign: 'center', minWidth: 100 }}
+                    >
+                      <Typography variant="body2" color="text.secondary">
+                        脈拍
+                      </Typography>
+                      <Typography variant="h5" fontWeight={600}>
+                        {vitals.pulse}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        bpm
+                      </Typography>
+                    </Paper>
+                  )}
+                  {(vitals.bloodPressureHigh || vitals.bloodPressureLow) && (
+                    <Paper
+                      variant="outlined"
+                      sx={{ p: 2, textAlign: 'center', minWidth: 100 }}
+                    >
+                      <Typography variant="body2" color="text.secondary">
+                        血圧
+                      </Typography>
+                      <Typography variant="h5" fontWeight={600}>
+                        {vitals.bloodPressureHigh || '-'}/{vitals.bloodPressureLow || '-'}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        mmHg
+                      </Typography>
+                    </Paper>
+                  )}
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        )}
+
+        {/* Services */}
+        {services.length > 0 && (
+          <Grid size={{ xs: 12, md: vitals ? 8 : 12 }}>
+            <Card sx={{ height: '100%' }}>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  サービス内容
+                </Typography>
+                {services.map((service, index) => (
+                  <Box key={service.typeId} mb={index < services.length - 1 ? 2 : 0}>
+                    <Typography
+                      variant="subtitle2"
+                      color="text.secondary"
+                      gutterBottom
+                    >
+                      {service.typeName}
+                    </Typography>
+                    <Box display="flex" flexWrap="wrap" gap={1}>
+                      {service.items.map((item) => (
+                        <Chip
+                          key={item.id}
+                          label={item.name}
+                          size="small"
+                          sx={{ bgcolor: 'primary.50' }}
+                        />
+                      ))}
+                    </Box>
+                    {index < services.length - 1 && <Divider sx={{ mt: 2 }} />}
+                  </Box>
+                ))}
+              </CardContent>
+            </Card>
+          </Grid>
+        )}
+
+        {/* Notes */}
+        {record.notes && (
+          <Grid size={12}>
+            <Card>
+              <CardContent>
+                <Box display="flex" alignItems="center" gap={1} mb={2}>
+                  <Typography variant="h6">特記事項</Typography>
+                  {record.aiGenerated && (
+                    <Chip
+                      icon={<AiIcon />}
+                      label="AI生成"
+                      size="small"
+                      color="secondary"
+                      variant="outlined"
+                    />
+                  )}
+                </Box>
+                <Typography
+                  variant="body1"
+                  sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.8 }}
+                >
+                  {record.notes}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        )}
+
+        {/* Metadata */}
+        <Grid size={12}>
+          <Box display="flex" justifyContent="flex-end" gap={3}>
+            <Typography variant="caption" color="text.secondary">
+              作成: {new Date(record.createdAt).toLocaleString('ja-JP')}
+            </Typography>
+            {record.updatedAt !== record.createdAt && (
+              <Typography variant="caption" color="text.secondary">
+                更新: {new Date(record.updatedAt).toLocaleString('ja-JP')}
+              </Typography>
+            )}
+          </Box>
+        </Grid>
+      </Grid>
+    </>
+  );
+}
+
+export default function DemoRecordDetailPage() {
+  return (
+    <Suspense fallback={
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+        <CircularProgress />
+      </Box>
+    }>
+      <Typography variant="h5" sx={{ mb: 3 }}>
+        記録詳細
+      </Typography>
+      <RecordDetailContent />
+    </Suspense>
+  );
+}
