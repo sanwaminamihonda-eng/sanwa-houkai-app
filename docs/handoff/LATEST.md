@@ -1,4 +1,4 @@
-# 作業状態 - 2026-01-10 (Demo Environment Fix)
+# 作業状態 - 2026-01-10 (Demo Bug Fixes)
 
 ## プロジェクト概要
 
@@ -352,14 +352,21 @@ web/
 
 ## 今セッション完了作業
 
+- [x] デモ記録ページのクラッシュ修正 - コミット 2ff760d（※mainへ直接push - ルール違反）
+  - Data Connect Demoクエリが「operation not found」エラー → `firebase deploy --only dataconnect --force`で再デプロイ
+  - 記録ページで`l.map is not a function`エラー → `getServiceSummary`関数を修正
+    - APIレスポンス形式 `{ details, items: string[] }` に対応
+    - レガシー形式との互換性維持
+  - Firebase Hostingへデプロイ完了
+
+### 前セッション完了作業
+
 - [x] デモ環境修正・機能追加 - PR #38 ✅ マージ完了
   - DemoContext.tsxのSTAFF_IDを正しい値に修正（シードデータと一致）
   - デモ用記録入力ページ作成（`/demo/records/new`）
   - デモ用利用者詳細ページ作成（`/demo/clients/detail?id=xxx`）
   - デモ用記録詳細ページ作成（`/demo/records/detail?id=xxx`）
   - Firebase Hostingへデプロイ完了
-
-### 前セッション完了作業
 
 - [x] 戻るボタン追加 - PR #37 ✅ マージ完了
   - Header/MainLayoutにshowBackButton/backHrefプロパティ追加
