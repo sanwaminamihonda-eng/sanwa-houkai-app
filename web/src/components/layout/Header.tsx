@@ -11,8 +11,6 @@ import {
   Menu,
   MenuItem,
   Divider,
-  useMediaQuery,
-  useTheme,
 } from '@mui/material';
 import { ArrowBack as ArrowBackIcon, Menu as MenuIcon } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
@@ -29,8 +27,6 @@ interface HeaderProps {
 export default function Header({ title = '訪問介護記録管理', showBackButton = false, backHref, onMenuClick }: HeaderProps) {
   const router = useRouter();
   const { user, signOut } = useAuth();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -50,28 +46,25 @@ export default function Header({ title = '訪問介護記録管理', showBackBut
     <AppBar
       position="fixed"
       sx={{
-        width: isMobile ? '100%' : `calc(100% - ${DRAWER_WIDTH}px)`,
-        ml: isMobile ? 0 : `${DRAWER_WIDTH}px`,
+        width: { xs: '100%', md: `calc(100% - ${DRAWER_WIDTH}px)` },
+        ml: { xs: 0, md: `${DRAWER_WIDTH}px` },
         bgcolor: 'background.paper',
         color: 'text.primary',
         boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
       }}
     >
       <Toolbar>
-        {isMobile && (
-          <IconButton
-            color="inherit"
-            aria-label="メニューを開く"
-            edge="start"
-            onClick={onMenuClick}
-            sx={{ mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton>
-        )}
+        <IconButton
+          color="inherit"
+          aria-label="メニューを開く"
+          edge="start"
+          onClick={onMenuClick}
+          sx={{ mr: 2, display: { xs: 'flex', md: 'none' } }}
+        >
+          <MenuIcon />
+        </IconButton>
         {showBackButton && (
           <IconButton
-            edge={isMobile ? false : 'start'}
             color="inherit"
             aria-label="戻る"
             onClick={() => backHref ? router.push(backHref) : router.back()}

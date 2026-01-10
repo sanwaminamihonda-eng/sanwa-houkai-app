@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { useState } from 'react';
-import { Box, Toolbar, useMediaQuery, useTheme } from '@mui/material';
+import { Box, Toolbar } from '@mui/material';
 import Sidebar, { DRAWER_WIDTH } from './Sidebar';
 import Header from './Header';
 import AuthGuard from '../AuthGuard';
@@ -15,8 +15,6 @@ interface MainLayoutProps {
 }
 
 export default function MainLayout({ children, title, showBackButton, backHref }: MainLayoutProps) {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleDrawerToggle = () => {
@@ -42,7 +40,7 @@ export default function MainLayout({ children, title, showBackButton, backHref }
           sx={{
             flexGrow: 1,
             p: { xs: 2, sm: 3 },
-            width: isMobile ? '100%' : `calc(100% - ${DRAWER_WIDTH}px)`,
+            width: { xs: '100%', md: `calc(100% - ${DRAWER_WIDTH}px)` },
             bgcolor: 'background.default',
           }}
         >

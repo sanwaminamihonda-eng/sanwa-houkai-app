@@ -14,8 +14,6 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
-  useMediaQuery,
-  useTheme,
 } from '@mui/material';
 import {
   Refresh as RefreshIcon,
@@ -31,8 +29,6 @@ interface DemoLayoutProps {
 }
 
 export default function DemoLayout({ children, title }: DemoLayoutProps) {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -111,7 +107,7 @@ export default function DemoLayout({ children, title }: DemoLayoutProps) {
           sx={{
             flexGrow: 1,
             p: { xs: 2, sm: 3 },
-            width: isMobile ? '100%' : `calc(100% - ${DRAWER_WIDTH}px)`,
+            width: { xs: '100%', md: `calc(100% - ${DRAWER_WIDTH}px)` },
             bgcolor: 'background.default',
           }}
         >
