@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Box, CircularProgress, Alert } from '@mui/material';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, addDays } from 'date-fns';
 import { MainLayout } from '@/components/layout';
@@ -50,6 +50,9 @@ export default function SchedulePage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentView, setCurrentView] = useState<string>('timeGridWeek');
 
+  // Track last fetched date range to prevent infinite loops
+  const lastFetchedRangeRef = useRef<string>('');
+
   // Calculate date range based on current view
   const getDateRange = useCallback((date: Date, view: string) => {
     if (view === 'dayGridMonth') {
@@ -69,10 +72,18 @@ export default function SchedulePage() {
     }
   }, []);
 
-  const fetchSchedules = useCallback(async () => {
+  const fetchSchedules = useCallback(async (force = false) => {
     if (!facilityId) return;
 
     const { start, end } = getDateRange(currentDate, currentView);
+    const rangeKey = `${format(start, 'yyyy-MM-dd')}_${format(end, 'yyyy-MM-dd')}`;
+
+    // Skip if we already fetched this range (prevent infinite loop)
+    if (!force && rangeKey === lastFetchedRangeRef.current) {
+      return;
+    }
+
+    lastFetchedRangeRef.current = rangeKey;
 
     try {
       const result = await listSchedulesByDateRange(dataConnect, {
@@ -105,29 +116,47 @@ export default function SchedulePage() {
     }
   }, [facilityId]);
 
+  // Force refetch handler for user actions and realtime updates
+  const handleForceRefetch = useCallback(async () => {
+    await fetchSchedules(true);
+  }, [fetchSchedules]);
+
   // Realtime sync
   const { notifyScheduleUpdate } = useScheduleRealtime({
     facilityId,
     staffId: staff?.id || null,
-    onUpdate: fetchSchedules,
+    onUpdate: handleForceRefetch,
   });
 
+  // Initial load - master data only
+  useEffect(() => {
+    if (!facilityId) return;
+    fetchMasterData();
+  }, [facilityId, fetchMasterData]);
+
+  // Schedule data load - triggered by date/view changes
   useEffect(() => {
     if (!facilityId) return;
 
-    const loadData = async () => {
+    const loadSchedules = async () => {
       setLoading(true);
-      await Promise.all([fetchSchedules(), fetchMasterData()]);
+      await fetchSchedules();
       setLoading(false);
     };
 
-    loadData();
-  }, [facilityId, fetchSchedules, fetchMasterData]);
+    loadSchedules();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [facilityId, currentDate, currentView]);
 
-  // Handle date range change from calendar
+  // Handle date range change from calendar - only update state, don't fetch
   const handleDateRangeChange = useCallback((date: Date, _: Date, view: string) => {
-    setCurrentDate(date);
-    setCurrentView(view);
+    // Only update if values actually changed
+    setCurrentDate(prev => {
+      const prevStr = format(prev, 'yyyy-MM-dd');
+      const newStr = format(date, 'yyyy-MM-dd');
+      return prevStr !== newStr ? date : prev;
+    });
+    setCurrentView(prev => prev !== view ? view : prev);
   }, []);
 
   // API handlers for dependency injection
@@ -212,7 +241,7 @@ export default function SchedulePage() {
         currentStaffId={staff?.id || ''}
         facilityId={facilityId}
         apiHandlers={apiHandlers}
-        onRefetch={fetchSchedules}
+        onRefetch={handleForceRefetch}
         onDateRangeChange={handleDateRangeChange}
       />
     </MainLayout>

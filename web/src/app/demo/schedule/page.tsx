@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Box, CircularProgress, Alert } from '@mui/material';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, addDays } from 'date-fns';
 import { useDemoContext } from '@/contexts/DemoContext';
@@ -48,6 +48,9 @@ export default function DemoSchedulePage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentView, setCurrentView] = useState<string>('timeGridWeek');
 
+  // Track last fetched date range to prevent infinite loops
+  const lastFetchedRangeRef = useRef<string>('');
+
   // Calculate date range based on current view
   const getDateRange = useCallback((date: Date, view: string) => {
     if (view === 'dayGridMonth') {
@@ -67,10 +70,18 @@ export default function DemoSchedulePage() {
     }
   }, []);
 
-  const fetchSchedules = useCallback(async () => {
+  const fetchSchedules = useCallback(async (force = false) => {
     if (!facilityId) return;
 
     const { start, end } = getDateRange(currentDate, currentView);
+    const rangeKey = `${format(start, 'yyyy-MM-dd')}_${format(end, 'yyyy-MM-dd')}`;
+
+    // Skip if we already fetched this range (prevent infinite loop)
+    if (!force && rangeKey === lastFetchedRangeRef.current) {
+      return;
+    }
+
+    lastFetchedRangeRef.current = rangeKey;
 
     try {
       const result = await demoListSchedulesByDateRange(dataConnect, {
@@ -104,22 +115,35 @@ export default function DemoSchedulePage() {
     }
   }, [facilityId]);
 
+  // Initial load - master data only
+  useEffect(() => {
+    if (!facilityId) return;
+    fetchMasterData();
+  }, [facilityId, fetchMasterData]);
+
+  // Schedule data load - triggered by date/view changes
   useEffect(() => {
     if (!facilityId) return;
 
-    const loadData = async () => {
+    const loadSchedules = async () => {
       setLoading(true);
-      await Promise.all([fetchSchedules(), fetchMasterData()]);
+      await fetchSchedules();
       setLoading(false);
     };
 
-    loadData();
-  }, [facilityId, fetchSchedules, fetchMasterData]);
+    loadSchedules();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [facilityId, currentDate, currentView]);
 
-  // Handle date range change from calendar
+  // Handle date range change from calendar - only update state, don't fetch
   const handleDateRangeChange = useCallback((date: Date, _: Date, view: string) => {
-    setCurrentDate(date);
-    setCurrentView(view);
+    // Only update if values actually changed
+    setCurrentDate(prev => {
+      const prevStr = format(prev, 'yyyy-MM-dd');
+      const newStr = format(date, 'yyyy-MM-dd');
+      return prevStr !== newStr ? date : prev;
+    });
+    setCurrentView(prev => prev !== view ? view : prev);
   }, []);
 
   // API handlers for dependency injection (demo version)
@@ -172,6 +196,12 @@ export default function DemoSchedulePage() {
     }));
   }, [serviceTypes]);
 
+  // Force refetch for user actions (create, update, delete)
+  // Must be defined before conditional returns to follow Rules of Hooks
+  const handleRefetch = useCallback(async () => {
+    await fetchSchedules(true);
+  }, [fetchSchedules]);
+
   if (loading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
@@ -195,7 +225,7 @@ export default function DemoSchedulePage() {
         currentStaffId={staffId}
         facilityId={facilityId}
         apiHandlers={apiHandlers}
-        onRefetch={fetchSchedules}
+        onRefetch={handleRefetch}
         onDateRangeChange={handleDateRangeChange}
     />
   );
