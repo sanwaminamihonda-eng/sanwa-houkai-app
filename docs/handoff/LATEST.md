@@ -1,4 +1,4 @@
-# 作業状態 - 2026-01-10 (Demo Pages)
+# 作業状態 - 2026-01-10 (Demo Environment Deploy)
 
 ## プロジェクト概要
 
@@ -347,12 +347,23 @@ web/
 - リポジトリ: sanwaminamihonda-eng/sanwa-houkai-app
 - ブランチ: main
 - 状態: clean
-- CI/CD: ✅ 動作確認済み（PR #6, #7, #8, #10, #11, #12, #14, #16, #25, #26, #28, #29, #30, #31, #32, #33, #34, #35）
+- CI/CD: ✅ 動作確認済み（PR #6, #7, #8, #10, #11, #12, #14, #16, #25, #26, #28, #29, #30, #31, #32, #33, #34, #35, #36）
 - デプロイ: ✅ Firebase Hosting 自動デプロイ（main push時）
 
 ## 今セッション完了作業
 
-- [x] デモ専用ページ実装 - PR #35 ✅ マージ完了
+- [x] デモ環境デプロイ - PR #36 ✅ マージ完了
+  - DemoContext.tsxのUUID不一致を修正（シードデータと一致）
+  - CLAUDE.mdにアカウント切り替え手順を追加
+  - Cloud SQLにシードデータ投入
+    - 利用者: 10名
+    - スケジュール: 91件
+    - 訪問記録: 189件
+  - Firebase Hostingへデプロイ完了
+
+### 前セッション完了作業
+
+- [x] デモ専用ページ実装 - PR #35
   - `/demo/*` パスでアクセス可能（認証不要）
   - DemoContext、DemoLayout、DemoSidebar、DemoHeader作成
   - `@auth(level: PUBLIC)` でデモ用クエリ・ミューテーション追加
@@ -360,8 +371,6 @@ web/
   - リセット機能Cloud Function追加（`resetDemoData`）
   - ログインページ・ダッシュボードからデモへの導線追加
   - CLAUDE.mdにブランチ運用ルール明記
-
-### 前セッション完了作業
 
 - [x] Web版計画書表示機能 - PR #34
   - 計画書一覧ページ（テーブル形式、利用者フィルタ、ページネーション）
@@ -398,19 +407,25 @@ web/
 
 ## 次回アクション
 
-1. **デモ環境デプロイ**: シードデータ投入とデプロイ
-   ```bash
-   gcloud sql connect sanwa-houkai-db --user=postgres --database=fdcdb
-   \i dataconnect/seed/demo-seed.sql
-   firebase deploy
-   ```
+1. デモページの動作確認（https://sanwa-houkai-app.web.app/demo）
 2. オフライン対応検討
 3. 追加機能の要望に応じて実装
 
 **デプロイ済み:**
+- デモ環境（シードデータ投入済み）- 2026-01-10 デプロイ完了（PR #36）
 - Cloud Functions（generateVisitNotes, generateReport, generateCarePlan）- 2026-01-10 デプロイ完了
 - Cloud Storageバケット（sanwa-houkai-app-reports）- 2026-01-10 作成完了
 - リアルタイム同期コード - 2026-01-10 マージ完了
 - Firestoreルール - 2026-01-10 デプロイ完了
 - 繰り返し予定機能 - 2026-01-10 マージ完了（PR #29）
 - 繰り返し予定編集・削除改善 - 2026-01-10 マージ完了（PR #30）
+
+## デモ環境情報
+
+| 項目 | 値 |
+|------|-----|
+| URL | https://sanwa-houkai-app.web.app/demo |
+| 利用者数 | 10名 |
+| スケジュール | 91件 |
+| 訪問記録 | 189件 |
+| リセット機能 | resetDemoData Cloud Function |
