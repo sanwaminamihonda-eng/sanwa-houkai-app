@@ -14,6 +14,8 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import {
   Refresh as RefreshIcon,
@@ -29,6 +31,9 @@ interface DemoLayoutProps {
 }
 
 export default function DemoLayout({ children, title }: DemoLayoutProps) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [resetting, setResetting] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: 'success' | 'error' }>({
@@ -36,6 +41,14 @@ export default function DemoLayout({ children, title }: DemoLayoutProps) {
     message: '',
     severity: 'success',
   });
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+
+  const handleDrawerClose = () => {
+    setMobileOpen(false);
+  };
 
   const handleResetClick = () => {
     setConfirmOpen(true);
@@ -91,14 +104,14 @@ export default function DemoLayout({ children, title }: DemoLayoutProps) {
   return (
     <DemoProvider>
       <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-        <DemoSidebar />
-        <DemoHeader title={title} />
+        <DemoSidebar open={mobileOpen} onClose={handleDrawerClose} />
+        <DemoHeader title={title} onMenuClick={handleDrawerToggle} />
         <Box
           component="main"
           sx={{
             flexGrow: 1,
-            p: 3,
-            width: `calc(100% - ${DRAWER_WIDTH}px)`,
+            p: { xs: 2, sm: 3 },
+            width: isMobile ? '100%' : `calc(100% - ${DRAWER_WIDTH}px)`,
             bgcolor: 'background.default',
           }}
         >
