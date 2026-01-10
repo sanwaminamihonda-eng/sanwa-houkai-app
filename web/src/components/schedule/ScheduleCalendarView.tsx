@@ -621,8 +621,53 @@ export function ScheduleCalendarView({
               minute: '2-digit',
               hour12: false,
             }}
+            dayMaxEvents={3}
+            moreLinkClick="popover"
+            moreLinkText={(num) => `+${num}件`}
+            views={{
+              timeGridDay: {
+                dayHeaderFormat: { weekday: 'long', month: 'numeric', day: 'numeric' }
+              }
+            }}
             eventContent={(arg: EventContentArg) => {
               const isRecurring = arg.event.extendedProps.isRecurring;
+              const viewType = arg.view.type;
+              const isMonthView = viewType === 'dayGridMonth';
+
+              // Month view: compact display
+              if (isMonthView) {
+                const clientName = arg.event.title.split('(')[0].trim();
+                return (
+                  <Box sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 0.5,
+                    overflow: 'hidden',
+                    width: '100%',
+                    px: 0.5,
+                    py: 0.25,
+                  }}>
+                    {isRecurring && (
+                      <RepeatIcon sx={{ fontSize: 12, flexShrink: 0 }} />
+                    )}
+                    <Typography
+                      variant="caption"
+                      component="span"
+                      sx={{
+                        fontSize: '0.7rem',
+                        fontWeight: 500,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {arg.timeText} {clientName}
+                    </Typography>
+                  </Box>
+                );
+              }
+
+              // Week/Day view: detailed display
               const duration = arg.event.end && arg.event.start
                 ? (arg.event.end.getTime() - arg.event.start.getTime()) / (1000 * 60)
                 : 60;

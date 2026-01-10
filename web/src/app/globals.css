@@ -9,3 +9,151 @@ html {
 .fc {
   font-family: inherit;
 }
+
+/* Google Calendar風スタイリング */
+
+/* 月ビュー - 今日のセルハイライト */
+.fc .fc-day-today {
+  background-color: rgba(33, 150, 243, 0.08) !important;
+}
+
+/* 月ビュー - 今日の日付番号 */
+.fc .fc-daygrid-day-number {
+  padding: 4px 8px;
+}
+
+.fc .fc-day-today .fc-daygrid-day-number {
+  background-color: #1976d2;
+  color: white;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 月ビュー - セルホバーエフェクト */
+.fc .fc-daygrid-day:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* 月ビュー - 週末の背景 */
+.fc .fc-day-sat,
+.fc .fc-day-sun {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* +N件リンクスタイル */
+.fc .fc-daygrid-more-link {
+  color: #1976d2;
+  font-weight: 500;
+  font-size: 0.75rem;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.fc .fc-daygrid-more-link:hover {
+  background-color: rgba(25, 118, 210, 0.08);
+  text-decoration: none;
+}
+
+/* 月ビュー - イベントスタイル */
+.fc .fc-daygrid-event {
+  border-radius: 4px;
+  padding: 1px 4px;
+  font-size: 0.75rem;
+  margin: 1px 2px;
+}
+
+/* 月ビュー - イベントホバー */
+.fc .fc-daygrid-event:hover {
+  filter: brightness(0.95);
+}
+
+/* 週/日ビュー - タイムグリッドのイベント */
+.fc .fc-timegrid-event {
+  border-radius: 4px;
+  border-width: 0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* ヘッダーツールバーのスタイル調整 */
+.fc .fc-toolbar-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+/* ビュー切り替えボタン */
+.fc .fc-button {
+  border-radius: 4px;
+  text-transform: none;
+  font-weight: 500;
+  padding: 6px 12px;
+}
+
+.fc .fc-button-primary {
+  background-color: transparent;
+  border-color: #dadce0;
+  color: #3c4043;
+}
+
+.fc .fc-button-primary:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+  border-color: #dadce0;
+  color: #3c4043;
+}
+
+.fc .fc-button-primary:not(:disabled).fc-button-active {
+  background-color: #e8f0fe;
+  border-color: #1976d2;
+  color: #1976d2;
+}
+
+/* 今日ボタン */
+.fc .fc-today-button {
+  background-color: transparent;
+  border: 1px solid #dadce0;
+  color: #3c4043;
+}
+
+.fc .fc-today-button:hover:not(:disabled) {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.fc .fc-today-button:disabled {
+  opacity: 0.5;
+}
+
+/* ナビゲーション矢印ボタン */
+.fc .fc-prev-button,
+.fc .fc-next-button {
+  background-color: transparent;
+  border: none;
+  color: #5f6368;
+  padding: 6px;
+}
+
+.fc .fc-prev-button:hover,
+.fc .fc-next-button:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+  border-radius: 50%;
+}
+
+/* ポップオーバー（+N件クリック時） */
+.fc .fc-popover {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: none;
+}
+
+.fc .fc-popover-header {
+  background-color: #f1f3f4;
+  border-radius: 8px 8px 0 0;
+  padding: 8px 12px;
+  font-weight: 500;
+}
+
+.fc .fc-popover-body {
+  padding: 8px;
+}
