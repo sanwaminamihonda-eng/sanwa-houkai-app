@@ -347,10 +347,23 @@ web/
 - リポジトリ: sanwaminamihonda-eng/sanwa-houkai-app
 - ブランチ: main
 - 状態: clean
-- CI/CD: ✅ 動作確認済み（PR #6, #7, #8, #10, #11, #12, #14, #16, #25, #26, #28, #29, #30, #31, #32, #33, #34, #35, #36, #37, #38, #39, #40）
+- CI/CD: ✅ 動作確認済み（PR #6, #7, #8, #10, #11, #12, #14, #16, #25, #26, #28, #29, #30, #31, #32, #33, #34, #35, #36, #37, #38, #39, #40, #41）
 - デプロイ: ✅ Firebase Hosting 自動デプロイ（main push時）
 
 ## 今セッション完了作業
+
+- [x] スケジュール共通コンポーネント化 - PR #41 ✅ マージ完了
+  - 共通コンポーネント抽出（`web/src/components/schedule/`）
+    - `ScheduleCalendarView.tsx` - メインカレンダー（FullCalendar使用）
+    - `ScheduleDetailDialog.tsx` - 詳細表示ダイアログ
+    - `ScheduleFormDialog.tsx` - 作成/編集フォーム
+    - `RecurrenceEditDialog.tsx` - 繰り返し編集スコープ選択
+    - `RecurrenceDeleteDialog.tsx` - 繰り返し削除スコープ選択
+    - `types.ts` - 共通型定義・APIインターフェース
+    - `utils.ts` - カラー、RRule生成ユーティリティ
+  - デモ版スケジュール（`/demo/schedule`）をGoogleカレンダースタイルに変更
+  - 依存性注入パターンでAPI関数差し替え可能に（`ScheduleApiHandlers`）
+  - 本番ページを1400行→220行に削減（共通コンポーネント使用）
 
 - [x] デモ/本番コード共通化 - PR #40 ✅ マージ完了
   - 共通ユーティリティ関数抽出（`web/src/utils/formatters.ts`）
