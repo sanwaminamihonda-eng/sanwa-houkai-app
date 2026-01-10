@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
-import { Box, CircularProgress, Alert, Typography } from '@mui/material';
+import { Box, CircularProgress, Alert } from '@mui/material';
 import { format, startOfWeek, endOfWeek, startOfMonth, endOfMonth, addDays } from 'date-fns';
 import { useDemoContext } from '@/contexts/DemoContext';
 import { dataConnect } from '@/lib/firebase';
@@ -185,12 +185,7 @@ export default function DemoSchedulePage() {
   }
 
   return (
-    <Box>
-      <Typography variant="h5" sx={{ mb: 3 }}>
-        スケジュール
-      </Typography>
-
-      <ScheduleCalendarView
+    <ScheduleCalendarView
         schedules={schedulesForCalendar}
         clients={clientOptions}
         staffList={staffOptions}
@@ -202,7 +197,6 @@ export default function DemoSchedulePage() {
         apiHandlers={apiHandlers}
         onRefetch={fetchSchedules}
         onDateRangeChange={handleDateRangeChange}
-      />
-    </Box>
+    />
   );
 }
