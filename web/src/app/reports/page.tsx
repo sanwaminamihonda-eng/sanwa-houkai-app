@@ -6,15 +6,6 @@ import {
   Typography,
   Card,
   CardContent,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Chip,
-  IconButton,
   FormControl,
   InputLabel,
   Select,
@@ -22,7 +13,7 @@ import {
   CircularProgress,
   Alert,
   Tooltip,
-  TablePagination,
+  IconButton,
   Button,
   Dialog,
   DialogTitle,
@@ -35,20 +26,19 @@ import {
 import {
   Add as AddIcon,
   Refresh as RefreshIcon,
-  Download as DownloadIcon,
   AutoAwesome as AiIcon,
 } from '@mui/icons-material';
 import { MainLayout } from '@/components/layout';
+import { ResponsiveList } from '@/components/common';
+import { ReportsTable, ReportCardList, ReportListItemData } from '@/components/reports';
 import { useStaff } from '@/hooks/useStaff';
 import { dataConnect, functions, httpsCallable } from '@/lib/firebase';
 import {
   listReportsByFacility,
   listClients,
-  ListReportsByFacilityData,
   ListClientsData,
 } from '@sanwa-houkai-app/dataconnect';
 
-type Report = ListReportsByFacilityData['reports'][0];
 type Client = ListClientsData['clients'][0];
 
 interface GenerateReportRequest {
@@ -70,7 +60,7 @@ const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 export default function ReportsPage() {
   const { staff, facilityId, loading: staffLoading } = useStaff();
 
-  const [reports, setReports] = useState<Report[]>([]);
+  const [reports, setReports] = useState<ReportListItemData[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -102,7 +92,7 @@ export default function ReportsPage() {
         listClients(dataConnect, { facilityId }),
       ]);
 
-      setReports(reportsRes.data.reports);
+      setReports(reportsRes.data.reports as ReportListItemData[]);
       setClients(clientsRes.data.clients);
       setError(null);
     } catch (err) {
@@ -179,10 +169,7 @@ export default function ReportsPage() {
         setSnackbarSeverity('success');
         setSnackbarOpen(true);
 
-        // PDFをダウンロード
         window.open(result.data.pdfUrl, '_blank');
-
-        // 一覧を更新
         await fetchData();
         setDialogOpen(false);
       }
@@ -196,22 +183,8 @@ export default function ReportsPage() {
     }
   };
 
-  const handleDownload = (pdfUrl: string | null | undefined) => {
-    if (pdfUrl) {
-      // gs:// URLの場合は署名付きURLに変換が必要
-      // ここでは直接開く（Cloud Storageからのダウンロード）
-      // 実際にはCloud Functionで署名付きURLを取得するAPIが必要かもしれない
-      window.open(pdfUrl, '_blank');
-    }
-  };
-
-  const formatYearMonth = (year: number, month: number) => {
-    return `${year}年${month}月`;
-  };
-
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
+  const handleDownload = (pdfUrl: string) => {
+    window.open(pdfUrl, '_blank');
   };
 
   const filteredReports = filterClientId
@@ -222,15 +195,6 @@ export default function ReportsPage() {
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
-
-  const handleChangePage = (_: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
 
   // 年の選択肢を生成（過去3年〜来年）
   const currentYear = new Date().getFullYear();
@@ -270,9 +234,9 @@ export default function ReportsPage() {
       <Box>
         {/* Header */}
         <Card sx={{ mb: 3 }}>
-          <CardContent>
+          <CardContent sx={{ py: { xs: 1.5, sm: 2 } }}>
             <Box display="flex" alignItems="center" gap={2} flexWrap="wrap">
-              <FormControl size="small" sx={{ minWidth: 200 }}>
+              <FormControl size="small" sx={{ minWidth: { xs: '100%', sm: 200 }, flex: { xs: 1, sm: 'none' } }}>
                 <InputLabel>利用者で絞り込み</InputLabel>
                 <Select
                   value={filterClientId}
@@ -300,114 +264,57 @@ export default function ReportsPage() {
                   variant="contained"
                   startIcon={<AddIcon />}
                   onClick={handleOpenDialog}
+                  sx={{ display: { xs: 'none', sm: 'inline-flex' } }}
                 >
                   報告書を作成
                 </Button>
+                <IconButton
+                  color="primary"
+                  onClick={handleOpenDialog}
+                  sx={{ display: { xs: 'inline-flex', sm: 'none' } }}
+                >
+                  <AddIcon />
+                </IconButton>
               </Box>
             </Box>
           </CardContent>
         </Card>
 
-        {/* Reports Table */}
-        <Card>
-          <TableContainer component={Paper} elevation={0}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>対象年月</TableCell>
-                  <TableCell>利用者</TableCell>
-                  <TableCell>AI要約</TableCell>
-                  <TableCell>PDF</TableCell>
-                  <TableCell>作成日</TableCell>
-                  <TableCell>作成者</TableCell>
-                  <TableCell align="center">操作</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {paginatedReports.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} align="center" sx={{ py: 8 }}>
-                      <Typography color="text.secondary">
-                        {filterClientId
-                          ? 'この利用者の報告書はありません'
-                          : '報告書がありません'}
-                      </Typography>
-                      <Button
-                        variant="outlined"
-                        startIcon={<AddIcon />}
-                        onClick={handleOpenDialog}
-                        sx={{ mt: 2 }}
-                      >
-                        報告書を作成
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  paginatedReports.map((report) => (
-                    <TableRow key={report.id} hover>
-                      <TableCell>
-                        <Typography fontWeight={500}>
-                          {formatYearMonth(report.targetYear, report.targetMonth)}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>{report.client.name}</TableCell>
-                      <TableCell>
-                        {report.aiGenerated ? (
-                          <Chip
-                            icon={<AiIcon />}
-                            label="AI"
-                            size="small"
-                            color="primary"
-                            variant="outlined"
-                          />
-                        ) : (
-                          <Typography variant="body2" color="text.secondary">-</Typography>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {report.pdfGenerated ? (
-                          <Chip label="生成済み" size="small" color="success" />
-                        ) : (
-                          <Chip label="未生成" size="small" variant="outlined" />
-                        )}
-                      </TableCell>
-                      <TableCell>{formatDate(report.createdAt)}</TableCell>
-                      <TableCell>
-                        <Chip label={report.staff.name} size="small" variant="outlined" />
-                      </TableCell>
-                      <TableCell align="center">
-                        {report.pdfGenerated && report.pdfUrl && (
-                          <Tooltip title="PDFをダウンロード">
-                            <IconButton
-                              size="small"
-                              color="primary"
-                              onClick={() => handleDownload(report.pdfUrl)}
-                            >
-                              <DownloadIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
-            component="div"
-            count={filteredReports.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            labelRowsPerPage="表示件数:"
-            labelDisplayedRows={({ from, to, count }) =>
-              `${from}-${to} / ${count}件`
-            }
-          />
-        </Card>
+        {/* Reports List */}
+        <ResponsiveList
+          items={paginatedReports}
+          emptyMessage={
+            filterClientId
+              ? 'この利用者の報告書はありません'
+              : '報告書がありません'
+          }
+          emptyAction={
+            <Button
+              variant="outlined"
+              startIcon={<AddIcon />}
+              onClick={handleOpenDialog}
+            >
+              報告書を作成
+            </Button>
+          }
+          renderTable={(items) => (
+            <ReportsTable reports={items} onDownload={handleDownload} />
+          )}
+          renderCards={(items) => (
+            <ReportCardList reports={items} onDownload={handleDownload} />
+          )}
+          pagination
+          totalCount={filteredReports.length}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
+          onPageChange={setPage}
+          onRowsPerPageChange={(newRowsPerPage) => {
+            setRowsPerPage(newRowsPerPage);
+            setPage(0);
+          }}
+          countLabel="件"
+        />
 
         {/* Create Report Dialog */}
         <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
@@ -482,7 +389,6 @@ export default function ReportsPage() {
 
               <Alert severity="info" sx={{ mt: 1 }}>
                 対象月の訪問記録からPDF形式の実施報告書を生成します。
-                AIによる月次要約を含めると、特記事項が自動的にまとめられます。
               </Alert>
             </Box>
           </DialogContent>

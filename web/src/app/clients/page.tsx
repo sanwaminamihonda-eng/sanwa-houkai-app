@@ -5,36 +5,25 @@ import {
   Box,
   Card,
   CardContent,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Chip,
-  IconButton,
   TextField,
   InputAdornment,
   CircularProgress,
   Alert,
   Tooltip,
-  TablePagination,
+  IconButton,
   Typography,
 } from '@mui/material';
 import {
-  Visibility as VisibilityIcon,
   Refresh as RefreshIcon,
   Search as SearchIcon,
-  Phone as PhoneIcon,
 } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
 import { MainLayout } from '@/components/layout';
+import { ResponsiveList } from '@/components/common';
+import { ClientsTable, ClientCardList, ClientListItemData } from '@/components/clients';
 import { useStaff } from '@/hooks/useStaff';
 import { dataConnect } from '@/lib/firebase';
-import { listClients, ListClientsData } from '@sanwa-houkai-app/dataconnect';
-
-type Client = ListClientsData['clients'][0];
+import { listClients } from '@sanwa-houkai-app/dataconnect';
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 
@@ -42,7 +31,7 @@ export default function ClientsPage() {
   const router = useRouter();
   const { facilityId, loading: staffLoading } = useStaff();
 
-  const [clients, setClients] = useState<Client[]>([]);
+  const [clients, setClients] = useState<ClientListItemData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -55,7 +44,7 @@ export default function ClientsPage() {
 
     try {
       const result = await listClients(dataConnect, { facilityId });
-      setClients(result.data.clients);
+      setClients(result.data.clients as ClientListItemData[]);
       setError(null);
     } catch (err) {
       console.error('Failed to load clients:', err);
@@ -85,9 +74,9 @@ export default function ClientsPage() {
     router.push(`/clients/detail/?id=${clientId}`);
   };
 
-  const getAddress = (client: Client): string => {
-    const parts = [client.addressPrefecture, client.addressCity].filter(Boolean);
-    return parts.join(' ') || '-';
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value);
+    setPage(0);
   };
 
   const filteredClients = clients.filter((client) => {
@@ -103,20 +92,6 @@ export default function ClientsPage() {
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
-
-  const handleChangePage = (_: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(event.target.value);
-    setPage(0);
-  };
 
   if (staffLoading || loading) {
     return (
@@ -151,14 +126,14 @@ export default function ClientsPage() {
       <Box>
         {/* Search & Actions */}
         <Card sx={{ mb: 3 }}>
-          <CardContent>
+          <CardContent sx={{ py: { xs: 1.5, sm: 2 } }}>
             <Box display="flex" alignItems="center" gap={2} flexWrap="wrap">
               <TextField
                 size="small"
                 placeholder="名前で検索..."
                 value={searchQuery}
                 onChange={handleSearchChange}
-                sx={{ minWidth: 250 }}
+                sx={{ minWidth: { xs: '100%', sm: 250 }, flex: { xs: 1, sm: 'none' } }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -179,124 +154,32 @@ export default function ClientsPage() {
           </CardContent>
         </Card>
 
-        {/* Clients Table */}
-        <Card>
-          <TableContainer component={Paper} elevation={0}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>氏名</TableCell>
-                  <TableCell>フリガナ</TableCell>
-                  <TableCell>介護度</TableCell>
-                  <TableCell>性別</TableCell>
-                  <TableCell>住所</TableCell>
-                  <TableCell>電話番号</TableCell>
-                  <TableCell align="center">操作</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {paginatedClients.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} align="center" sx={{ py: 8 }}>
-                      <Typography color="text.secondary">
-                        {searchQuery
-                          ? '該当する利用者が見つかりません'
-                          : '利用者が登録されていません'}
-                      </Typography>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  paginatedClients.map((client) => (
-                    <TableRow
-                      key={client.id}
-                      hover
-                      sx={{ cursor: 'pointer' }}
-                      onClick={() => handleViewDetail(client.id)}
-                    >
-                      <TableCell>
-                        <Typography fontWeight={500}>{client.name}</Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2" color="text.secondary">
-                          {client.nameKana || '-'}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        {client.careLevel?.name ? (
-                          <Chip
-                            label={client.careLevel.name}
-                            size="small"
-                            color="primary"
-                            variant="outlined"
-                          />
-                        ) : (
-                          '-'
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {client.gender ? (
-                          <Chip label={client.gender} size="small" variant="outlined" />
-                        ) : (
-                          '-'
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2" color="text.secondary">
-                          {getAddress(client)}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        {client.phone ? (
-                          <Box display="flex" alignItems="center" gap={0.5}>
-                            <Typography variant="body2">{client.phone}</Typography>
-                            <Tooltip title="電話をかける">
-                              <IconButton
-                                size="small"
-                                color="primary"
-                                href={`tel:${client.phone}`}
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <PhoneIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                          </Box>
-                        ) : (
-                          '-'
-                        )}
-                      </TableCell>
-                      <TableCell align="center">
-                        <Tooltip title="詳細を表示">
-                          <IconButton
-                            size="small"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleViewDetail(client.id);
-                            }}
-                          >
-                            <VisibilityIcon fontSize="small" />
-                          </IconButton>
-                        </Tooltip>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
-            component="div"
-            count={filteredClients.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            labelRowsPerPage="表示件数:"
-            labelDisplayedRows={({ from, to, count }) =>
-              `${from}-${to} / ${count}名`
-            }
-          />
-        </Card>
+        {/* Clients List */}
+        <ResponsiveList
+          items={paginatedClients}
+          emptyMessage={
+            searchQuery
+              ? '該当する利用者が見つかりません'
+              : '利用者が登録されていません'
+          }
+          renderTable={(items) => (
+            <ClientsTable clients={items} onViewDetail={handleViewDetail} />
+          )}
+          renderCards={(items) => (
+            <ClientCardList clients={items} onViewDetail={handleViewDetail} />
+          )}
+          pagination
+          totalCount={filteredClients.length}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
+          onPageChange={setPage}
+          onRowsPerPageChange={(newRowsPerPage) => {
+            setRowsPerPage(newRowsPerPage);
+            setPage(0);
+          }}
+          countLabel="名"
+        />
       </Box>
     </MainLayout>
   );

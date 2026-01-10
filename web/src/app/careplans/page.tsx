@@ -6,12 +6,6 @@ import {
   Typography,
   Card,
   CardContent,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Paper,
   Chip,
   IconButton,
@@ -22,7 +16,6 @@ import {
   CircularProgress,
   Alert,
   Tooltip,
-  TablePagination,
   Button,
   Dialog,
   DialogTitle,
@@ -36,12 +29,14 @@ import {
   Add as AddIcon,
   Refresh as RefreshIcon,
   Download as DownloadIcon,
-  Visibility as ViewIcon,
   Close as CloseIcon,
   Person as PersonIcon,
   CalendarToday as CalendarIcon,
 } from '@mui/icons-material';
 import { MainLayout } from '@/components/layout';
+import { ResponsiveList } from '@/components/common';
+import { CarePlansTable, CarePlanCardList } from '@/components/careplans';
+import type { CarePlanListItemData } from '@/components/careplans';
 import { useStaff } from '@/hooks/useStaff';
 import { dataConnect, functions, httpsCallable } from '@/lib/firebase';
 import {
@@ -260,15 +255,6 @@ export default function CarePlansPage() {
     page * rowsPerPage + rowsPerPage
   );
 
-  const handleChangePage = (_: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
-
   if (staffLoading || loading) {
     return (
       <MainLayout title="訪問介護計画書" showBackButton backHref="/">
@@ -302,9 +288,9 @@ export default function CarePlansPage() {
       <Box>
         {/* Header */}
         <Card sx={{ mb: 3 }}>
-          <CardContent>
+          <CardContent sx={{ py: { xs: 1.5, sm: 2 } }}>
             <Box display="flex" alignItems="center" gap={2} flexWrap="wrap">
-              <FormControl size="small" sx={{ minWidth: 200 }}>
+              <FormControl size="small" sx={{ minWidth: { xs: '100%', sm: 200 } }}>
                 <InputLabel>利用者で絞り込み</InputLabel>
                 <Select
                   value={filterClientId}
@@ -322,130 +308,78 @@ export default function CarePlansPage() {
                   ))}
                 </Select>
               </FormControl>
-              <Tooltip title="更新">
-                <IconButton onClick={handleRefresh} color="primary">
-                  <RefreshIcon />
-                </IconButton>
-              </Tooltip>
-              <Box sx={{ ml: 'auto' }}>
-                <Button
-                  variant="contained"
-                  startIcon={<AddIcon />}
-                  onClick={handleOpenDialog}
-                >
-                  計画書を作成
-                </Button>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: { xs: 0, sm: 'auto' } }}>
+                <Tooltip title="更新">
+                  <IconButton onClick={handleRefresh} color="primary">
+                    <RefreshIcon />
+                  </IconButton>
+                </Tooltip>
+                {/* Desktop: Full button, Mobile: Icon only */}
+                <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+                  <Button
+                    variant="contained"
+                    startIcon={<AddIcon />}
+                    onClick={handleOpenDialog}
+                  >
+                    計画書を作成
+                  </Button>
+                </Box>
+                <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
+                  <Tooltip title="計画書を作成">
+                    <IconButton color="primary" onClick={handleOpenDialog}>
+                      <AddIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Box>
               </Box>
             </Box>
           </CardContent>
         </Card>
 
-        {/* Care Plans Table */}
-        <Card>
-          <TableContainer component={Paper} elevation={0}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>利用者</TableCell>
-                  <TableCell>作成日</TableCell>
-                  <TableCell>担当者</TableCell>
-                  <TableCell>PDF</TableCell>
-                  <TableCell align="center">操作</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {paginatedCarePlans.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} align="center" sx={{ py: 8 }}>
-                      <Typography color="text.secondary">
-                        {filterClientId
-                          ? 'この利用者の計画書はありません'
-                          : '計画書がありません'}
-                      </Typography>
-                      <Button
-                        variant="outlined"
-                        startIcon={<AddIcon />}
-                        onClick={handleOpenDialog}
-                        sx={{ mt: 2 }}
-                      >
-                        計画書を作成
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  paginatedCarePlans.map((carePlan) => (
-                    <TableRow
-                      key={carePlan.id}
-                      hover
-                      sx={{ cursor: 'pointer' }}
-                      onClick={() => handleViewDetail(carePlan.id)}
-                    >
-                      <TableCell>
-                        <Typography fontWeight={500}>
-                          {carePlan.client.name}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>{formatDate(carePlan.createdAt)}</TableCell>
-                      <TableCell>
-                        <Chip label={carePlan.staff.name} size="small" variant="outlined" />
-                      </TableCell>
-                      <TableCell>
-                        {carePlan.pdfUrl ? (
-                          <Chip label="生成済み" size="small" color="success" />
-                        ) : (
-                          <Chip label="未生成" size="small" variant="outlined" />
-                        )}
-                      </TableCell>
-                      <TableCell align="center">
-                        <Box display="flex" justifyContent="center" gap={1}>
-                          <Tooltip title="詳細を表示">
-                            <IconButton
-                              size="small"
-                              color="primary"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleViewDetail(carePlan.id);
-                              }}
-                            >
-                              <ViewIcon fontSize="small" />
-                            </IconButton>
-                          </Tooltip>
-                          {carePlan.pdfUrl && (
-                            <Tooltip title="PDFをダウンロード">
-                              <IconButton
-                                size="small"
-                                color="primary"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDownload(carePlan.pdfUrl);
-                                }}
-                              >
-                                <DownloadIcon fontSize="small" />
-                              </IconButton>
-                            </Tooltip>
-                          )}
-                        </Box>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <TablePagination
-            rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
-            component="div"
-            count={filteredCarePlans.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            labelRowsPerPage="表示件数:"
-            labelDisplayedRows={({ from, to, count }) =>
-              `${from}-${to} / ${count}件`
-            }
-          />
-        </Card>
+        {/* Care Plans List */}
+        <ResponsiveList<CarePlanListItemData>
+          items={paginatedCarePlans as CarePlanListItemData[]}
+          emptyMessage={
+            filterClientId
+              ? 'この利用者の計画書はありません'
+              : '計画書がありません'
+          }
+          emptyAction={
+            <Button
+              variant="outlined"
+              startIcon={<AddIcon />}
+              onClick={handleOpenDialog}
+              sx={{ mt: 2 }}
+            >
+              計画書を作成
+            </Button>
+          }
+          renderTable={(items) => (
+            <CarePlansTable
+              carePlans={items}
+              onViewDetail={handleViewDetail}
+              onDownload={(pdfUrl) => handleDownload(pdfUrl)}
+            />
+          )}
+          renderCards={(items) => (
+            <CarePlanCardList
+              carePlans={items}
+              onViewDetail={handleViewDetail}
+              onDownload={(pdfUrl) => handleDownload(pdfUrl)}
+            />
+          )}
+          pagination
+          totalCount={filteredCarePlans.length}
+          page={page}
+          rowsPerPage={rowsPerPage}
+          rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
+          onPageChange={setPage}
+          onRowsPerPageChange={(newRowsPerPage) => {
+            setRowsPerPage(newRowsPerPage);
+            setPage(0);
+          }}
+          countLabel="件"
+        />
 
         {/* Create Care Plan Dialog */}
         <Dialog open={dialogOpen} onClose={handleCloseDialog} maxWidth="sm" fullWidth>

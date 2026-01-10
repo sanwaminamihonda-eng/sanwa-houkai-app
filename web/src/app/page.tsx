@@ -56,12 +56,12 @@ export default function Home() {
                   },
                 }}
               >
-                <CardContent sx={{ textAlign: 'center', py: 4 }}>
-                  <Box sx={{ color: action.color, mb: 2 }}>{action.icon}</Box>
-                  <Typography variant="h6" sx={{ mb: 1 }}>
+                <CardContent sx={{ textAlign: 'center', py: { xs: 2.5, sm: 4 } }}>
+                  <Box sx={{ color: action.color, mb: { xs: 1, sm: 2 } }}>{action.icon}</Box>
+                  <Typography variant="h6" sx={{ mb: 0.5 }}>
                     {action.title}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                  <Typography variant="body2" color="text.secondary" sx={{ mb: { xs: 1.5, sm: 2 } }}>
                     {action.description}
                   </Typography>
                   <Button
@@ -82,62 +82,62 @@ export default function Home() {
           <Typography variant="h5" sx={{ mb: 3, fontWeight: 600 }}>
             統計サマリー
           </Typography>
-          <Grid container spacing={3}>
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Grid container spacing={{ xs: 2, sm: 3 }}>
+            <Grid size={{ xs: 6, sm: 6, md: 3 }}>
               <Card>
-                <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <StatsIcon sx={{ color: 'primary.main', mr: 1 }} />
-                    <Typography variant="body2" color="text.secondary">
+                <CardContent sx={{ py: { xs: 1.5, sm: 2 }, px: { xs: 1.5, sm: 2 } }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                    <StatsIcon sx={{ color: 'primary.main', mr: 0.5, fontSize: { xs: 18, sm: 24 } }} />
+                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                       本日の訪問
                     </Typography>
                   </Box>
-                  <Typography variant="h4" sx={{ fontWeight: 600 }}>
+                  <Typography variant="h4" sx={{ fontWeight: 600, fontSize: { xs: '1.75rem', sm: '2.125rem' } }}>
                     --
                   </Typography>
                 </CardContent>
               </Card>
             </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Grid size={{ xs: 6, sm: 6, md: 3 }}>
               <Card>
-                <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <StatsIcon sx={{ color: 'success.main', mr: 1 }} />
-                    <Typography variant="body2" color="text.secondary">
+                <CardContent sx={{ py: { xs: 1.5, sm: 2 }, px: { xs: 1.5, sm: 2 } }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                    <StatsIcon sx={{ color: 'success.main', mr: 0.5, fontSize: { xs: 18, sm: 24 } }} />
+                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                       今週の記録
                     </Typography>
                   </Box>
-                  <Typography variant="h4" sx={{ fontWeight: 600 }}>
+                  <Typography variant="h4" sx={{ fontWeight: 600, fontSize: { xs: '1.75rem', sm: '2.125rem' } }}>
                     --
                   </Typography>
                 </CardContent>
               </Card>
             </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Grid size={{ xs: 6, sm: 6, md: 3 }}>
               <Card>
-                <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <ClientsIcon sx={{ color: 'warning.main', mr: 1 }} />
-                    <Typography variant="body2" color="text.secondary">
+                <CardContent sx={{ py: { xs: 1.5, sm: 2 }, px: { xs: 1.5, sm: 2 } }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                    <ClientsIcon sx={{ color: 'warning.main', mr: 0.5, fontSize: { xs: 18, sm: 24 } }} />
+                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                       利用者数
                     </Typography>
                   </Box>
-                  <Typography variant="h4" sx={{ fontWeight: 600 }}>
+                  <Typography variant="h4" sx={{ fontWeight: 600, fontSize: { xs: '1.75rem', sm: '2.125rem' } }}>
                     --
                   </Typography>
                 </CardContent>
               </Card>
             </Grid>
-            <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+            <Grid size={{ xs: 6, sm: 6, md: 3 }}>
               <Card>
-                <CardContent>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                    <RecordIcon sx={{ color: 'info.main', mr: 1 }} />
-                    <Typography variant="body2" color="text.secondary">
+                <CardContent sx={{ py: { xs: 1.5, sm: 2 }, px: { xs: 1.5, sm: 2 } }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+                    <RecordIcon sx={{ color: 'info.main', mr: 0.5, fontSize: { xs: 18, sm: 24 } }} />
+                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' } }}>
                       今月の記録
                     </Typography>
                   </Box>
-                  <Typography variant="h4" sx={{ fontWeight: 600 }}>
+                  <Typography variant="h4" sx={{ fontWeight: 600, fontSize: { xs: '1.75rem', sm: '2.125rem' } }}>
                     --
                   </Typography>
                 </CardContent>

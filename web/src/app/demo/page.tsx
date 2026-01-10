@@ -42,26 +42,31 @@ function StatCard({ title, value, icon, href, color }: StatCardProps) {
         textDecoration: 'none',
         transition: 'transform 0.2s',
         '&:hover': { transform: 'translateY(-4px)' },
+        height: '100%',
       }}
     >
-      <CardContent>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+      <CardContent sx={{ py: { xs: 1.5, sm: 2 }, px: { xs: 1.5, sm: 2 } }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 1, sm: 2 } }}>
           <Box
             sx={{
               bgcolor: color,
               color: 'white',
               borderRadius: '50%',
-              p: 1,
-              mr: 2,
+              p: { xs: 0.75, sm: 1 },
+              mr: { xs: 1, sm: 2 },
             }}
           >
             {icon}
           </Box>
-          <Typography variant="h6" color="text.secondary">
+          <Typography
+            variant="h6"
+            color="text.secondary"
+            sx={{ fontSize: { xs: '0.875rem', sm: '1.25rem' } }}
+          >
             {title}
           </Typography>
         </Box>
-        <Typography variant="h4" fontWeight="bold">
+        <Typography variant="h4" fontWeight="bold" sx={{ fontSize: { xs: '1.5rem', sm: '2.125rem' } }}>
           {value}
         </Typography>
       </CardContent>
@@ -129,8 +134,8 @@ export default function DemoPage() {
         デモダッシュボード
       </Typography>
 
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+      <Grid container spacing={{ xs: 2, sm: 3 }} sx={{ mb: 4 }}>
+        <Grid size={{ xs: 6, sm: 6, md: 3 }}>
           <StatCard
             title="利用者数"
             value={stats.clients}
@@ -139,7 +144,7 @@ export default function DemoPage() {
             color="#4CAF50"
           />
         </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+        <Grid size={{ xs: 6, sm: 6, md: 3 }}>
           <StatCard
             title="今日の予定"
             value={stats.todaySchedules}
@@ -148,16 +153,16 @@ export default function DemoPage() {
             color="#2196F3"
           />
         </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+        <Grid size={{ xs: 6, sm: 6, md: 3 }}>
           <StatCard
-            title="今月の訪問記録"
+            title="今月の記録"
             value={stats.thisMonthRecords}
             icon={<AssignmentIcon />}
             href="/demo/records"
             color="#FF9800"
           />
         </Grid>
-        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+        <Grid size={{ xs: 6, sm: 6, md: 3 }}>
           <StatCard
             title="報告書"
             value="確認"

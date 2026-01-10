@@ -6,15 +6,6 @@ import {
   Typography,
   Card,
   CardContent,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Chip,
-  IconButton,
   FormControl,
   InputLabel,
   Select,
@@ -22,68 +13,56 @@ import {
   CircularProgress,
   Alert,
   Tooltip,
-  TablePagination,
+  IconButton,
 } from '@mui/material';
-import {
-  Visibility as VisibilityIcon,
-  Refresh as RefreshIcon,
-} from '@mui/icons-material';
+import { Refresh as RefreshIcon } from '@mui/icons-material';
+import { useRouter } from 'next/navigation';
 import { useDemoContext } from '@/contexts/DemoContext';
+import { ResponsiveList } from '@/components/common';
+import { RecordsTable, RecordCardList, RecordListItemData } from '@/components/records';
 import { dataConnect } from '@/lib/firebase';
+import { formatDateForApi } from '@/utils/formatters';
 import {
   demoListVisitRecordsByDateRange,
   demoListClients,
-  DemoListVisitRecordsByDateRangeData,
   DemoListClientsData,
 } from '@sanwa-houkai-app/dataconnect';
 
-type VisitRecord = DemoListVisitRecordsByDateRangeData['visitRecords'][0];
 type Client = DemoListClientsData['clients'][0];
-
-interface Service {
-  typeId: string;
-  typeName: string;
-  items: { id: string; name: string }[];
-}
 
 const DAYS_TO_LOAD = 30;
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 
 export default function DemoRecordsPage() {
+  const router = useRouter();
   const { facilityId } = useDemoContext();
 
-  const [records, setRecords] = useState<VisitRecord[]>([]);
+  const [records, setRecords] = useState<RecordListItemData[]>([]);
   const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedRecord, setSelectedRecord] = useState<VisitRecord | null>(null);
 
   // Filter & pagination state
   const [filterClientId, setFilterClientId] = useState<string>('');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const formatDateForApi = (date: Date) => {
-    return date.toISOString().split('T')[0];
-  };
-
   const fetchData = useCallback(async () => {
     try {
-      const dc = dataConnect;
       const endDate = new Date();
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - DAYS_TO_LOAD);
 
       const [recordsRes, clientsRes] = await Promise.all([
-        demoListVisitRecordsByDateRange(dc, {
+        demoListVisitRecordsByDateRange(dataConnect, {
           facilityId,
           startDate: formatDateForApi(startDate),
           endDate: formatDateForApi(endDate),
         }),
-        demoListClients(dc, { facilityId }),
+        demoListClients(dataConnect, { facilityId }),
       ]);
 
-      setRecords(recordsRes.data.visitRecords);
+      setRecords(recordsRes.data.visitRecords as RecordListItemData[]);
       setClients(clientsRes.data.clients);
       setError(null);
     } catch (err) {
@@ -108,58 +87,8 @@ export default function DemoRecordsPage() {
     setLoading(false);
   };
 
-  const handleViewDetail = (record: VisitRecord) => {
-    setSelectedRecord(record);
-  };
-
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const weekdays = ['日', '月', '火', '水', '木', '金', '土'];
-    return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')} (${weekdays[date.getDay()]})`;
-  };
-
-  const formatTimeRange = (start: string, end: string) => {
-    return `${start.slice(0, 5)}-${end.slice(0, 5)}`;
-  };
-
-  const getServiceSummary = (record: VisitRecord): string => {
-    const servicesData = record.services;
-    if (!servicesData) return '-';
-
-    // Handle current API format: { details: "...", items: ["item1", "item2"] }
-    const data = servicesData as { details?: string; items?: string[] };
-    if (data?.items && Array.isArray(data.items)) {
-      return data.items.slice(0, 3).join('、') + (data.items.length > 3 ? '...' : '');
-    }
-
-    // Handle legacy format: Service[]
-    if (Array.isArray(servicesData)) {
-      const services = servicesData as Service[];
-      if (services.length === 0) return '-';
-      return services
-        .map((s) => {
-          const itemNames = s.items.map((i) => i.name).slice(0, 3).join('、');
-          const hasMore = s.items.length > 3;
-          return `${s.typeName}: ${itemNames}${hasMore ? '...' : ''}`;
-        })
-        .join(' / ');
-    }
-
-    // Handle string format (JSON)
-    if (typeof servicesData === 'string') {
-      try {
-        const parsed = JSON.parse(servicesData);
-        if (Array.isArray(parsed)) {
-          return parsed.slice(0, 3).map((s: string | Service) =>
-            typeof s === 'string' ? s : s.typeName
-          ).join('、');
-        }
-      } catch {
-        return servicesData;
-      }
-    }
-
-    return '-';
+  const handleViewDetail = (recordId: string) => {
+    router.push(`/demo/records/detail?id=${recordId}`);
   };
 
   const filteredRecords = filterClientId
@@ -170,15 +99,6 @@ export default function DemoRecordsPage() {
     page * rowsPerPage,
     page * rowsPerPage + rowsPerPage
   );
-
-  const handleChangePage = (_: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
 
   if (loading) {
     return (
@@ -198,53 +118,11 @@ export default function DemoRecordsPage() {
         履歴一覧
       </Typography>
 
-      {/* Record Detail Modal */}
-      {selectedRecord && (
-        <Card sx={{ mb: 3, bgcolor: 'primary.50' }}>
-          <CardContent>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="h6">訪問記録詳細</Typography>
-              <IconButton onClick={() => setSelectedRecord(null)} size="small">
-                ×
-              </IconButton>
-            </Box>
-            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 2 }}>
-              <Box>
-                <Typography variant="body2" color="text.secondary">訪問日</Typography>
-                <Typography>{formatDate(selectedRecord.visitDate)}</Typography>
-              </Box>
-              <Box>
-                <Typography variant="body2" color="text.secondary">時間</Typography>
-                <Typography>{formatTimeRange(selectedRecord.startTime, selectedRecord.endTime)}</Typography>
-              </Box>
-              <Box>
-                <Typography variant="body2" color="text.secondary">利用者</Typography>
-                <Typography>{selectedRecord.client.name}</Typography>
-              </Box>
-              <Box>
-                <Typography variant="body2" color="text.secondary">担当</Typography>
-                <Typography>{selectedRecord.staff.name}</Typography>
-              </Box>
-              <Box sx={{ gridColumn: '1 / -1' }}>
-                <Typography variant="body2" color="text.secondary">サービス内容</Typography>
-                <Typography>{getServiceSummary(selectedRecord)}</Typography>
-              </Box>
-              {selectedRecord.notes && (
-                <Box sx={{ gridColumn: '1 / -1' }}>
-                  <Typography variant="body2" color="text.secondary">特記事項</Typography>
-                  <Typography>{selectedRecord.notes}</Typography>
-                </Box>
-              )}
-            </Box>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Filters */}
       <Card sx={{ mb: 3 }}>
-        <CardContent>
+        <CardContent sx={{ py: { xs: 1.5, sm: 2 } }}>
           <Box display="flex" alignItems="center" gap={2} flexWrap="wrap">
-            <FormControl size="small" sx={{ minWidth: 200 }}>
+            <FormControl size="small" sx={{ minWidth: { xs: '100%', sm: 200 }, flex: { xs: 1, sm: 'none' } }}>
               <InputLabel>利用者で絞り込み</InputLabel>
               <Select
                 value={filterClientId}
@@ -267,101 +145,43 @@ export default function DemoRecordsPage() {
                 <RefreshIcon />
               </IconButton>
             </Tooltip>
-            <Typography variant="body2" color="text.secondary" sx={{ ml: 'auto' }}>
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ ml: 'auto', display: { xs: 'none', sm: 'block' } }}
+            >
               直近{DAYS_TO_LOAD}日間の記録を表示
             </Typography>
           </Box>
         </CardContent>
       </Card>
 
-      {/* Records Table */}
-      <Card>
-        <TableContainer component={Paper} elevation={0}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>訪問日</TableCell>
-                <TableCell>時間</TableCell>
-                <TableCell>利用者</TableCell>
-                <TableCell>サービス内容</TableCell>
-                <TableCell>担当</TableCell>
-                <TableCell align="center">操作</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {paginatedRecords.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={6} align="center" sx={{ py: 8 }}>
-                    <Typography color="text.secondary">
-                      {filterClientId
-                        ? 'この利用者の記録はありません'
-                        : '記録がありません'}
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                paginatedRecords.map((record) => (
-                  <TableRow
-                    key={record.id}
-                    hover
-                    sx={{ cursor: 'pointer' }}
-                    onClick={() => handleViewDetail(record)}
-                  >
-                    <TableCell>{formatDate(record.visitDate)}</TableCell>
-                    <TableCell>{formatTimeRange(record.startTime, record.endTime)}</TableCell>
-                    <TableCell>
-                      <Typography fontWeight={500}>{record.client.name}</Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Typography
-                        variant="body2"
-                        color="text.secondary"
-                        sx={{
-                          maxWidth: 300,
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {getServiceSummary(record)}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Chip label={record.staff.name} size="small" variant="outlined" />
-                    </TableCell>
-                    <TableCell align="center">
-                      <Tooltip title="詳細を表示">
-                        <IconButton
-                          size="small"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleViewDetail(record);
-                          }}
-                        >
-                          <VisibilityIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
-          component="div"
-          count={filteredRecords.length}
-          rowsPerPage={rowsPerPage}
-          page={page}
-          onPageChange={handleChangePage}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-          labelRowsPerPage="表示件数:"
-          labelDisplayedRows={({ from, to, count }) =>
-            `${from}-${to} / ${count}件`
-          }
-        />
-      </Card>
+      {/* Records List */}
+      <ResponsiveList
+        items={paginatedRecords}
+        emptyMessage={
+          filterClientId
+            ? 'この利用者の記録はありません'
+            : '記録がありません'
+        }
+        renderTable={(items) => (
+          <RecordsTable records={items} onViewDetail={handleViewDetail} />
+        )}
+        renderCards={(items) => (
+          <RecordCardList records={items} onViewDetail={handleViewDetail} />
+        )}
+        pagination
+        totalCount={filteredRecords.length}
+        page={page}
+        rowsPerPage={rowsPerPage}
+        rowsPerPageOptions={ROWS_PER_PAGE_OPTIONS}
+        onPageChange={setPage}
+        onRowsPerPageChange={(newRowsPerPage) => {
+          setRowsPerPage(newRowsPerPage);
+          setPage(0);
+        }}
+        countLabel="件"
+      />
     </Box>
   );
 }
