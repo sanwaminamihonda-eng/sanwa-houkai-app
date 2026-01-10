@@ -1,4 +1,4 @@
-# 作業状態 - 2026-01-10 (Google Calendar-style Resize)
+# 作業状態 - 2026-01-10 (Shared Components)
 
 ## プロジェクト概要
 
@@ -347,10 +347,21 @@ web/
 - リポジトリ: sanwaminamihonda-eng/sanwa-houkai-app
 - ブランチ: main
 - 状態: clean
-- CI/CD: ✅ 動作確認済み（PR #6, #7, #8, #10, #11, #12, #14, #16, #25, #26, #28, #29, #30, #31, #32, #33, #34, #35, #36, #37, #38, #39）
+- CI/CD: ✅ 動作確認済み（PR #6, #7, #8, #10, #11, #12, #14, #16, #25, #26, #28, #29, #30, #31, #32, #33, #34, #35, #36, #37, #38, #39, #40）
 - デプロイ: ✅ Firebase Hosting 自動デプロイ（main push時）
 
 ## 今セッション完了作業
+
+- [x] デモ/本番コード共通化 - PR #40 ✅ マージ完了
+  - 共通ユーティリティ関数抽出（`web/src/utils/formatters.ts`）
+    - `formatDateWithWeekday`, `formatDateSlash`, `formatDateJapaneseWithWeekday`
+    - `formatDateJapanese`, `formatDateShortWithWeekday`, `formatTimeRange`, `formatTime`
+    - `formatAddress`, `truncateText`, `formatDateForApi`
+  - 記録詳細共通コンポーネント（`web/src/components/records/RecordDetailView.tsx`）
+    - 本番/デモの記録詳細ページで共通使用
+  - 利用者詳細共通コンポーネント（`web/src/components/clients/ClientDetailView.tsx`）
+    - 本番/デモの利用者詳細ページで共通使用
+  - 約1300行のコード削減
 
 - [x] GoogleカレンダースタイルのリサイズUIUX機能 - PR #39 ✅ マージ完了
   - イベントリサイズ機能追加（上端/下端ドラッグで時間変更）
