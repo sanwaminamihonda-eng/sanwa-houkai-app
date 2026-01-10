@@ -40,7 +40,7 @@ import {
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
-import interactionPlugin from '@fullcalendar/interaction';
+import interactionPlugin, { EventResizeDoneArg } from '@fullcalendar/interaction';
 import { EventClickArg, DateSelectArg, EventDropArg, EventContentArg } from '@fullcalendar/core';
 import { format, parse, startOfWeek, endOfWeek, startOfMonth, endOfMonth, addDays } from 'date-fns';
 import { ja } from 'date-fns/locale';
@@ -334,6 +334,45 @@ export default function SchedulePage() {
       await fetchSchedules();
     } catch (err) {
       console.error('Failed to update schedule:', err);
+      arg.revert();
+      setSnackbar({
+        open: true,
+        message: '更新に失敗しました',
+        severity: 'error',
+      });
+    }
+  };
+
+  // イベントリサイズ（時間の伸縮）ハンドラ
+  const handleEventResize = async (arg: EventResizeDoneArg) => {
+    const schedule = arg.event.extendedProps.schedule as Schedule;
+    const newStart = arg.event.start;
+    const newEnd = arg.event.end;
+
+    if (!newStart || !newEnd) {
+      arg.revert();
+      return;
+    }
+
+    try {
+      await updateSchedule(dataConnect, {
+        id: schedule.id,
+        scheduledDate: format(newStart, 'yyyy-MM-dd'),
+        startTime: format(newStart, 'HH:mm'),
+        endTime: format(newEnd, 'HH:mm'),
+      });
+
+      setSnackbar({
+        open: true,
+        message: 'スケジュールを更新しました',
+        severity: 'success',
+      });
+
+      // Notify other users about the update
+      await notifyScheduleUpdate(schedule.id, 'update');
+      await fetchSchedules();
+    } catch (err) {
+      console.error('Failed to resize schedule:', err);
       arg.revert();
       setSnackbar({
         open: true,
@@ -806,7 +845,42 @@ export default function SchedulePage() {
         </Card>
 
         {/* Calendar */}
-        <Card>
+        <Card
+          sx={{
+            // リサイズハンドルのスタイリング
+            '& .fc-event-resizer': {
+              opacity: 0,
+              transition: 'opacity 0.2s ease',
+            },
+            '& .fc-event:hover .fc-event-resizer': {
+              opacity: 1,
+            },
+            '& .fc-event-resizer-start': {
+              cursor: 'n-resize',
+            },
+            '& .fc-event-resizer-end': {
+              cursor: 's-resize',
+            },
+            // ドラッグ中の視覚フィードバック
+            '& .fc-event.fc-dragging': {
+              opacity: 0.7,
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            },
+            // リサイズ中の視覚フィードバック
+            '& .fc-event.fc-resizing': {
+              opacity: 0.8,
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+            },
+            // 現在時刻インジケーターの強調（Googleカレンダー風赤線）
+            '& .fc-timegrid-now-indicator-line': {
+              borderColor: '#EA4335',
+              borderWidth: '2px',
+            },
+            '& .fc-timegrid-now-indicator-arrow': {
+              borderColor: '#EA4335',
+            },
+          }}
+        >
           <CardContent>
             <FullCalendar
               plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
@@ -830,10 +904,13 @@ export default function SchedulePage() {
               eventClick={handleEventClick}
               select={handleDateSelect}
               eventDrop={handleEventDrop}
+              eventResize={handleEventResize}
+              eventResizableFromStart={true}
               datesSet={handleDatesSet}
               slotMinTime="06:00:00"
               slotMaxTime="22:00:00"
               slotDuration="00:30:00"
+              snapDuration="00:15:00"
               allDaySlot={false}
               weekends={true}
               nowIndicator={true}
@@ -852,16 +929,52 @@ export default function SchedulePage() {
               }}
               eventContent={(arg: EventContentArg) => {
                 const isRecurring = arg.event.extendedProps.isRecurring;
+                // イベントの長さを計算（分単位）
+                const duration = arg.event.end && arg.event.start
+                  ? (arg.event.end.getTime() - arg.event.start.getTime()) / (1000 * 60)
+                  : 60;
+                const isShort = duration < 30;
+
                 return (
-                  <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 0.5, overflow: 'hidden', width: '100%' }}>
+                  <Box sx={{
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: 0.5,
+                    overflow: 'hidden',
+                    width: '100%',
+                    height: '100%',
+                    p: 0.25,
+                  }}>
                     {isRecurring && (
-                      <RepeatIcon sx={{ fontSize: 14, flexShrink: 0, mt: '2px' }} />
+                      <RepeatIcon sx={{ fontSize: isShort ? 12 : 14, flexShrink: 0, mt: '1px' }} />
                     )}
-                    <Box sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
-                      <Typography variant="caption" component="div" sx={{ fontWeight: 500, lineHeight: 1.2 }}>
-                        {arg.timeText}
-                      </Typography>
-                      <Typography variant="caption" component="div" sx={{ lineHeight: 1.2 }}>
+                    <Box sx={{
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      flex: 1,
+                      lineHeight: 1.1,
+                    }}>
+                      {/* 短いイベントでは時間を省略してタイトルのみ表示 */}
+                      {!isShort && (
+                        <Typography
+                          variant="caption"
+                          component="div"
+                          sx={{ fontWeight: 500, fontSize: '0.7rem', lineHeight: 1.1 }}
+                        >
+                          {arg.timeText}
+                        </Typography>
+                      )}
+                      <Typography
+                        variant="caption"
+                        component="div"
+                        sx={{
+                          fontSize: isShort ? '0.65rem' : '0.7rem',
+                          lineHeight: 1.1,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                        }}
+                      >
                         {arg.event.title}
                       </Typography>
                     </Box>
