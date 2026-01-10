@@ -1,4 +1,4 @@
-# 作業状態 - 2026-01-10 (Back Button Feature)
+# 作業状態 - 2026-01-10 (Demo Environment Fix)
 
 ## プロジェクト概要
 
@@ -347,17 +347,24 @@ web/
 - リポジトリ: sanwaminamihonda-eng/sanwa-houkai-app
 - ブランチ: main
 - 状態: clean
-- CI/CD: ✅ 動作確認済み（PR #6, #7, #8, #10, #11, #12, #14, #16, #25, #26, #28, #29, #30, #31, #32, #33, #34, #35, #36, #37）
+- CI/CD: ✅ 動作確認済み（PR #6, #7, #8, #10, #11, #12, #14, #16, #25, #26, #28, #29, #30, #31, #32, #33, #34, #35, #36, #37, #38）
 - デプロイ: ✅ Firebase Hosting 自動デプロイ（main push時）
 
 ## 今セッション完了作業
+
+- [x] デモ環境修正・機能追加 - PR #38 ✅ マージ完了
+  - DemoContext.tsxのSTAFF_IDを正しい値に修正（シードデータと一致）
+  - デモ用記録入力ページ作成（`/demo/records/new`）
+  - デモ用利用者詳細ページ作成（`/demo/clients/detail?id=xxx`）
+  - デモ用記録詳細ページ作成（`/demo/records/detail?id=xxx`）
+  - Firebase Hostingへデプロイ完了
+
+### 前セッション完了作業
 
 - [x] 戻るボタン追加 - PR #37 ✅ マージ完了
   - Header/MainLayoutにshowBackButton/backHrefプロパティ追加
   - ダッシュボード以外の全ページに戻るボタンを表示
   - 詳細ページは一覧ページへ、その他はダッシュボードへ遷移
-
-### 前セッション完了作業
 
 - [x] デモ環境デプロイ - PR #36
   - DemoContext.tsxのUUID不一致を修正（シードデータと一致）
@@ -409,8 +416,12 @@ web/
 
 ## 次回アクション
 
-1. 戻るボタンの動作確認（https://sanwa-houkai-app.web.app）
-2. デモページの動作確認（https://sanwa-houkai-app.web.app/demo）
+1. デモページの動作確認（https://sanwa-houkai-app.web.app/demo）
+   - ダッシュボード
+   - スケジュール（91件のシードデータ）
+   - 利用者一覧・詳細（10名）
+   - 記録一覧・詳細・新規入力（189件）
+2. 必要に応じて追加シードデータを投入
 3. オフライン対応検討
 4. 追加機能の要望に応じて実装
 
