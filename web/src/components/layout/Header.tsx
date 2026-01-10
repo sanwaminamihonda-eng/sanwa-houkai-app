@@ -11,8 +11,10 @@ import {
   Menu,
   MenuItem,
   Divider,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
-import { ArrowBack as ArrowBackIcon } from '@mui/icons-material';
+import { ArrowBack as ArrowBackIcon, Menu as MenuIcon } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
 import { DRAWER_WIDTH } from './Sidebar';
 import { useAuth } from '@/contexts/AuthContext';
@@ -21,11 +23,14 @@ interface HeaderProps {
   title?: string;
   showBackButton?: boolean;
   backHref?: string;
+  onMenuClick?: () => void;
 }
 
-export default function Header({ title = '訪問介護記録管理', showBackButton = false, backHref }: HeaderProps) {
+export default function Header({ title = '訪問介護記録管理', showBackButton = false, backHref, onMenuClick }: HeaderProps) {
   const router = useRouter();
   const { user, signOut } = useAuth();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -45,17 +50,28 @@ export default function Header({ title = '訪問介護記録管理', showBackBut
     <AppBar
       position="fixed"
       sx={{
-        width: `calc(100% - ${DRAWER_WIDTH}px)`,
-        ml: `${DRAWER_WIDTH}px`,
+        width: isMobile ? '100%' : `calc(100% - ${DRAWER_WIDTH}px)`,
+        ml: isMobile ? 0 : `${DRAWER_WIDTH}px`,
         bgcolor: 'background.paper',
         color: 'text.primary',
         boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
       }}
     >
       <Toolbar>
+        {isMobile && (
+          <IconButton
+            color="inherit"
+            aria-label="メニューを開く"
+            edge="start"
+            onClick={onMenuClick}
+            sx={{ mr: 2 }}
+          >
+            <MenuIcon />
+          </IconButton>
+        )}
         {showBackButton && (
           <IconButton
-            edge="start"
+            edge={isMobile ? false : 'start'}
             color="inherit"
             aria-label="戻る"
             onClick={() => backHref ? router.push(backHref) : router.back()}

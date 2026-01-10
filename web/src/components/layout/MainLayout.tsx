@@ -1,7 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { Box, Toolbar } from '@mui/material';
+import { useState } from 'react';
+import { Box, Toolbar, useMediaQuery, useTheme } from '@mui/material';
 import Sidebar, { DRAWER_WIDTH } from './Sidebar';
 import Header from './Header';
 import AuthGuard from '../AuthGuard';
@@ -14,17 +15,34 @@ interface MainLayoutProps {
 }
 
 export default function MainLayout({ children, title, showBackButton, backHref }: MainLayoutProps) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [mobileOpen, setMobileOpen] = useState(false);
+
+  const handleDrawerToggle = () => {
+    setMobileOpen(!mobileOpen);
+  };
+
+  const handleDrawerClose = () => {
+    setMobileOpen(false);
+  };
+
   return (
     <AuthGuard>
       <Box sx={{ display: 'flex', minHeight: '100vh' }}>
-        <Sidebar />
-        <Header title={title} showBackButton={showBackButton} backHref={backHref} />
+        <Sidebar open={mobileOpen} onClose={handleDrawerClose} />
+        <Header
+          title={title}
+          showBackButton={showBackButton}
+          backHref={backHref}
+          onMenuClick={handleDrawerToggle}
+        />
         <Box
           component="main"
           sx={{
             flexGrow: 1,
-            p: 3,
-            width: `calc(100% - ${DRAWER_WIDTH}px)`,
+            p: { xs: 2, sm: 3 },
+            width: isMobile ? '100%' : `calc(100% - ${DRAWER_WIDTH}px)`,
             bgcolor: 'background.default',
           }}
         >

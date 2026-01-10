@@ -15,6 +15,8 @@ import {
   Typography,
   Divider,
   Chip,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
@@ -43,21 +45,18 @@ const bottomItems = [
   { text: '本番サイトへ', icon: <HomeIcon />, href: '/' },
 ];
 
-export default function DemoSidebar() {
-  const pathname = usePathname();
+interface DemoSidebarProps {
+  open: boolean;
+  onClose: () => void;
+}
 
-  return (
-    <Drawer
-      variant="permanent"
-      sx={{
-        width: DRAWER_WIDTH,
-        flexShrink: 0,
-        '& .MuiDrawer-paper': {
-          width: DRAWER_WIDTH,
-          boxSizing: 'border-box',
-        },
-      }}
-    >
+export default function DemoSidebar({ open, onClose }: DemoSidebarProps) {
+  const pathname = usePathname();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  const drawerContent = (
+    <>
       <Toolbar>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Typography variant="h6" noWrap component="div" sx={{ fontWeight: 600 }}>
@@ -75,6 +74,7 @@ export default function DemoSidebar() {
                 component={Link}
                 href={item.href}
                 selected={pathname === item.href || pathname?.startsWith(item.href + '/')}
+                onClick={isMobile ? onClose : undefined}
               >
                 <ListItemIcon>{item.icon}</ListItemIcon>
                 <ListItemText primary={item.text} />
@@ -89,6 +89,7 @@ export default function DemoSidebar() {
               <ListItemButton
                 component={Link}
                 href={item.href}
+                onClick={isMobile ? onClose : undefined}
               >
                 <ListItemIcon>{item.icon}</ListItemIcon>
                 <ListItemText primary={item.text} />
@@ -97,6 +98,45 @@ export default function DemoSidebar() {
           ))}
         </List>
       </Box>
+    </>
+  );
+
+  // モバイル: temporary drawer
+  if (isMobile) {
+    return (
+      <Drawer
+        variant="temporary"
+        open={open}
+        onClose={onClose}
+        ModalProps={{
+          keepMounted: true, // パフォーマンス向上
+        }}
+        sx={{
+          '& .MuiDrawer-paper': {
+            width: DRAWER_WIDTH,
+            boxSizing: 'border-box',
+          },
+        }}
+      >
+        {drawerContent}
+      </Drawer>
+    );
+  }
+
+  // デスクトップ: permanent drawer
+  return (
+    <Drawer
+      variant="permanent"
+      sx={{
+        width: DRAWER_WIDTH,
+        flexShrink: 0,
+        '& .MuiDrawer-paper': {
+          width: DRAWER_WIDTH,
+          boxSizing: 'border-box',
+        },
+      }}
+    >
+      {drawerContent}
     </Drawer>
   );
 }
