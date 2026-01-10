@@ -575,7 +575,7 @@ export function ScheduleCalendarView({
           },
         }}
       >
-        <CardContent>
+        <CardContent sx={{ minHeight: 600 }}>
           <FullCalendar
             plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
             initialView="timeGridWeek"
@@ -608,8 +608,8 @@ export function ScheduleCalendarView({
             allDaySlot={false}
             weekends={true}
             nowIndicator={true}
-            height="auto"
-            aspectRatio={1.8}
+            height={600}
+            contentHeight="auto"
             firstDay={1}
             eventTimeFormat={{
               hour: '2-digit',
