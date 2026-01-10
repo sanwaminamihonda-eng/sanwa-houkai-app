@@ -1,4 +1,4 @@
-# 作業状態 - 2026-01-10 (Demo Bug Fixes)
+# 作業状態 - 2026-01-10 (Google Calendar-style Resize)
 
 ## プロジェクト概要
 
@@ -347,10 +347,22 @@ web/
 - リポジトリ: sanwaminamihonda-eng/sanwa-houkai-app
 - ブランチ: main
 - 状態: clean
-- CI/CD: ✅ 動作確認済み（PR #6, #7, #8, #10, #11, #12, #14, #16, #25, #26, #28, #29, #30, #31, #32, #33, #34, #35, #36, #37, #38）
+- CI/CD: ✅ 動作確認済み（PR #6, #7, #8, #10, #11, #12, #14, #16, #25, #26, #28, #29, #30, #31, #32, #33, #34, #35, #36, #37, #38, #39）
 - デプロイ: ✅ Firebase Hosting 自動デプロイ（main push時）
 
 ## 今セッション完了作業
+
+- [x] GoogleカレンダースタイルのリサイズUIUX機能 - PR #39 ✅ マージ完了
+  - イベントリサイズ機能追加（上端/下端ドラッグで時間変更）
+  - `eventResizableFromStart={true}` で開始端からもリサイズ可能
+  - `snapDuration="00:15:00"` で15分単位スナップ（Googleカレンダー準拠）
+  - CSSスタイリング追加:
+    - ホバー時にリサイズハンドル表示
+    - ドラッグ/リサイズ中の半透明・シャドウ効果
+    - 現在時刻インジケーターをGoogleカレンダー風の赤線に
+  - 短いイベント（30分未満）の表示最適化（時間省略、タイトルのみ表示）
+
+### 前セッション完了作業
 
 - [x] デモ記録ページのクラッシュ修正 - コミット 2ff760d（※mainへ直接push - ルール違反）
   - Data Connect Demoクエリが「operation not found」エラー → `firebase deploy --only dataconnect --force`で再デプロイ
@@ -358,8 +370,6 @@ web/
     - APIレスポンス形式 `{ details, items: string[] }` に対応
     - レガシー形式との互換性維持
   - Firebase Hostingへデプロイ完了
-
-### 前セッション完了作業
 
 - [x] デモ環境修正・機能追加 - PR #38 ✅ マージ完了
   - DemoContext.tsxのSTAFF_IDを正しい値に修正（シードデータと一致）
