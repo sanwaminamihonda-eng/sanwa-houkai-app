@@ -44,6 +44,23 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **自動切り替え**: direnv（.envrc）でディレクトリ移動時に環境が自動設定される
 
+### アカウント確認・切り替え（重要）
+
+セッション開始時に環境を確認し、期待値と異なる場合は切り替える:
+
+```bash
+# 期待値
+# GitHub: sanwaminamihonda-eng
+# GCP: sanwaminamihonda@gmail.com / sanwa-houkai-app
+
+# GitHub アカウント切り替え
+gh auth switch -u sanwaminamihonda-eng
+
+# GCP アカウント切り替え
+gcloud config set account sanwaminamihonda@gmail.com
+gcloud config set project sanwa-houkai-app
+```
+
 ## 技術スタック
 
 | レイヤー | 技術 | 備考 |
