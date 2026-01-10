@@ -122,36 +122,44 @@ export default function DemoRecordsPage() {
     return `${start.slice(0, 5)}-${end.slice(0, 5)}`;
   };
 
-  const parseServices = (servicesData: unknown): Service[] => {
-    if (!servicesData) return [];
-    try {
-      if (typeof servicesData === 'string') {
-        return JSON.parse(servicesData);
-      }
-      return servicesData as Service[];
-    } catch {
-      return [];
-    }
-  };
-
   const getServiceSummary = (record: VisitRecord): string => {
-    const services = parseServices(record.services);
-    if (services.length === 0) {
-      // Handle the items array format
-      const data = record.services as { items?: string[] };
-      if (data?.items) {
-        return data.items.slice(0, 3).join('、') + (data.items.length > 3 ? '...' : '');
-      }
-      return '-';
+    const servicesData = record.services;
+    if (!servicesData) return '-';
+
+    // Handle current API format: { details: "...", items: ["item1", "item2"] }
+    const data = servicesData as { details?: string; items?: string[] };
+    if (data?.items && Array.isArray(data.items)) {
+      return data.items.slice(0, 3).join('、') + (data.items.length > 3 ? '...' : '');
     }
 
-    return services
-      .map((s) => {
-        const itemNames = s.items.map((i) => i.name).slice(0, 3).join('、');
-        const hasMore = s.items.length > 3;
-        return `${s.typeName}: ${itemNames}${hasMore ? '...' : ''}`;
-      })
-      .join(' / ');
+    // Handle legacy format: Service[]
+    if (Array.isArray(servicesData)) {
+      const services = servicesData as Service[];
+      if (services.length === 0) return '-';
+      return services
+        .map((s) => {
+          const itemNames = s.items.map((i) => i.name).slice(0, 3).join('、');
+          const hasMore = s.items.length > 3;
+          return `${s.typeName}: ${itemNames}${hasMore ? '...' : ''}`;
+        })
+        .join(' / ');
+    }
+
+    // Handle string format (JSON)
+    if (typeof servicesData === 'string') {
+      try {
+        const parsed = JSON.parse(servicesData);
+        if (Array.isArray(parsed)) {
+          return parsed.slice(0, 3).map((s: string | Service) =>
+            typeof s === 'string' ? s : s.typeName
+          ).join('、');
+        }
+      } catch {
+        return servicesData;
+      }
+    }
+
+    return '-';
   };
 
   const filteredRecords = filterClientId
