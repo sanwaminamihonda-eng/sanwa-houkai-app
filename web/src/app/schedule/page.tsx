@@ -751,7 +751,7 @@ export default function SchedulePage() {
 
   if (staffLoading || loading) {
     return (
-      <MainLayout title="スケジュール">
+      <MainLayout title="スケジュール" showBackButton backHref="/">
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
           <CircularProgress />
         </Box>
@@ -761,7 +761,7 @@ export default function SchedulePage() {
 
   if (!facilityId) {
     return (
-      <MainLayout title="スケジュール">
+      <MainLayout title="スケジュール" showBackButton backHref="/">
         <Alert severity="error">
           スタッフ情報が見つかりません。管理者にお問い合わせください。
         </Alert>
@@ -771,14 +771,14 @@ export default function SchedulePage() {
 
   if (error) {
     return (
-      <MainLayout title="スケジュール">
+      <MainLayout title="スケジュール" showBackButton backHref="/">
         <Alert severity="error">{error}</Alert>
       </MainLayout>
     );
   }
 
   return (
-    <MainLayout title="スケジュール">
+    <MainLayout title="スケジュール" showBackButton backHref="/">
       <Box>
         {/* Header */}
         <Card sx={{ mb: 2 }}>

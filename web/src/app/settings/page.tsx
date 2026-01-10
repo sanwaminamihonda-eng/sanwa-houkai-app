@@ -5,7 +5,7 @@ import { MainLayout } from '@/components/layout';
 
 export default function SettingsPage() {
   return (
-    <MainLayout title="設定">
+    <MainLayout title="設定" showBackButton backHref="/">
       <Box>
         <Card>
           <CardContent sx={{ textAlign: 'center', py: 8 }}>

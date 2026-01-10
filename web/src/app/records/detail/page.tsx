@@ -369,7 +369,7 @@ function RecordDetailContent() {
 
 export default function RecordDetailPage() {
   return (
-    <MainLayout title="記録詳細">
+    <MainLayout title="記録詳細" showBackButton backHref="/records">
       <Suspense fallback={
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
           <CircularProgress />

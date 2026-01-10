@@ -267,7 +267,7 @@ export default function NewRecordPage() {
 
   if (staffLoading || loadingMasters) {
     return (
-      <MainLayout title="新規記録入力">
+      <MainLayout title="新規記録入力" showBackButton backHref="/">
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
           <CircularProgress />
         </Box>
@@ -277,7 +277,7 @@ export default function NewRecordPage() {
 
   if (!staff || !facilityId) {
     return (
-      <MainLayout title="新規記録入力">
+      <MainLayout title="新規記録入力" showBackButton backHref="/">
         <Alert severity="error">
           スタッフ情報が見つかりません。管理者にお問い合わせください。
         </Alert>
@@ -287,7 +287,7 @@ export default function NewRecordPage() {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={ja}>
-      <MainLayout title="新規記録入力">
+      <MainLayout title="新規記録入力" showBackButton backHref="/">
         <Card>
           <CardContent>
             {/* Client Selection */}

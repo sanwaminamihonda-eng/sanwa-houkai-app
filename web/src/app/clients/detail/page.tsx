@@ -439,7 +439,7 @@ function ClientDetailContent() {
 
 export default function ClientDetailPage() {
   return (
-    <MainLayout title="利用者詳細">
+    <MainLayout title="利用者詳細" showBackButton backHref="/clients">
       <Suspense fallback={
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
           <CircularProgress />

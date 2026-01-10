@@ -5,7 +5,7 @@ import { MainLayout } from '@/components/layout';
 
 export default function StaffPage() {
   return (
-    <MainLayout title="支援者管理">
+    <MainLayout title="支援者管理" showBackButton backHref="/">
       <Box>
         <Card>
           <CardContent sx={{ textAlign: 'center', py: 8 }}>
