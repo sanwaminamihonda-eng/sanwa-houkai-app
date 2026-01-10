@@ -515,8 +515,8 @@ export function ScheduleCalendarView({
     <Box>
       {/* Header */}
       <Card sx={{ mb: 2 }}>
-        <CardContent sx={{ py: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Box display="flex" gap={1} flexWrap="wrap">
+        <CardContent sx={{ py: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 }}>
+          <Box display="flex" gap={0.5} flexWrap="wrap" sx={{ flex: 1, minWidth: 0 }}>
             {Object.entries(SERVICE_COLORS)
               .filter(([key]) => key !== 'default')
               .map(([category, color]) => (
@@ -524,16 +524,35 @@ export function ScheduleCalendarView({
                   key={category}
                   label={category}
                   size="small"
-                  sx={{ backgroundColor: color, color: 'white' }}
+                  sx={{
+                    backgroundColor: color,
+                    color: 'white',
+                    fontSize: { xs: '0.65rem', sm: '0.75rem' },
+                    height: { xs: 22, sm: 24 },
+                  }}
                 />
               ))}
           </Box>
+          {/* デスクトップ: テキスト付きボタン */}
           <Button
             variant="contained"
             startIcon={<AddIcon />}
             onClick={handleOpenNewDialog}
+            sx={{ display: { xs: 'none', sm: 'flex' }, whiteSpace: 'nowrap' }}
           >
             新規予定
+          </Button>
+          {/* モバイル: アイコンボタン */}
+          <Button
+            variant="contained"
+            onClick={handleOpenNewDialog}
+            sx={{
+              display: { xs: 'flex', sm: 'none' },
+              minWidth: 40,
+              px: 1,
+            }}
+          >
+            <AddIcon />
           </Button>
         </CardContent>
       </Card>
@@ -572,6 +591,49 @@ export function ScheduleCalendarView({
           },
           '& .fc-timegrid-now-indicator-arrow': {
             borderColor: '#EA4335',
+          },
+          // Mobile responsive styles
+          '@media (max-width: 600px)': {
+            // Toolbar layout
+            '& .fc-toolbar': {
+              flexDirection: 'column',
+              gap: '8px',
+            },
+            '& .fc-toolbar-chunk': {
+              display: 'flex',
+              justifyContent: 'center',
+            },
+            '& .fc-toolbar-title': {
+              fontSize: '1rem !important',
+            },
+            // View buttons
+            '& .fc-button': {
+              padding: '4px 8px',
+              fontSize: '0.75rem',
+            },
+            // Day headers
+            '& .fc-col-header-cell': {
+              fontSize: '0.65rem',
+            },
+            '& .fc-col-header-cell-cushion': {
+              padding: '2px',
+            },
+            // Time labels
+            '& .fc-timegrid-slot-label': {
+              fontSize: '0.65rem',
+            },
+            '& .fc-timegrid-axis-cushion': {
+              padding: '0 2px',
+            },
+            // Events
+            '& .fc-event': {
+              fontSize: '0.6rem',
+            },
+            // Month view day numbers
+            '& .fc-daygrid-day-number': {
+              fontSize: '0.75rem',
+              padding: '2px',
+            },
           },
         }}
       >

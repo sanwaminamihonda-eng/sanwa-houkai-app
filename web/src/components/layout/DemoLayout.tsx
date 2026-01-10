@@ -14,6 +14,9 @@ import {
   DialogContent,
   DialogContentText,
   DialogActions,
+  IconButton,
+  Tooltip,
+  Typography,
 } from '@mui/material';
 import {
   Refresh as RefreshIcon,
@@ -116,18 +119,30 @@ export default function DemoLayout({ children, title }: DemoLayoutProps) {
             severity="info"
             sx={{ mb: 2 }}
             action={
-              <Button
-                color="inherit"
-                size="small"
-                startIcon={resetting ? <CircularProgress size={16} color="inherit" /> : <RefreshIcon />}
-                onClick={handleResetClick}
-                disabled={resetting}
-              >
-                リセット
-              </Button>
+              <Tooltip title="データをリセット">
+                <IconButton
+                  color="inherit"
+                  size="small"
+                  onClick={handleResetClick}
+                  disabled={resetting}
+                >
+                  {resetting ? <CircularProgress size={18} color="inherit" /> : <RefreshIcon />}
+                </IconButton>
+              </Tooltip>
             }
           >
-            これはデモ環境です。サンプルデータを表示しています。自由に操作できます。
+            <Typography
+              variant="body2"
+              sx={{ display: { xs: 'none', sm: 'block' } }}
+            >
+              これはデモ環境です。サンプルデータを表示しています。自由に操作できます。
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{ display: { xs: 'block', sm: 'none' } }}
+            >
+              デモ環境です。自由に操作できます。
+            </Typography>
           </Alert>
           {children}
         </Box>
