@@ -5,7 +5,7 @@ import React, { createContext, useContext } from 'react';
 // デモ用固定値（環境変数で上書き可能）
 // シードデータ（demo-seed.sql）と一致させる
 const DEMO_FACILITY_ID = process.env.NEXT_PUBLIC_DEMO_FACILITY_ID || '00000000-0000-0000-0000-000000000001';
-const DEMO_STAFF_ID = process.env.NEXT_PUBLIC_DEMO_STAFF_ID || '00000000-0000-0000-0000-000000000011';
+const DEMO_STAFF_ID = process.env.NEXT_PUBLIC_DEMO_STAFF_ID || '00000000-0000-0000-0000-000000000101';
 
 interface DemoContextType {
   isDemo: true;
