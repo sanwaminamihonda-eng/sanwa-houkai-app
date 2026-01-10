@@ -347,12 +347,12 @@ web/
 - リポジトリ: sanwaminamihonda-eng/sanwa-houkai-app
 - ブランチ: main
 - 状態: clean
-- CI/CD: ✅ 動作確認済み（PR #6, #7, #8, #10, #11, #12, #14, #16, #25, #26, #28, #29, #30, #31, #32, #33, #34）
+- CI/CD: ✅ 動作確認済み（PR #6, #7, #8, #10, #11, #12, #14, #16, #25, #26, #28, #29, #30, #31, #32, #33, #34, #35）
 - デプロイ: ✅ Firebase Hosting 自動デプロイ（main push時）
 
 ## 今セッション完了作業
 
-- [x] デモ専用ページ実装 - PR #35（レビュー中）
+- [x] デモ専用ページ実装 - PR #35 ✅ マージ完了
   - `/demo/*` パスでアクセス可能（認証不要）
   - DemoContext、DemoLayout、DemoSidebar、DemoHeader作成
   - `@auth(level: PUBLIC)` でデモ用クエリ・ミューテーション追加
