@@ -360,7 +360,7 @@ export default function NewRecordPage() {
               バイタル
             </Typography>
             <Grid container spacing={2} sx={{ mb: 3 }}>
-              <Grid size={{ xs: 4 }}>
+              <Grid size={{ xs: 12, sm: 4 }}>
                 <TextField
                   label="脈拍"
                   type="number"
@@ -375,7 +375,7 @@ export default function NewRecordPage() {
                   slotProps={{ input: { endAdornment: <Typography variant="body2">bpm</Typography> } }}
                 />
               </Grid>
-              <Grid size={{ xs: 4 }}>
+              <Grid size={{ xs: 6, sm: 4 }}>
                 <TextField
                   label="血圧（高）"
                   type="number"
@@ -390,7 +390,7 @@ export default function NewRecordPage() {
                   slotProps={{ input: { endAdornment: <Typography variant="body2">mmHg</Typography> } }}
                 />
               </Grid>
-              <Grid size={{ xs: 4 }}>
+              <Grid size={{ xs: 6, sm: 4 }}>
                 <TextField
                   label="血圧（低）"
                   type="number"
@@ -468,12 +468,14 @@ export default function NewRecordPage() {
             />
 
             {/* Save Button */}
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Box sx={{ display: 'flex', justifyContent: { xs: 'stretch', sm: 'flex-end' } }}>
               <Button
                 variant="contained"
                 size="large"
                 onClick={handleSave}
                 disabled={saving || !selectedClientId}
+                fullWidth
+                sx={{ maxWidth: { sm: 200 } }}
               >
                 {saving ? <CircularProgress size={24} /> : '保存'}
               </Button>
