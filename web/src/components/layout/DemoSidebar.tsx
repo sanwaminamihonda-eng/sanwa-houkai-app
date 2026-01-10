@@ -15,8 +15,6 @@ import {
   Typography,
   Divider,
   Chip,
-  useMediaQuery,
-  useTheme,
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
@@ -52,8 +50,6 @@ interface DemoSidebarProps {
 
 export default function DemoSidebar({ open, onClose }: DemoSidebarProps) {
   const pathname = usePathname();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const drawerContent = (
     <>
@@ -74,7 +70,7 @@ export default function DemoSidebar({ open, onClose }: DemoSidebarProps) {
                 component={Link}
                 href={item.href}
                 selected={pathname === item.href || pathname?.startsWith(item.href + '/')}
-                onClick={isMobile ? onClose : undefined}
+                onClick={onClose}
               >
                 <ListItemIcon>{item.icon}</ListItemIcon>
                 <ListItemText primary={item.text} />
@@ -89,7 +85,7 @@ export default function DemoSidebar({ open, onClose }: DemoSidebarProps) {
               <ListItemButton
                 component={Link}
                 href={item.href}
-                onClick={isMobile ? onClose : undefined}
+                onClick={onClose}
               >
                 <ListItemIcon>{item.icon}</ListItemIcon>
                 <ListItemText primary={item.text} />
@@ -101,17 +97,18 @@ export default function DemoSidebar({ open, onClose }: DemoSidebarProps) {
     </>
   );
 
-  // モバイル: temporary drawer
-  if (isMobile) {
-    return (
+  return (
+    <>
+      {/* モバイル: temporary drawer */}
       <Drawer
         variant="temporary"
         open={open}
         onClose={onClose}
         ModalProps={{
-          keepMounted: true, // パフォーマンス向上
+          keepMounted: true,
         }}
         sx={{
+          display: { xs: 'block', md: 'none' },
           '& .MuiDrawer-paper': {
             width: DRAWER_WIDTH,
             boxSizing: 'border-box',
@@ -120,24 +117,23 @@ export default function DemoSidebar({ open, onClose }: DemoSidebarProps) {
       >
         {drawerContent}
       </Drawer>
-    );
-  }
 
-  // デスクトップ: permanent drawer
-  return (
-    <Drawer
-      variant="permanent"
-      sx={{
-        width: DRAWER_WIDTH,
-        flexShrink: 0,
-        '& .MuiDrawer-paper': {
+      {/* デスクトップ: permanent drawer */}
+      <Drawer
+        variant="permanent"
+        sx={{
+          display: { xs: 'none', md: 'block' },
           width: DRAWER_WIDTH,
-          boxSizing: 'border-box',
-        },
-      }}
-    >
-      {drawerContent}
-    </Drawer>
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
+            width: DRAWER_WIDTH,
+            boxSizing: 'border-box',
+          },
+        }}
+      >
+        {drawerContent}
+      </Drawer>
+    </>
   );
 }
 
