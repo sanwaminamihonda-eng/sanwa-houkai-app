@@ -381,3 +381,182 @@ mutation CreateServiceItem(
     sortOrder: $sortOrder
   })
 }
+
+# =============================================
+# デモ用ミューテーション（認証不要）
+# =============================================
+
+# ---------------------
+# デモ: 訪問記録 CRUD
+# ---------------------
+
+mutation DemoCreateVisitRecord(
+  $scheduleId: UUID
+  $clientId: UUID!
+  $staffId: UUID!
+  $visitDate: Date!
+  $visitReasonId: UUID
+  $startTime: String!
+  $endTime: String!
+  $vitals: Any
+  $services: Any!
+  $notes: String
+  $aiGenerated: Boolean
+  $aiInput: String
+) @auth(level: PUBLIC) {
+  visitRecord_insert(data: {
+    schedule: { id: $scheduleId }
+    client: { id: $clientId }
+    staff: { id: $staffId }
+    visitDate: $visitDate
+    visitReason: { id: $visitReasonId }
+    startTime: $startTime
+    endTime: $endTime
+    vitals: $vitals
+    services: $services
+    notes: $notes
+    aiGenerated: $aiGenerated
+    aiInput: $aiInput
+  })
+}
+
+mutation DemoUpdateVisitRecord(
+  $id: UUID!
+  $vitals: Any
+  $services: Any
+  $notes: String
+) @auth(level: PUBLIC) {
+  visitRecord_update(id: $id, data: {
+    vitals: $vitals
+    services: $services
+    notes: $notes
+  })
+}
+
+mutation DemoDeleteVisitRecord($id: UUID!) @auth(level: PUBLIC) {
+  visitRecord_delete(id: $id)
+}
+
+# ---------------------
+# デモ: スケジュール CRUD
+# ---------------------
+
+mutation DemoCreateSchedule(
+  $facilityId: UUID!
+  $clientId: UUID!
+  $staffId: UUID!
+  $serviceTypeId: UUID
+  $scheduledDate: Date!
+  $startTime: String!
+  $endTime: String!
+  $notes: String
+  $recurrenceRule: String
+  $recurrenceId: UUID
+) @auth(level: PUBLIC) {
+  schedule_insert(data: {
+    facility: { id: $facilityId }
+    client: { id: $clientId }
+    staff: { id: $staffId }
+    serviceType: { id: $serviceTypeId }
+    scheduledDate: $scheduledDate
+    startTime: $startTime
+    endTime: $endTime
+    notes: $notes
+    recurrenceRule: $recurrenceRule
+    recurrenceId: $recurrenceId
+  })
+}
+
+mutation DemoUpdateSchedule(
+  $id: UUID!
+  $clientId: UUID
+  $staffId: UUID
+  $serviceTypeId: UUID
+  $scheduledDate: Date
+  $startTime: String
+  $endTime: String
+  $status: String
+  $notes: String
+) @auth(level: PUBLIC) {
+  schedule_update(id: $id, data: {
+    client: { id: $clientId }
+    staff: { id: $staffId }
+    serviceType: { id: $serviceTypeId }
+    scheduledDate: $scheduledDate
+    startTime: $startTime
+    endTime: $endTime
+    status: $status
+    notes: $notes
+  })
+}
+
+mutation DemoDeleteSchedule($id: UUID!) @auth(level: PUBLIC) {
+  schedule_delete(id: $id)
+}
+
+# ---------------------
+# デモ: 利用者 CRUD
+# ---------------------
+
+mutation DemoCreateClient(
+  $facilityId: UUID!
+  $name: String!
+  $nameKana: String
+  $gender: String
+  $birthDate: Date
+  $careLevelId: UUID
+  $addressPrefecture: String
+  $addressCity: String
+  $phone: String
+  $careManager: String
+  $careOffice: String
+  $notes: String
+) @auth(level: PUBLIC) {
+  client_insert(data: {
+    facility: { id: $facilityId }
+    name: $name
+    nameKana: $nameKana
+    gender: $gender
+    birthDate: $birthDate
+    careLevel: { id: $careLevelId }
+    addressPrefecture: $addressPrefecture
+    addressCity: $addressCity
+    phone: $phone
+    careManager: $careManager
+    careOffice: $careOffice
+    notes: $notes
+  })
+}
+
+mutation DemoUpdateClient(
+  $id: UUID!
+  $name: String
+  $nameKana: String
+  $gender: String
+  $birthDate: Date
+  $careLevelId: UUID
+  $addressPrefecture: String
+  $addressCity: String
+  $phone: String
+  $careManager: String
+  $careOffice: String
+  $notes: String
+) @auth(level: PUBLIC) {
+  client_update(id: $id, data: {
+    name: $name
+    nameKana: $nameKana
+    gender: $gender
+    birthDate: $birthDate
+    careLevel: { id: $careLevelId }
+    addressPrefecture: $addressPrefecture
+    addressCity: $addressCity
+    phone: $phone
+    careManager: $careManager
+    careOffice: $careOffice
+    notes: $notes
+  })
+}
+
+mutation DemoDeleteClient($id: UUID!) @auth(level: PUBLIC) {
+  client_update(id: $id, data: { isActive: false })
+}

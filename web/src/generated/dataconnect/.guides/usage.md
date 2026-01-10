@@ -14,38 +14,38 @@ If a user is not using a supported framework, they can use the generated SDK dir
 Here's an example of how to use it with the first 5 operations:
 
 ```js
-import { listCareLevels, listVisitReasons, listServiceTypes, listServiceItems, getStaffByFirebaseUid, listStaff, listClients, getClient, listSchedulesByDateRange, getSchedulesByRecurrenceId } from '@sanwa-houkai-app/dataconnect';
+import { createClient, updateClient, deleteClient, createSchedule, updateSchedule, deleteSchedule, cancelSchedule, completeSchedule, createVisitRecord, updateVisitRecord } from '@sanwa-houkai-app/dataconnect';
 
 
-// Operation ListCareLevels: 
-const { data } = await ListCareLevels(dataConnect);
+// Operation CreateClient:  For variables, look at type CreateClientVars in ../index.d.ts
+const { data } = await CreateClient(dataConnect, createClientVars);
 
-// Operation ListVisitReasons: 
-const { data } = await ListVisitReasons(dataConnect);
+// Operation UpdateClient:  For variables, look at type UpdateClientVars in ../index.d.ts
+const { data } = await UpdateClient(dataConnect, updateClientVars);
 
-// Operation ListServiceTypes:  For variables, look at type ListServiceTypesVars in ../index.d.ts
-const { data } = await ListServiceTypes(dataConnect, listServiceTypesVars);
+// Operation DeleteClient:  For variables, look at type DeleteClientVars in ../index.d.ts
+const { data } = await DeleteClient(dataConnect, deleteClientVars);
 
-// Operation ListServiceItems:  For variables, look at type ListServiceItemsVars in ../index.d.ts
-const { data } = await ListServiceItems(dataConnect, listServiceItemsVars);
+// Operation CreateSchedule:  For variables, look at type CreateScheduleVars in ../index.d.ts
+const { data } = await CreateSchedule(dataConnect, createScheduleVars);
 
-// Operation GetStaffByFirebaseUid:  For variables, look at type GetStaffByFirebaseUidVars in ../index.d.ts
-const { data } = await GetStaffByFirebaseUid(dataConnect, getStaffByFirebaseUidVars);
+// Operation UpdateSchedule:  For variables, look at type UpdateScheduleVars in ../index.d.ts
+const { data } = await UpdateSchedule(dataConnect, updateScheduleVars);
 
-// Operation ListStaff:  For variables, look at type ListStaffVars in ../index.d.ts
-const { data } = await ListStaff(dataConnect, listStaffVars);
+// Operation DeleteSchedule:  For variables, look at type DeleteScheduleVars in ../index.d.ts
+const { data } = await DeleteSchedule(dataConnect, deleteScheduleVars);
 
-// Operation ListClients:  For variables, look at type ListClientsVars in ../index.d.ts
-const { data } = await ListClients(dataConnect, listClientsVars);
+// Operation CancelSchedule:  For variables, look at type CancelScheduleVars in ../index.d.ts
+const { data } = await CancelSchedule(dataConnect, cancelScheduleVars);
 
-// Operation GetClient:  For variables, look at type GetClientVars in ../index.d.ts
-const { data } = await GetClient(dataConnect, getClientVars);
+// Operation CompleteSchedule:  For variables, look at type CompleteScheduleVars in ../index.d.ts
+const { data } = await CompleteSchedule(dataConnect, completeScheduleVars);
 
-// Operation ListSchedulesByDateRange:  For variables, look at type ListSchedulesByDateRangeVars in ../index.d.ts
-const { data } = await ListSchedulesByDateRange(dataConnect, listSchedulesByDateRangeVars);
+// Operation CreateVisitRecord:  For variables, look at type CreateVisitRecordVars in ../index.d.ts
+const { data } = await CreateVisitRecord(dataConnect, createVisitRecordVars);
 
-// Operation GetSchedulesByRecurrenceId:  For variables, look at type GetSchedulesByRecurrenceIdVars in ../index.d.ts
-const { data } = await GetSchedulesByRecurrenceId(dataConnect, getSchedulesByRecurrenceIdVars);
+// Operation UpdateVisitRecord:  For variables, look at type UpdateVisitRecordVars in ../index.d.ts
+const { data } = await UpdateVisitRecord(dataConnect, updateVisitRecordVars);
 
 
 ```

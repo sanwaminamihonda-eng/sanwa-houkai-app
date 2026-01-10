@@ -29,6 +29,20 @@ This README will guide you through the process of using the generated JavaScript
   - [*ListCarePlansByFacility*](#listcareplansbyfacility)
   - [*GetCarePlan*](#getcareplan)
   - [*ListGoalTemplates*](#listgoaltemplates)
+  - [*DemoListCareLevels*](#demolistcarelevels)
+  - [*DemoListVisitReasons*](#demolistvisitreasons)
+  - [*DemoListServiceTypes*](#demolistservicetypes)
+  - [*DemoListServiceItems*](#demolistserviceitems)
+  - [*DemoListStaff*](#demoliststaff)
+  - [*DemoListClients*](#demolistclients)
+  - [*DemoGetClient*](#demogetclient)
+  - [*DemoListSchedulesByDateRange*](#demolistschedulesbydaterange)
+  - [*DemoGetSchedulesByRecurrenceId*](#demogetschedulesbyrecurrenceid)
+  - [*DemoListVisitRecordsByDateRange*](#demolistvisitrecordsbydaterange)
+  - [*DemoGetVisitRecord*](#demogetvisitrecord)
+  - [*DemoListReportsByFacility*](#demolistreportsbyfacility)
+  - [*DemoListCarePlansByFacility*](#demolistcareplansbyfacility)
+  - [*DemoGetCarePlan*](#demogetcareplan)
 - [**Mutations**](#mutations)
   - [*CreateClient*](#createclient)
   - [*UpdateClient*](#updateclient)
@@ -52,6 +66,15 @@ This README will guide you through the process of using the generated JavaScript
   - [*CreateStaff*](#createstaff)
   - [*CreateServiceType*](#createservicetype)
   - [*CreateServiceItem*](#createserviceitem)
+  - [*DemoCreateVisitRecord*](#democreatevisitrecord)
+  - [*DemoUpdateVisitRecord*](#demoupdatevisitrecord)
+  - [*DemoDeleteVisitRecord*](#demodeletevisitrecord)
+  - [*DemoCreateSchedule*](#democreateschedule)
+  - [*DemoUpdateSchedule*](#demoupdateschedule)
+  - [*DemoDeleteSchedule*](#demodeleteschedule)
+  - [*DemoCreateClient*](#democreateclient)
+  - [*DemoUpdateClient*](#demoupdateclient)
+  - [*DemoDeleteClient*](#demodeleteclient)
 
 # Accessing the connector
 A connector is a collection of Queries and Mutations. One SDK is generated for each connector - this SDK is generated for the connector `default`. You can find more information about connectors in the [Data Connect documentation](https://firebase.google.com/docs/data-connect#how-does).
@@ -2647,6 +2670,1719 @@ console.log(data.goalTemplates);
 executeQuery(ref).then((response) => {
   const data = response.data;
   console.log(data.goalTemplates);
+});
+```
+
+## DemoListCareLevels
+You can execute the `DemoListCareLevels` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+demoListCareLevels(): QueryPromise<DemoListCareLevelsData, undefined>;
+
+interface DemoListCareLevelsRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<DemoListCareLevelsData, undefined>;
+}
+export const demoListCareLevelsRef: DemoListCareLevelsRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+demoListCareLevels(dc: DataConnect): QueryPromise<DemoListCareLevelsData, undefined>;
+
+interface DemoListCareLevelsRef {
+  ...
+  (dc: DataConnect): QueryRef<DemoListCareLevelsData, undefined>;
+}
+export const demoListCareLevelsRef: DemoListCareLevelsRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the demoListCareLevelsRef:
+```typescript
+const name = demoListCareLevelsRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DemoListCareLevels` query has no variables.
+### Return Type
+Recall that executing the `DemoListCareLevels` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DemoListCareLevelsData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DemoListCareLevelsData {
+  careLevels: ({
+    id: UUIDString;
+    name: string;
+    sortOrder?: number | null;
+  } & CareLevel_Key)[];
+}
+```
+### Using `DemoListCareLevels`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, demoListCareLevels } from '@sanwa-houkai-app/dataconnect';
+
+
+// Call the `demoListCareLevels()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await demoListCareLevels();
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await demoListCareLevels(dataConnect);
+
+console.log(data.careLevels);
+
+// Or, you can use the `Promise` API.
+demoListCareLevels().then((response) => {
+  const data = response.data;
+  console.log(data.careLevels);
+});
+```
+
+### Using `DemoListCareLevels`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, demoListCareLevelsRef } from '@sanwa-houkai-app/dataconnect';
+
+
+// Call the `demoListCareLevelsRef()` function to get a reference to the query.
+const ref = demoListCareLevelsRef();
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = demoListCareLevelsRef(dataConnect);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.careLevels);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.careLevels);
+});
+```
+
+## DemoListVisitReasons
+You can execute the `DemoListVisitReasons` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+demoListVisitReasons(): QueryPromise<DemoListVisitReasonsData, undefined>;
+
+interface DemoListVisitReasonsRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (): QueryRef<DemoListVisitReasonsData, undefined>;
+}
+export const demoListVisitReasonsRef: DemoListVisitReasonsRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+demoListVisitReasons(dc: DataConnect): QueryPromise<DemoListVisitReasonsData, undefined>;
+
+interface DemoListVisitReasonsRef {
+  ...
+  (dc: DataConnect): QueryRef<DemoListVisitReasonsData, undefined>;
+}
+export const demoListVisitReasonsRef: DemoListVisitReasonsRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the demoListVisitReasonsRef:
+```typescript
+const name = demoListVisitReasonsRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DemoListVisitReasons` query has no variables.
+### Return Type
+Recall that executing the `DemoListVisitReasons` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DemoListVisitReasonsData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DemoListVisitReasonsData {
+  visitReasons: ({
+    id: UUIDString;
+    name: string;
+    sortOrder?: number | null;
+  } & VisitReason_Key)[];
+}
+```
+### Using `DemoListVisitReasons`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, demoListVisitReasons } from '@sanwa-houkai-app/dataconnect';
+
+
+// Call the `demoListVisitReasons()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await demoListVisitReasons();
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await demoListVisitReasons(dataConnect);
+
+console.log(data.visitReasons);
+
+// Or, you can use the `Promise` API.
+demoListVisitReasons().then((response) => {
+  const data = response.data;
+  console.log(data.visitReasons);
+});
+```
+
+### Using `DemoListVisitReasons`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, demoListVisitReasonsRef } from '@sanwa-houkai-app/dataconnect';
+
+
+// Call the `demoListVisitReasonsRef()` function to get a reference to the query.
+const ref = demoListVisitReasonsRef();
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = demoListVisitReasonsRef(dataConnect);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.visitReasons);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.visitReasons);
+});
+```
+
+## DemoListServiceTypes
+You can execute the `DemoListServiceTypes` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+demoListServiceTypes(vars: DemoListServiceTypesVariables): QueryPromise<DemoListServiceTypesData, DemoListServiceTypesVariables>;
+
+interface DemoListServiceTypesRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DemoListServiceTypesVariables): QueryRef<DemoListServiceTypesData, DemoListServiceTypesVariables>;
+}
+export const demoListServiceTypesRef: DemoListServiceTypesRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+demoListServiceTypes(dc: DataConnect, vars: DemoListServiceTypesVariables): QueryPromise<DemoListServiceTypesData, DemoListServiceTypesVariables>;
+
+interface DemoListServiceTypesRef {
+  ...
+  (dc: DataConnect, vars: DemoListServiceTypesVariables): QueryRef<DemoListServiceTypesData, DemoListServiceTypesVariables>;
+}
+export const demoListServiceTypesRef: DemoListServiceTypesRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the demoListServiceTypesRef:
+```typescript
+const name = demoListServiceTypesRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DemoListServiceTypes` query requires an argument of type `DemoListServiceTypesVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DemoListServiceTypesVariables {
+  facilityId: UUIDString;
+}
+```
+### Return Type
+Recall that executing the `DemoListServiceTypes` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DemoListServiceTypesData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DemoListServiceTypesData {
+  serviceTypes: ({
+    id: UUIDString;
+    code?: string | null;
+    name: string;
+    category: string;
+    color?: string | null;
+    sortOrder?: number | null;
+  } & ServiceType_Key)[];
+}
+```
+### Using `DemoListServiceTypes`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, demoListServiceTypes, DemoListServiceTypesVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoListServiceTypes` query requires an argument of type `DemoListServiceTypesVariables`:
+const demoListServiceTypesVars: DemoListServiceTypesVariables = {
+  facilityId: ..., 
+};
+
+// Call the `demoListServiceTypes()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await demoListServiceTypes(demoListServiceTypesVars);
+// Variables can be defined inline as well.
+const { data } = await demoListServiceTypes({ facilityId: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await demoListServiceTypes(dataConnect, demoListServiceTypesVars);
+
+console.log(data.serviceTypes);
+
+// Or, you can use the `Promise` API.
+demoListServiceTypes(demoListServiceTypesVars).then((response) => {
+  const data = response.data;
+  console.log(data.serviceTypes);
+});
+```
+
+### Using `DemoListServiceTypes`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, demoListServiceTypesRef, DemoListServiceTypesVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoListServiceTypes` query requires an argument of type `DemoListServiceTypesVariables`:
+const demoListServiceTypesVars: DemoListServiceTypesVariables = {
+  facilityId: ..., 
+};
+
+// Call the `demoListServiceTypesRef()` function to get a reference to the query.
+const ref = demoListServiceTypesRef(demoListServiceTypesVars);
+// Variables can be defined inline as well.
+const ref = demoListServiceTypesRef({ facilityId: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = demoListServiceTypesRef(dataConnect, demoListServiceTypesVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.serviceTypes);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.serviceTypes);
+});
+```
+
+## DemoListServiceItems
+You can execute the `DemoListServiceItems` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+demoListServiceItems(vars: DemoListServiceItemsVariables): QueryPromise<DemoListServiceItemsData, DemoListServiceItemsVariables>;
+
+interface DemoListServiceItemsRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DemoListServiceItemsVariables): QueryRef<DemoListServiceItemsData, DemoListServiceItemsVariables>;
+}
+export const demoListServiceItemsRef: DemoListServiceItemsRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+demoListServiceItems(dc: DataConnect, vars: DemoListServiceItemsVariables): QueryPromise<DemoListServiceItemsData, DemoListServiceItemsVariables>;
+
+interface DemoListServiceItemsRef {
+  ...
+  (dc: DataConnect, vars: DemoListServiceItemsVariables): QueryRef<DemoListServiceItemsData, DemoListServiceItemsVariables>;
+}
+export const demoListServiceItemsRef: DemoListServiceItemsRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the demoListServiceItemsRef:
+```typescript
+const name = demoListServiceItemsRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DemoListServiceItems` query requires an argument of type `DemoListServiceItemsVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DemoListServiceItemsVariables {
+  serviceTypeId: UUIDString;
+}
+```
+### Return Type
+Recall that executing the `DemoListServiceItems` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DemoListServiceItemsData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DemoListServiceItemsData {
+  serviceItems: ({
+    id: UUIDString;
+    name: string;
+    sortOrder?: number | null;
+  } & ServiceItem_Key)[];
+}
+```
+### Using `DemoListServiceItems`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, demoListServiceItems, DemoListServiceItemsVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoListServiceItems` query requires an argument of type `DemoListServiceItemsVariables`:
+const demoListServiceItemsVars: DemoListServiceItemsVariables = {
+  serviceTypeId: ..., 
+};
+
+// Call the `demoListServiceItems()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await demoListServiceItems(demoListServiceItemsVars);
+// Variables can be defined inline as well.
+const { data } = await demoListServiceItems({ serviceTypeId: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await demoListServiceItems(dataConnect, demoListServiceItemsVars);
+
+console.log(data.serviceItems);
+
+// Or, you can use the `Promise` API.
+demoListServiceItems(demoListServiceItemsVars).then((response) => {
+  const data = response.data;
+  console.log(data.serviceItems);
+});
+```
+
+### Using `DemoListServiceItems`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, demoListServiceItemsRef, DemoListServiceItemsVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoListServiceItems` query requires an argument of type `DemoListServiceItemsVariables`:
+const demoListServiceItemsVars: DemoListServiceItemsVariables = {
+  serviceTypeId: ..., 
+};
+
+// Call the `demoListServiceItemsRef()` function to get a reference to the query.
+const ref = demoListServiceItemsRef(demoListServiceItemsVars);
+// Variables can be defined inline as well.
+const ref = demoListServiceItemsRef({ serviceTypeId: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = demoListServiceItemsRef(dataConnect, demoListServiceItemsVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.serviceItems);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.serviceItems);
+});
+```
+
+## DemoListStaff
+You can execute the `DemoListStaff` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+demoListStaff(vars: DemoListStaffVariables): QueryPromise<DemoListStaffData, DemoListStaffVariables>;
+
+interface DemoListStaffRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DemoListStaffVariables): QueryRef<DemoListStaffData, DemoListStaffVariables>;
+}
+export const demoListStaffRef: DemoListStaffRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+demoListStaff(dc: DataConnect, vars: DemoListStaffVariables): QueryPromise<DemoListStaffData, DemoListStaffVariables>;
+
+interface DemoListStaffRef {
+  ...
+  (dc: DataConnect, vars: DemoListStaffVariables): QueryRef<DemoListStaffData, DemoListStaffVariables>;
+}
+export const demoListStaffRef: DemoListStaffRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the demoListStaffRef:
+```typescript
+const name = demoListStaffRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DemoListStaff` query requires an argument of type `DemoListStaffVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DemoListStaffVariables {
+  facilityId: UUIDString;
+}
+```
+### Return Type
+Recall that executing the `DemoListStaff` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DemoListStaffData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DemoListStaffData {
+  staffs: ({
+    id: UUIDString;
+    name: string;
+    email?: string | null;
+    role?: string | null;
+  } & Staff_Key)[];
+}
+```
+### Using `DemoListStaff`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, demoListStaff, DemoListStaffVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoListStaff` query requires an argument of type `DemoListStaffVariables`:
+const demoListStaffVars: DemoListStaffVariables = {
+  facilityId: ..., 
+};
+
+// Call the `demoListStaff()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await demoListStaff(demoListStaffVars);
+// Variables can be defined inline as well.
+const { data } = await demoListStaff({ facilityId: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await demoListStaff(dataConnect, demoListStaffVars);
+
+console.log(data.staffs);
+
+// Or, you can use the `Promise` API.
+demoListStaff(demoListStaffVars).then((response) => {
+  const data = response.data;
+  console.log(data.staffs);
+});
+```
+
+### Using `DemoListStaff`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, demoListStaffRef, DemoListStaffVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoListStaff` query requires an argument of type `DemoListStaffVariables`:
+const demoListStaffVars: DemoListStaffVariables = {
+  facilityId: ..., 
+};
+
+// Call the `demoListStaffRef()` function to get a reference to the query.
+const ref = demoListStaffRef(demoListStaffVars);
+// Variables can be defined inline as well.
+const ref = demoListStaffRef({ facilityId: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = demoListStaffRef(dataConnect, demoListStaffVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.staffs);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.staffs);
+});
+```
+
+## DemoListClients
+You can execute the `DemoListClients` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+demoListClients(vars: DemoListClientsVariables): QueryPromise<DemoListClientsData, DemoListClientsVariables>;
+
+interface DemoListClientsRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DemoListClientsVariables): QueryRef<DemoListClientsData, DemoListClientsVariables>;
+}
+export const demoListClientsRef: DemoListClientsRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+demoListClients(dc: DataConnect, vars: DemoListClientsVariables): QueryPromise<DemoListClientsData, DemoListClientsVariables>;
+
+interface DemoListClientsRef {
+  ...
+  (dc: DataConnect, vars: DemoListClientsVariables): QueryRef<DemoListClientsData, DemoListClientsVariables>;
+}
+export const demoListClientsRef: DemoListClientsRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the demoListClientsRef:
+```typescript
+const name = demoListClientsRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DemoListClients` query requires an argument of type `DemoListClientsVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DemoListClientsVariables {
+  facilityId: UUIDString;
+}
+```
+### Return Type
+Recall that executing the `DemoListClients` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DemoListClientsData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DemoListClientsData {
+  clients: ({
+    id: UUIDString;
+    name: string;
+    nameKana?: string | null;
+    gender?: string | null;
+    careLevel?: {
+      name: string;
+    };
+      phone?: string | null;
+      addressPrefecture?: string | null;
+      addressCity?: string | null;
+  } & Client_Key)[];
+}
+```
+### Using `DemoListClients`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, demoListClients, DemoListClientsVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoListClients` query requires an argument of type `DemoListClientsVariables`:
+const demoListClientsVars: DemoListClientsVariables = {
+  facilityId: ..., 
+};
+
+// Call the `demoListClients()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await demoListClients(demoListClientsVars);
+// Variables can be defined inline as well.
+const { data } = await demoListClients({ facilityId: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await demoListClients(dataConnect, demoListClientsVars);
+
+console.log(data.clients);
+
+// Or, you can use the `Promise` API.
+demoListClients(demoListClientsVars).then((response) => {
+  const data = response.data;
+  console.log(data.clients);
+});
+```
+
+### Using `DemoListClients`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, demoListClientsRef, DemoListClientsVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoListClients` query requires an argument of type `DemoListClientsVariables`:
+const demoListClientsVars: DemoListClientsVariables = {
+  facilityId: ..., 
+};
+
+// Call the `demoListClientsRef()` function to get a reference to the query.
+const ref = demoListClientsRef(demoListClientsVars);
+// Variables can be defined inline as well.
+const ref = demoListClientsRef({ facilityId: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = demoListClientsRef(dataConnect, demoListClientsVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.clients);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.clients);
+});
+```
+
+## DemoGetClient
+You can execute the `DemoGetClient` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+demoGetClient(vars: DemoGetClientVariables): QueryPromise<DemoGetClientData, DemoGetClientVariables>;
+
+interface DemoGetClientRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DemoGetClientVariables): QueryRef<DemoGetClientData, DemoGetClientVariables>;
+}
+export const demoGetClientRef: DemoGetClientRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+demoGetClient(dc: DataConnect, vars: DemoGetClientVariables): QueryPromise<DemoGetClientData, DemoGetClientVariables>;
+
+interface DemoGetClientRef {
+  ...
+  (dc: DataConnect, vars: DemoGetClientVariables): QueryRef<DemoGetClientData, DemoGetClientVariables>;
+}
+export const demoGetClientRef: DemoGetClientRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the demoGetClientRef:
+```typescript
+const name = demoGetClientRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DemoGetClient` query requires an argument of type `DemoGetClientVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DemoGetClientVariables {
+  id: UUIDString;
+}
+```
+### Return Type
+Recall that executing the `DemoGetClient` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DemoGetClientData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DemoGetClientData {
+  client?: {
+    id: UUIDString;
+    name: string;
+    nameKana?: string | null;
+    gender?: string | null;
+    birthDate?: DateString | null;
+    careLevel?: {
+      id: UUIDString;
+      name: string;
+    } & CareLevel_Key;
+      addressPrefecture?: string | null;
+      addressCity?: string | null;
+      phone?: string | null;
+      careManager?: string | null;
+      careOffice?: string | null;
+      emergencyPhone?: string | null;
+      emergencyName?: string | null;
+      emergencyRelation?: string | null;
+      assessment?: unknown | null;
+      lastAssessmentDate?: DateString | null;
+      regularServices?: unknown | null;
+      notes?: string | null;
+      isActive: boolean;
+      createdAt: TimestampString;
+      updatedAt: TimestampString;
+  } & Client_Key;
+}
+```
+### Using `DemoGetClient`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, demoGetClient, DemoGetClientVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoGetClient` query requires an argument of type `DemoGetClientVariables`:
+const demoGetClientVars: DemoGetClientVariables = {
+  id: ..., 
+};
+
+// Call the `demoGetClient()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await demoGetClient(demoGetClientVars);
+// Variables can be defined inline as well.
+const { data } = await demoGetClient({ id: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await demoGetClient(dataConnect, demoGetClientVars);
+
+console.log(data.client);
+
+// Or, you can use the `Promise` API.
+demoGetClient(demoGetClientVars).then((response) => {
+  const data = response.data;
+  console.log(data.client);
+});
+```
+
+### Using `DemoGetClient`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, demoGetClientRef, DemoGetClientVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoGetClient` query requires an argument of type `DemoGetClientVariables`:
+const demoGetClientVars: DemoGetClientVariables = {
+  id: ..., 
+};
+
+// Call the `demoGetClientRef()` function to get a reference to the query.
+const ref = demoGetClientRef(demoGetClientVars);
+// Variables can be defined inline as well.
+const ref = demoGetClientRef({ id: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = demoGetClientRef(dataConnect, demoGetClientVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.client);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.client);
+});
+```
+
+## DemoListSchedulesByDateRange
+You can execute the `DemoListSchedulesByDateRange` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+demoListSchedulesByDateRange(vars: DemoListSchedulesByDateRangeVariables): QueryPromise<DemoListSchedulesByDateRangeData, DemoListSchedulesByDateRangeVariables>;
+
+interface DemoListSchedulesByDateRangeRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DemoListSchedulesByDateRangeVariables): QueryRef<DemoListSchedulesByDateRangeData, DemoListSchedulesByDateRangeVariables>;
+}
+export const demoListSchedulesByDateRangeRef: DemoListSchedulesByDateRangeRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+demoListSchedulesByDateRange(dc: DataConnect, vars: DemoListSchedulesByDateRangeVariables): QueryPromise<DemoListSchedulesByDateRangeData, DemoListSchedulesByDateRangeVariables>;
+
+interface DemoListSchedulesByDateRangeRef {
+  ...
+  (dc: DataConnect, vars: DemoListSchedulesByDateRangeVariables): QueryRef<DemoListSchedulesByDateRangeData, DemoListSchedulesByDateRangeVariables>;
+}
+export const demoListSchedulesByDateRangeRef: DemoListSchedulesByDateRangeRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the demoListSchedulesByDateRangeRef:
+```typescript
+const name = demoListSchedulesByDateRangeRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DemoListSchedulesByDateRange` query requires an argument of type `DemoListSchedulesByDateRangeVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DemoListSchedulesByDateRangeVariables {
+  facilityId: UUIDString;
+  startDate: DateString;
+  endDate: DateString;
+}
+```
+### Return Type
+Recall that executing the `DemoListSchedulesByDateRange` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DemoListSchedulesByDateRangeData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DemoListSchedulesByDateRangeData {
+  schedules: ({
+    id: UUIDString;
+    scheduledDate: DateString;
+    startTime: string;
+    endTime: string;
+    status?: string | null;
+    notes?: string | null;
+    recurrenceRule?: string | null;
+    recurrenceId?: UUIDString | null;
+    client: {
+      id: UUIDString;
+      name: string;
+    } & Client_Key;
+      staff: {
+        id: UUIDString;
+        name: string;
+      } & Staff_Key;
+        serviceType?: {
+          id: UUIDString;
+          name: string;
+          category: string;
+          color?: string | null;
+        } & ServiceType_Key;
+  } & Schedule_Key)[];
+}
+```
+### Using `DemoListSchedulesByDateRange`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, demoListSchedulesByDateRange, DemoListSchedulesByDateRangeVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoListSchedulesByDateRange` query requires an argument of type `DemoListSchedulesByDateRangeVariables`:
+const demoListSchedulesByDateRangeVars: DemoListSchedulesByDateRangeVariables = {
+  facilityId: ..., 
+  startDate: ..., 
+  endDate: ..., 
+};
+
+// Call the `demoListSchedulesByDateRange()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await demoListSchedulesByDateRange(demoListSchedulesByDateRangeVars);
+// Variables can be defined inline as well.
+const { data } = await demoListSchedulesByDateRange({ facilityId: ..., startDate: ..., endDate: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await demoListSchedulesByDateRange(dataConnect, demoListSchedulesByDateRangeVars);
+
+console.log(data.schedules);
+
+// Or, you can use the `Promise` API.
+demoListSchedulesByDateRange(demoListSchedulesByDateRangeVars).then((response) => {
+  const data = response.data;
+  console.log(data.schedules);
+});
+```
+
+### Using `DemoListSchedulesByDateRange`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, demoListSchedulesByDateRangeRef, DemoListSchedulesByDateRangeVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoListSchedulesByDateRange` query requires an argument of type `DemoListSchedulesByDateRangeVariables`:
+const demoListSchedulesByDateRangeVars: DemoListSchedulesByDateRangeVariables = {
+  facilityId: ..., 
+  startDate: ..., 
+  endDate: ..., 
+};
+
+// Call the `demoListSchedulesByDateRangeRef()` function to get a reference to the query.
+const ref = demoListSchedulesByDateRangeRef(demoListSchedulesByDateRangeVars);
+// Variables can be defined inline as well.
+const ref = demoListSchedulesByDateRangeRef({ facilityId: ..., startDate: ..., endDate: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = demoListSchedulesByDateRangeRef(dataConnect, demoListSchedulesByDateRangeVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.schedules);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.schedules);
+});
+```
+
+## DemoGetSchedulesByRecurrenceId
+You can execute the `DemoGetSchedulesByRecurrenceId` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+demoGetSchedulesByRecurrenceId(vars: DemoGetSchedulesByRecurrenceIdVariables): QueryPromise<DemoGetSchedulesByRecurrenceIdData, DemoGetSchedulesByRecurrenceIdVariables>;
+
+interface DemoGetSchedulesByRecurrenceIdRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DemoGetSchedulesByRecurrenceIdVariables): QueryRef<DemoGetSchedulesByRecurrenceIdData, DemoGetSchedulesByRecurrenceIdVariables>;
+}
+export const demoGetSchedulesByRecurrenceIdRef: DemoGetSchedulesByRecurrenceIdRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+demoGetSchedulesByRecurrenceId(dc: DataConnect, vars: DemoGetSchedulesByRecurrenceIdVariables): QueryPromise<DemoGetSchedulesByRecurrenceIdData, DemoGetSchedulesByRecurrenceIdVariables>;
+
+interface DemoGetSchedulesByRecurrenceIdRef {
+  ...
+  (dc: DataConnect, vars: DemoGetSchedulesByRecurrenceIdVariables): QueryRef<DemoGetSchedulesByRecurrenceIdData, DemoGetSchedulesByRecurrenceIdVariables>;
+}
+export const demoGetSchedulesByRecurrenceIdRef: DemoGetSchedulesByRecurrenceIdRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the demoGetSchedulesByRecurrenceIdRef:
+```typescript
+const name = demoGetSchedulesByRecurrenceIdRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DemoGetSchedulesByRecurrenceId` query requires an argument of type `DemoGetSchedulesByRecurrenceIdVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DemoGetSchedulesByRecurrenceIdVariables {
+  recurrenceId: UUIDString;
+}
+```
+### Return Type
+Recall that executing the `DemoGetSchedulesByRecurrenceId` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DemoGetSchedulesByRecurrenceIdData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DemoGetSchedulesByRecurrenceIdData {
+  schedules: ({
+    id: UUIDString;
+    scheduledDate: DateString;
+    startTime: string;
+    endTime: string;
+    status?: string | null;
+    notes?: string | null;
+    recurrenceRule?: string | null;
+    recurrenceId?: UUIDString | null;
+    client: {
+      id: UUIDString;
+      name: string;
+    } & Client_Key;
+      staff: {
+        id: UUIDString;
+        name: string;
+      } & Staff_Key;
+        serviceType?: {
+          id: UUIDString;
+          name: string;
+          category: string;
+          color?: string | null;
+        } & ServiceType_Key;
+  } & Schedule_Key)[];
+}
+```
+### Using `DemoGetSchedulesByRecurrenceId`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, demoGetSchedulesByRecurrenceId, DemoGetSchedulesByRecurrenceIdVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoGetSchedulesByRecurrenceId` query requires an argument of type `DemoGetSchedulesByRecurrenceIdVariables`:
+const demoGetSchedulesByRecurrenceIdVars: DemoGetSchedulesByRecurrenceIdVariables = {
+  recurrenceId: ..., 
+};
+
+// Call the `demoGetSchedulesByRecurrenceId()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await demoGetSchedulesByRecurrenceId(demoGetSchedulesByRecurrenceIdVars);
+// Variables can be defined inline as well.
+const { data } = await demoGetSchedulesByRecurrenceId({ recurrenceId: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await demoGetSchedulesByRecurrenceId(dataConnect, demoGetSchedulesByRecurrenceIdVars);
+
+console.log(data.schedules);
+
+// Or, you can use the `Promise` API.
+demoGetSchedulesByRecurrenceId(demoGetSchedulesByRecurrenceIdVars).then((response) => {
+  const data = response.data;
+  console.log(data.schedules);
+});
+```
+
+### Using `DemoGetSchedulesByRecurrenceId`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, demoGetSchedulesByRecurrenceIdRef, DemoGetSchedulesByRecurrenceIdVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoGetSchedulesByRecurrenceId` query requires an argument of type `DemoGetSchedulesByRecurrenceIdVariables`:
+const demoGetSchedulesByRecurrenceIdVars: DemoGetSchedulesByRecurrenceIdVariables = {
+  recurrenceId: ..., 
+};
+
+// Call the `demoGetSchedulesByRecurrenceIdRef()` function to get a reference to the query.
+const ref = demoGetSchedulesByRecurrenceIdRef(demoGetSchedulesByRecurrenceIdVars);
+// Variables can be defined inline as well.
+const ref = demoGetSchedulesByRecurrenceIdRef({ recurrenceId: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = demoGetSchedulesByRecurrenceIdRef(dataConnect, demoGetSchedulesByRecurrenceIdVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.schedules);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.schedules);
+});
+```
+
+## DemoListVisitRecordsByDateRange
+You can execute the `DemoListVisitRecordsByDateRange` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+demoListVisitRecordsByDateRange(vars: DemoListVisitRecordsByDateRangeVariables): QueryPromise<DemoListVisitRecordsByDateRangeData, DemoListVisitRecordsByDateRangeVariables>;
+
+interface DemoListVisitRecordsByDateRangeRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DemoListVisitRecordsByDateRangeVariables): QueryRef<DemoListVisitRecordsByDateRangeData, DemoListVisitRecordsByDateRangeVariables>;
+}
+export const demoListVisitRecordsByDateRangeRef: DemoListVisitRecordsByDateRangeRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+demoListVisitRecordsByDateRange(dc: DataConnect, vars: DemoListVisitRecordsByDateRangeVariables): QueryPromise<DemoListVisitRecordsByDateRangeData, DemoListVisitRecordsByDateRangeVariables>;
+
+interface DemoListVisitRecordsByDateRangeRef {
+  ...
+  (dc: DataConnect, vars: DemoListVisitRecordsByDateRangeVariables): QueryRef<DemoListVisitRecordsByDateRangeData, DemoListVisitRecordsByDateRangeVariables>;
+}
+export const demoListVisitRecordsByDateRangeRef: DemoListVisitRecordsByDateRangeRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the demoListVisitRecordsByDateRangeRef:
+```typescript
+const name = demoListVisitRecordsByDateRangeRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DemoListVisitRecordsByDateRange` query requires an argument of type `DemoListVisitRecordsByDateRangeVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DemoListVisitRecordsByDateRangeVariables {
+  facilityId: UUIDString;
+  startDate: DateString;
+  endDate: DateString;
+}
+```
+### Return Type
+Recall that executing the `DemoListVisitRecordsByDateRange` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DemoListVisitRecordsByDateRangeData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DemoListVisitRecordsByDateRangeData {
+  visitRecords: ({
+    id: UUIDString;
+    visitDate: DateString;
+    startTime: string;
+    endTime: string;
+    vitals?: unknown | null;
+    services: unknown;
+    notes?: string | null;
+    client: {
+      id: UUIDString;
+      name: string;
+    } & Client_Key;
+      staff: {
+        id: UUIDString;
+        name: string;
+      } & Staff_Key;
+  } & VisitRecord_Key)[];
+}
+```
+### Using `DemoListVisitRecordsByDateRange`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, demoListVisitRecordsByDateRange, DemoListVisitRecordsByDateRangeVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoListVisitRecordsByDateRange` query requires an argument of type `DemoListVisitRecordsByDateRangeVariables`:
+const demoListVisitRecordsByDateRangeVars: DemoListVisitRecordsByDateRangeVariables = {
+  facilityId: ..., 
+  startDate: ..., 
+  endDate: ..., 
+};
+
+// Call the `demoListVisitRecordsByDateRange()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await demoListVisitRecordsByDateRange(demoListVisitRecordsByDateRangeVars);
+// Variables can be defined inline as well.
+const { data } = await demoListVisitRecordsByDateRange({ facilityId: ..., startDate: ..., endDate: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await demoListVisitRecordsByDateRange(dataConnect, demoListVisitRecordsByDateRangeVars);
+
+console.log(data.visitRecords);
+
+// Or, you can use the `Promise` API.
+demoListVisitRecordsByDateRange(demoListVisitRecordsByDateRangeVars).then((response) => {
+  const data = response.data;
+  console.log(data.visitRecords);
+});
+```
+
+### Using `DemoListVisitRecordsByDateRange`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, demoListVisitRecordsByDateRangeRef, DemoListVisitRecordsByDateRangeVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoListVisitRecordsByDateRange` query requires an argument of type `DemoListVisitRecordsByDateRangeVariables`:
+const demoListVisitRecordsByDateRangeVars: DemoListVisitRecordsByDateRangeVariables = {
+  facilityId: ..., 
+  startDate: ..., 
+  endDate: ..., 
+};
+
+// Call the `demoListVisitRecordsByDateRangeRef()` function to get a reference to the query.
+const ref = demoListVisitRecordsByDateRangeRef(demoListVisitRecordsByDateRangeVars);
+// Variables can be defined inline as well.
+const ref = demoListVisitRecordsByDateRangeRef({ facilityId: ..., startDate: ..., endDate: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = demoListVisitRecordsByDateRangeRef(dataConnect, demoListVisitRecordsByDateRangeVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.visitRecords);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.visitRecords);
+});
+```
+
+## DemoGetVisitRecord
+You can execute the `DemoGetVisitRecord` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+demoGetVisitRecord(vars: DemoGetVisitRecordVariables): QueryPromise<DemoGetVisitRecordData, DemoGetVisitRecordVariables>;
+
+interface DemoGetVisitRecordRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DemoGetVisitRecordVariables): QueryRef<DemoGetVisitRecordData, DemoGetVisitRecordVariables>;
+}
+export const demoGetVisitRecordRef: DemoGetVisitRecordRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+demoGetVisitRecord(dc: DataConnect, vars: DemoGetVisitRecordVariables): QueryPromise<DemoGetVisitRecordData, DemoGetVisitRecordVariables>;
+
+interface DemoGetVisitRecordRef {
+  ...
+  (dc: DataConnect, vars: DemoGetVisitRecordVariables): QueryRef<DemoGetVisitRecordData, DemoGetVisitRecordVariables>;
+}
+export const demoGetVisitRecordRef: DemoGetVisitRecordRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the demoGetVisitRecordRef:
+```typescript
+const name = demoGetVisitRecordRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DemoGetVisitRecord` query requires an argument of type `DemoGetVisitRecordVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DemoGetVisitRecordVariables {
+  id: UUIDString;
+}
+```
+### Return Type
+Recall that executing the `DemoGetVisitRecord` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DemoGetVisitRecordData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DemoGetVisitRecordData {
+  visitRecord?: {
+    id: UUIDString;
+    visitDate: DateString;
+    startTime: string;
+    endTime: string;
+    vitals?: unknown | null;
+    services: unknown;
+    notes?: string | null;
+    aiGenerated?: boolean | null;
+    aiInput?: string | null;
+    satisfaction?: string | null;
+    satisfactionReason?: string | null;
+    conditionChange?: string | null;
+    conditionChangeDetail?: string | null;
+    serviceChangeNeeded?: string | null;
+    serviceChangeDetail?: string | null;
+    attachments?: string[] | null;
+    client: {
+      id: UUIDString;
+      name: string;
+    } & Client_Key;
+      staff: {
+        id: UUIDString;
+        name: string;
+      } & Staff_Key;
+        visitReason?: {
+          id: UUIDString;
+          name: string;
+        } & VisitReason_Key;
+          schedule?: {
+            id: UUIDString;
+          } & Schedule_Key;
+            createdAt: TimestampString;
+            updatedAt: TimestampString;
+  } & VisitRecord_Key;
+}
+```
+### Using `DemoGetVisitRecord`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, demoGetVisitRecord, DemoGetVisitRecordVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoGetVisitRecord` query requires an argument of type `DemoGetVisitRecordVariables`:
+const demoGetVisitRecordVars: DemoGetVisitRecordVariables = {
+  id: ..., 
+};
+
+// Call the `demoGetVisitRecord()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await demoGetVisitRecord(demoGetVisitRecordVars);
+// Variables can be defined inline as well.
+const { data } = await demoGetVisitRecord({ id: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await demoGetVisitRecord(dataConnect, demoGetVisitRecordVars);
+
+console.log(data.visitRecord);
+
+// Or, you can use the `Promise` API.
+demoGetVisitRecord(demoGetVisitRecordVars).then((response) => {
+  const data = response.data;
+  console.log(data.visitRecord);
+});
+```
+
+### Using `DemoGetVisitRecord`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, demoGetVisitRecordRef, DemoGetVisitRecordVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoGetVisitRecord` query requires an argument of type `DemoGetVisitRecordVariables`:
+const demoGetVisitRecordVars: DemoGetVisitRecordVariables = {
+  id: ..., 
+};
+
+// Call the `demoGetVisitRecordRef()` function to get a reference to the query.
+const ref = demoGetVisitRecordRef(demoGetVisitRecordVars);
+// Variables can be defined inline as well.
+const ref = demoGetVisitRecordRef({ id: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = demoGetVisitRecordRef(dataConnect, demoGetVisitRecordVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.visitRecord);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.visitRecord);
+});
+```
+
+## DemoListReportsByFacility
+You can execute the `DemoListReportsByFacility` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+demoListReportsByFacility(vars: DemoListReportsByFacilityVariables): QueryPromise<DemoListReportsByFacilityData, DemoListReportsByFacilityVariables>;
+
+interface DemoListReportsByFacilityRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DemoListReportsByFacilityVariables): QueryRef<DemoListReportsByFacilityData, DemoListReportsByFacilityVariables>;
+}
+export const demoListReportsByFacilityRef: DemoListReportsByFacilityRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+demoListReportsByFacility(dc: DataConnect, vars: DemoListReportsByFacilityVariables): QueryPromise<DemoListReportsByFacilityData, DemoListReportsByFacilityVariables>;
+
+interface DemoListReportsByFacilityRef {
+  ...
+  (dc: DataConnect, vars: DemoListReportsByFacilityVariables): QueryRef<DemoListReportsByFacilityData, DemoListReportsByFacilityVariables>;
+}
+export const demoListReportsByFacilityRef: DemoListReportsByFacilityRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the demoListReportsByFacilityRef:
+```typescript
+const name = demoListReportsByFacilityRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DemoListReportsByFacility` query requires an argument of type `DemoListReportsByFacilityVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DemoListReportsByFacilityVariables {
+  facilityId: UUIDString;
+}
+```
+### Return Type
+Recall that executing the `DemoListReportsByFacility` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DemoListReportsByFacilityData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DemoListReportsByFacilityData {
+  reports: ({
+    id: UUIDString;
+    targetYear: number;
+    targetMonth: number;
+    summary?: string | null;
+    aiGenerated?: boolean | null;
+    pdfGenerated?: boolean | null;
+    pdfUrl?: string | null;
+    createdAt: TimestampString;
+    client: {
+      id: UUIDString;
+      name: string;
+    } & Client_Key;
+      staff: {
+        id: UUIDString;
+        name: string;
+      } & Staff_Key;
+  } & Report_Key)[];
+}
+```
+### Using `DemoListReportsByFacility`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, demoListReportsByFacility, DemoListReportsByFacilityVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoListReportsByFacility` query requires an argument of type `DemoListReportsByFacilityVariables`:
+const demoListReportsByFacilityVars: DemoListReportsByFacilityVariables = {
+  facilityId: ..., 
+};
+
+// Call the `demoListReportsByFacility()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await demoListReportsByFacility(demoListReportsByFacilityVars);
+// Variables can be defined inline as well.
+const { data } = await demoListReportsByFacility({ facilityId: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await demoListReportsByFacility(dataConnect, demoListReportsByFacilityVars);
+
+console.log(data.reports);
+
+// Or, you can use the `Promise` API.
+demoListReportsByFacility(demoListReportsByFacilityVars).then((response) => {
+  const data = response.data;
+  console.log(data.reports);
+});
+```
+
+### Using `DemoListReportsByFacility`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, demoListReportsByFacilityRef, DemoListReportsByFacilityVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoListReportsByFacility` query requires an argument of type `DemoListReportsByFacilityVariables`:
+const demoListReportsByFacilityVars: DemoListReportsByFacilityVariables = {
+  facilityId: ..., 
+};
+
+// Call the `demoListReportsByFacilityRef()` function to get a reference to the query.
+const ref = demoListReportsByFacilityRef(demoListReportsByFacilityVars);
+// Variables can be defined inline as well.
+const ref = demoListReportsByFacilityRef({ facilityId: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = demoListReportsByFacilityRef(dataConnect, demoListReportsByFacilityVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.reports);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.reports);
+});
+```
+
+## DemoListCarePlansByFacility
+You can execute the `DemoListCarePlansByFacility` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+demoListCarePlansByFacility(vars: DemoListCarePlansByFacilityVariables): QueryPromise<DemoListCarePlansByFacilityData, DemoListCarePlansByFacilityVariables>;
+
+interface DemoListCarePlansByFacilityRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DemoListCarePlansByFacilityVariables): QueryRef<DemoListCarePlansByFacilityData, DemoListCarePlansByFacilityVariables>;
+}
+export const demoListCarePlansByFacilityRef: DemoListCarePlansByFacilityRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+demoListCarePlansByFacility(dc: DataConnect, vars: DemoListCarePlansByFacilityVariables): QueryPromise<DemoListCarePlansByFacilityData, DemoListCarePlansByFacilityVariables>;
+
+interface DemoListCarePlansByFacilityRef {
+  ...
+  (dc: DataConnect, vars: DemoListCarePlansByFacilityVariables): QueryRef<DemoListCarePlansByFacilityData, DemoListCarePlansByFacilityVariables>;
+}
+export const demoListCarePlansByFacilityRef: DemoListCarePlansByFacilityRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the demoListCarePlansByFacilityRef:
+```typescript
+const name = demoListCarePlansByFacilityRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DemoListCarePlansByFacility` query requires an argument of type `DemoListCarePlansByFacilityVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DemoListCarePlansByFacilityVariables {
+  facilityId: UUIDString;
+}
+```
+### Return Type
+Recall that executing the `DemoListCarePlansByFacility` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DemoListCarePlansByFacilityData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DemoListCarePlansByFacilityData {
+  carePlans: ({
+    id: UUIDString;
+    currentSituation?: string | null;
+    familyWishes?: string | null;
+    mainSupport?: string | null;
+    longTermGoals?: unknown | null;
+    shortTermGoals?: unknown | null;
+    pdfUrl?: string | null;
+    createdAt: TimestampString;
+    client: {
+      id: UUIDString;
+      name: string;
+    } & Client_Key;
+      staff: {
+        id: UUIDString;
+        name: string;
+      } & Staff_Key;
+  } & CarePlan_Key)[];
+}
+```
+### Using `DemoListCarePlansByFacility`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, demoListCarePlansByFacility, DemoListCarePlansByFacilityVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoListCarePlansByFacility` query requires an argument of type `DemoListCarePlansByFacilityVariables`:
+const demoListCarePlansByFacilityVars: DemoListCarePlansByFacilityVariables = {
+  facilityId: ..., 
+};
+
+// Call the `demoListCarePlansByFacility()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await demoListCarePlansByFacility(demoListCarePlansByFacilityVars);
+// Variables can be defined inline as well.
+const { data } = await demoListCarePlansByFacility({ facilityId: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await demoListCarePlansByFacility(dataConnect, demoListCarePlansByFacilityVars);
+
+console.log(data.carePlans);
+
+// Or, you can use the `Promise` API.
+demoListCarePlansByFacility(demoListCarePlansByFacilityVars).then((response) => {
+  const data = response.data;
+  console.log(data.carePlans);
+});
+```
+
+### Using `DemoListCarePlansByFacility`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, demoListCarePlansByFacilityRef, DemoListCarePlansByFacilityVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoListCarePlansByFacility` query requires an argument of type `DemoListCarePlansByFacilityVariables`:
+const demoListCarePlansByFacilityVars: DemoListCarePlansByFacilityVariables = {
+  facilityId: ..., 
+};
+
+// Call the `demoListCarePlansByFacilityRef()` function to get a reference to the query.
+const ref = demoListCarePlansByFacilityRef(demoListCarePlansByFacilityVars);
+// Variables can be defined inline as well.
+const ref = demoListCarePlansByFacilityRef({ facilityId: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = demoListCarePlansByFacilityRef(dataConnect, demoListCarePlansByFacilityVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.carePlans);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.carePlans);
+});
+```
+
+## DemoGetCarePlan
+You can execute the `DemoGetCarePlan` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+demoGetCarePlan(vars: DemoGetCarePlanVariables): QueryPromise<DemoGetCarePlanData, DemoGetCarePlanVariables>;
+
+interface DemoGetCarePlanRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DemoGetCarePlanVariables): QueryRef<DemoGetCarePlanData, DemoGetCarePlanVariables>;
+}
+export const demoGetCarePlanRef: DemoGetCarePlanRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+demoGetCarePlan(dc: DataConnect, vars: DemoGetCarePlanVariables): QueryPromise<DemoGetCarePlanData, DemoGetCarePlanVariables>;
+
+interface DemoGetCarePlanRef {
+  ...
+  (dc: DataConnect, vars: DemoGetCarePlanVariables): QueryRef<DemoGetCarePlanData, DemoGetCarePlanVariables>;
+}
+export const demoGetCarePlanRef: DemoGetCarePlanRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the demoGetCarePlanRef:
+```typescript
+const name = demoGetCarePlanRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DemoGetCarePlan` query requires an argument of type `DemoGetCarePlanVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DemoGetCarePlanVariables {
+  id: UUIDString;
+}
+```
+### Return Type
+Recall that executing the `DemoGetCarePlan` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DemoGetCarePlanData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DemoGetCarePlanData {
+  carePlan?: {
+    id: UUIDString;
+    currentSituation?: string | null;
+    familyWishes?: string | null;
+    mainSupport?: string | null;
+    longTermGoals?: unknown | null;
+    shortTermGoals?: unknown | null;
+    pdfUrl?: string | null;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+    client: {
+      id: UUIDString;
+      name: string;
+      careLevel?: {
+        name: string;
+      };
+    } & Client_Key;
+      staff: {
+        id: UUIDString;
+        name: string;
+      } & Staff_Key;
+  } & CarePlan_Key;
+}
+```
+### Using `DemoGetCarePlan`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, demoGetCarePlan, DemoGetCarePlanVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoGetCarePlan` query requires an argument of type `DemoGetCarePlanVariables`:
+const demoGetCarePlanVars: DemoGetCarePlanVariables = {
+  id: ..., 
+};
+
+// Call the `demoGetCarePlan()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await demoGetCarePlan(demoGetCarePlanVars);
+// Variables can be defined inline as well.
+const { data } = await demoGetCarePlan({ id: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await demoGetCarePlan(dataConnect, demoGetCarePlanVars);
+
+console.log(data.carePlan);
+
+// Or, you can use the `Promise` API.
+demoGetCarePlan(demoGetCarePlanVars).then((response) => {
+  const data = response.data;
+  console.log(data.carePlan);
+});
+```
+
+### Using `DemoGetCarePlan`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, demoGetCarePlanRef, DemoGetCarePlanVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoGetCarePlan` query requires an argument of type `DemoGetCarePlanVariables`:
+const demoGetCarePlanVars: DemoGetCarePlanVariables = {
+  id: ..., 
+};
+
+// Call the `demoGetCarePlanRef()` function to get a reference to the query.
+const ref = demoGetCarePlanRef(demoGetCarePlanVars);
+// Variables can be defined inline as well.
+const ref = demoGetCarePlanRef({ id: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = demoGetCarePlanRef(dataConnect, demoGetCarePlanVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.carePlan);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.carePlan);
 });
 ```
 
@@ -5393,6 +7129,1146 @@ console.log(data.serviceItem_insert);
 executeMutation(ref).then((response) => {
   const data = response.data;
   console.log(data.serviceItem_insert);
+});
+```
+
+## DemoCreateVisitRecord
+You can execute the `DemoCreateVisitRecord` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+demoCreateVisitRecord(vars: DemoCreateVisitRecordVariables): MutationPromise<DemoCreateVisitRecordData, DemoCreateVisitRecordVariables>;
+
+interface DemoCreateVisitRecordRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DemoCreateVisitRecordVariables): MutationRef<DemoCreateVisitRecordData, DemoCreateVisitRecordVariables>;
+}
+export const demoCreateVisitRecordRef: DemoCreateVisitRecordRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+demoCreateVisitRecord(dc: DataConnect, vars: DemoCreateVisitRecordVariables): MutationPromise<DemoCreateVisitRecordData, DemoCreateVisitRecordVariables>;
+
+interface DemoCreateVisitRecordRef {
+  ...
+  (dc: DataConnect, vars: DemoCreateVisitRecordVariables): MutationRef<DemoCreateVisitRecordData, DemoCreateVisitRecordVariables>;
+}
+export const demoCreateVisitRecordRef: DemoCreateVisitRecordRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the demoCreateVisitRecordRef:
+```typescript
+const name = demoCreateVisitRecordRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DemoCreateVisitRecord` mutation requires an argument of type `DemoCreateVisitRecordVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DemoCreateVisitRecordVariables {
+  scheduleId?: UUIDString | null;
+  clientId: UUIDString;
+  staffId: UUIDString;
+  visitDate: DateString;
+  visitReasonId?: UUIDString | null;
+  startTime: string;
+  endTime: string;
+  vitals?: unknown | null;
+  services: unknown;
+  notes?: string | null;
+  aiGenerated?: boolean | null;
+  aiInput?: string | null;
+}
+```
+### Return Type
+Recall that executing the `DemoCreateVisitRecord` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DemoCreateVisitRecordData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DemoCreateVisitRecordData {
+  visitRecord_insert: VisitRecord_Key;
+}
+```
+### Using `DemoCreateVisitRecord`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, demoCreateVisitRecord, DemoCreateVisitRecordVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoCreateVisitRecord` mutation requires an argument of type `DemoCreateVisitRecordVariables`:
+const demoCreateVisitRecordVars: DemoCreateVisitRecordVariables = {
+  scheduleId: ..., // optional
+  clientId: ..., 
+  staffId: ..., 
+  visitDate: ..., 
+  visitReasonId: ..., // optional
+  startTime: ..., 
+  endTime: ..., 
+  vitals: ..., // optional
+  services: ..., 
+  notes: ..., // optional
+  aiGenerated: ..., // optional
+  aiInput: ..., // optional
+};
+
+// Call the `demoCreateVisitRecord()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await demoCreateVisitRecord(demoCreateVisitRecordVars);
+// Variables can be defined inline as well.
+const { data } = await demoCreateVisitRecord({ scheduleId: ..., clientId: ..., staffId: ..., visitDate: ..., visitReasonId: ..., startTime: ..., endTime: ..., vitals: ..., services: ..., notes: ..., aiGenerated: ..., aiInput: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await demoCreateVisitRecord(dataConnect, demoCreateVisitRecordVars);
+
+console.log(data.visitRecord_insert);
+
+// Or, you can use the `Promise` API.
+demoCreateVisitRecord(demoCreateVisitRecordVars).then((response) => {
+  const data = response.data;
+  console.log(data.visitRecord_insert);
+});
+```
+
+### Using `DemoCreateVisitRecord`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, demoCreateVisitRecordRef, DemoCreateVisitRecordVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoCreateVisitRecord` mutation requires an argument of type `DemoCreateVisitRecordVariables`:
+const demoCreateVisitRecordVars: DemoCreateVisitRecordVariables = {
+  scheduleId: ..., // optional
+  clientId: ..., 
+  staffId: ..., 
+  visitDate: ..., 
+  visitReasonId: ..., // optional
+  startTime: ..., 
+  endTime: ..., 
+  vitals: ..., // optional
+  services: ..., 
+  notes: ..., // optional
+  aiGenerated: ..., // optional
+  aiInput: ..., // optional
+};
+
+// Call the `demoCreateVisitRecordRef()` function to get a reference to the mutation.
+const ref = demoCreateVisitRecordRef(demoCreateVisitRecordVars);
+// Variables can be defined inline as well.
+const ref = demoCreateVisitRecordRef({ scheduleId: ..., clientId: ..., staffId: ..., visitDate: ..., visitReasonId: ..., startTime: ..., endTime: ..., vitals: ..., services: ..., notes: ..., aiGenerated: ..., aiInput: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = demoCreateVisitRecordRef(dataConnect, demoCreateVisitRecordVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.visitRecord_insert);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.visitRecord_insert);
+});
+```
+
+## DemoUpdateVisitRecord
+You can execute the `DemoUpdateVisitRecord` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+demoUpdateVisitRecord(vars: DemoUpdateVisitRecordVariables): MutationPromise<DemoUpdateVisitRecordData, DemoUpdateVisitRecordVariables>;
+
+interface DemoUpdateVisitRecordRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DemoUpdateVisitRecordVariables): MutationRef<DemoUpdateVisitRecordData, DemoUpdateVisitRecordVariables>;
+}
+export const demoUpdateVisitRecordRef: DemoUpdateVisitRecordRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+demoUpdateVisitRecord(dc: DataConnect, vars: DemoUpdateVisitRecordVariables): MutationPromise<DemoUpdateVisitRecordData, DemoUpdateVisitRecordVariables>;
+
+interface DemoUpdateVisitRecordRef {
+  ...
+  (dc: DataConnect, vars: DemoUpdateVisitRecordVariables): MutationRef<DemoUpdateVisitRecordData, DemoUpdateVisitRecordVariables>;
+}
+export const demoUpdateVisitRecordRef: DemoUpdateVisitRecordRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the demoUpdateVisitRecordRef:
+```typescript
+const name = demoUpdateVisitRecordRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DemoUpdateVisitRecord` mutation requires an argument of type `DemoUpdateVisitRecordVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DemoUpdateVisitRecordVariables {
+  id: UUIDString;
+  vitals?: unknown | null;
+  services?: unknown | null;
+  notes?: string | null;
+}
+```
+### Return Type
+Recall that executing the `DemoUpdateVisitRecord` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DemoUpdateVisitRecordData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DemoUpdateVisitRecordData {
+  visitRecord_update?: VisitRecord_Key | null;
+}
+```
+### Using `DemoUpdateVisitRecord`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, demoUpdateVisitRecord, DemoUpdateVisitRecordVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoUpdateVisitRecord` mutation requires an argument of type `DemoUpdateVisitRecordVariables`:
+const demoUpdateVisitRecordVars: DemoUpdateVisitRecordVariables = {
+  id: ..., 
+  vitals: ..., // optional
+  services: ..., // optional
+  notes: ..., // optional
+};
+
+// Call the `demoUpdateVisitRecord()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await demoUpdateVisitRecord(demoUpdateVisitRecordVars);
+// Variables can be defined inline as well.
+const { data } = await demoUpdateVisitRecord({ id: ..., vitals: ..., services: ..., notes: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await demoUpdateVisitRecord(dataConnect, demoUpdateVisitRecordVars);
+
+console.log(data.visitRecord_update);
+
+// Or, you can use the `Promise` API.
+demoUpdateVisitRecord(demoUpdateVisitRecordVars).then((response) => {
+  const data = response.data;
+  console.log(data.visitRecord_update);
+});
+```
+
+### Using `DemoUpdateVisitRecord`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, demoUpdateVisitRecordRef, DemoUpdateVisitRecordVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoUpdateVisitRecord` mutation requires an argument of type `DemoUpdateVisitRecordVariables`:
+const demoUpdateVisitRecordVars: DemoUpdateVisitRecordVariables = {
+  id: ..., 
+  vitals: ..., // optional
+  services: ..., // optional
+  notes: ..., // optional
+};
+
+// Call the `demoUpdateVisitRecordRef()` function to get a reference to the mutation.
+const ref = demoUpdateVisitRecordRef(demoUpdateVisitRecordVars);
+// Variables can be defined inline as well.
+const ref = demoUpdateVisitRecordRef({ id: ..., vitals: ..., services: ..., notes: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = demoUpdateVisitRecordRef(dataConnect, demoUpdateVisitRecordVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.visitRecord_update);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.visitRecord_update);
+});
+```
+
+## DemoDeleteVisitRecord
+You can execute the `DemoDeleteVisitRecord` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+demoDeleteVisitRecord(vars: DemoDeleteVisitRecordVariables): MutationPromise<DemoDeleteVisitRecordData, DemoDeleteVisitRecordVariables>;
+
+interface DemoDeleteVisitRecordRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DemoDeleteVisitRecordVariables): MutationRef<DemoDeleteVisitRecordData, DemoDeleteVisitRecordVariables>;
+}
+export const demoDeleteVisitRecordRef: DemoDeleteVisitRecordRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+demoDeleteVisitRecord(dc: DataConnect, vars: DemoDeleteVisitRecordVariables): MutationPromise<DemoDeleteVisitRecordData, DemoDeleteVisitRecordVariables>;
+
+interface DemoDeleteVisitRecordRef {
+  ...
+  (dc: DataConnect, vars: DemoDeleteVisitRecordVariables): MutationRef<DemoDeleteVisitRecordData, DemoDeleteVisitRecordVariables>;
+}
+export const demoDeleteVisitRecordRef: DemoDeleteVisitRecordRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the demoDeleteVisitRecordRef:
+```typescript
+const name = demoDeleteVisitRecordRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DemoDeleteVisitRecord` mutation requires an argument of type `DemoDeleteVisitRecordVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DemoDeleteVisitRecordVariables {
+  id: UUIDString;
+}
+```
+### Return Type
+Recall that executing the `DemoDeleteVisitRecord` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DemoDeleteVisitRecordData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DemoDeleteVisitRecordData {
+  visitRecord_delete?: VisitRecord_Key | null;
+}
+```
+### Using `DemoDeleteVisitRecord`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, demoDeleteVisitRecord, DemoDeleteVisitRecordVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoDeleteVisitRecord` mutation requires an argument of type `DemoDeleteVisitRecordVariables`:
+const demoDeleteVisitRecordVars: DemoDeleteVisitRecordVariables = {
+  id: ..., 
+};
+
+// Call the `demoDeleteVisitRecord()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await demoDeleteVisitRecord(demoDeleteVisitRecordVars);
+// Variables can be defined inline as well.
+const { data } = await demoDeleteVisitRecord({ id: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await demoDeleteVisitRecord(dataConnect, demoDeleteVisitRecordVars);
+
+console.log(data.visitRecord_delete);
+
+// Or, you can use the `Promise` API.
+demoDeleteVisitRecord(demoDeleteVisitRecordVars).then((response) => {
+  const data = response.data;
+  console.log(data.visitRecord_delete);
+});
+```
+
+### Using `DemoDeleteVisitRecord`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, demoDeleteVisitRecordRef, DemoDeleteVisitRecordVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoDeleteVisitRecord` mutation requires an argument of type `DemoDeleteVisitRecordVariables`:
+const demoDeleteVisitRecordVars: DemoDeleteVisitRecordVariables = {
+  id: ..., 
+};
+
+// Call the `demoDeleteVisitRecordRef()` function to get a reference to the mutation.
+const ref = demoDeleteVisitRecordRef(demoDeleteVisitRecordVars);
+// Variables can be defined inline as well.
+const ref = demoDeleteVisitRecordRef({ id: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = demoDeleteVisitRecordRef(dataConnect, demoDeleteVisitRecordVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.visitRecord_delete);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.visitRecord_delete);
+});
+```
+
+## DemoCreateSchedule
+You can execute the `DemoCreateSchedule` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+demoCreateSchedule(vars: DemoCreateScheduleVariables): MutationPromise<DemoCreateScheduleData, DemoCreateScheduleVariables>;
+
+interface DemoCreateScheduleRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DemoCreateScheduleVariables): MutationRef<DemoCreateScheduleData, DemoCreateScheduleVariables>;
+}
+export const demoCreateScheduleRef: DemoCreateScheduleRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+demoCreateSchedule(dc: DataConnect, vars: DemoCreateScheduleVariables): MutationPromise<DemoCreateScheduleData, DemoCreateScheduleVariables>;
+
+interface DemoCreateScheduleRef {
+  ...
+  (dc: DataConnect, vars: DemoCreateScheduleVariables): MutationRef<DemoCreateScheduleData, DemoCreateScheduleVariables>;
+}
+export const demoCreateScheduleRef: DemoCreateScheduleRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the demoCreateScheduleRef:
+```typescript
+const name = demoCreateScheduleRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DemoCreateSchedule` mutation requires an argument of type `DemoCreateScheduleVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DemoCreateScheduleVariables {
+  facilityId: UUIDString;
+  clientId: UUIDString;
+  staffId: UUIDString;
+  serviceTypeId?: UUIDString | null;
+  scheduledDate: DateString;
+  startTime: string;
+  endTime: string;
+  notes?: string | null;
+  recurrenceRule?: string | null;
+  recurrenceId?: UUIDString | null;
+}
+```
+### Return Type
+Recall that executing the `DemoCreateSchedule` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DemoCreateScheduleData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DemoCreateScheduleData {
+  schedule_insert: Schedule_Key;
+}
+```
+### Using `DemoCreateSchedule`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, demoCreateSchedule, DemoCreateScheduleVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoCreateSchedule` mutation requires an argument of type `DemoCreateScheduleVariables`:
+const demoCreateScheduleVars: DemoCreateScheduleVariables = {
+  facilityId: ..., 
+  clientId: ..., 
+  staffId: ..., 
+  serviceTypeId: ..., // optional
+  scheduledDate: ..., 
+  startTime: ..., 
+  endTime: ..., 
+  notes: ..., // optional
+  recurrenceRule: ..., // optional
+  recurrenceId: ..., // optional
+};
+
+// Call the `demoCreateSchedule()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await demoCreateSchedule(demoCreateScheduleVars);
+// Variables can be defined inline as well.
+const { data } = await demoCreateSchedule({ facilityId: ..., clientId: ..., staffId: ..., serviceTypeId: ..., scheduledDate: ..., startTime: ..., endTime: ..., notes: ..., recurrenceRule: ..., recurrenceId: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await demoCreateSchedule(dataConnect, demoCreateScheduleVars);
+
+console.log(data.schedule_insert);
+
+// Or, you can use the `Promise` API.
+demoCreateSchedule(demoCreateScheduleVars).then((response) => {
+  const data = response.data;
+  console.log(data.schedule_insert);
+});
+```
+
+### Using `DemoCreateSchedule`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, demoCreateScheduleRef, DemoCreateScheduleVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoCreateSchedule` mutation requires an argument of type `DemoCreateScheduleVariables`:
+const demoCreateScheduleVars: DemoCreateScheduleVariables = {
+  facilityId: ..., 
+  clientId: ..., 
+  staffId: ..., 
+  serviceTypeId: ..., // optional
+  scheduledDate: ..., 
+  startTime: ..., 
+  endTime: ..., 
+  notes: ..., // optional
+  recurrenceRule: ..., // optional
+  recurrenceId: ..., // optional
+};
+
+// Call the `demoCreateScheduleRef()` function to get a reference to the mutation.
+const ref = demoCreateScheduleRef(demoCreateScheduleVars);
+// Variables can be defined inline as well.
+const ref = demoCreateScheduleRef({ facilityId: ..., clientId: ..., staffId: ..., serviceTypeId: ..., scheduledDate: ..., startTime: ..., endTime: ..., notes: ..., recurrenceRule: ..., recurrenceId: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = demoCreateScheduleRef(dataConnect, demoCreateScheduleVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.schedule_insert);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.schedule_insert);
+});
+```
+
+## DemoUpdateSchedule
+You can execute the `DemoUpdateSchedule` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+demoUpdateSchedule(vars: DemoUpdateScheduleVariables): MutationPromise<DemoUpdateScheduleData, DemoUpdateScheduleVariables>;
+
+interface DemoUpdateScheduleRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DemoUpdateScheduleVariables): MutationRef<DemoUpdateScheduleData, DemoUpdateScheduleVariables>;
+}
+export const demoUpdateScheduleRef: DemoUpdateScheduleRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+demoUpdateSchedule(dc: DataConnect, vars: DemoUpdateScheduleVariables): MutationPromise<DemoUpdateScheduleData, DemoUpdateScheduleVariables>;
+
+interface DemoUpdateScheduleRef {
+  ...
+  (dc: DataConnect, vars: DemoUpdateScheduleVariables): MutationRef<DemoUpdateScheduleData, DemoUpdateScheduleVariables>;
+}
+export const demoUpdateScheduleRef: DemoUpdateScheduleRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the demoUpdateScheduleRef:
+```typescript
+const name = demoUpdateScheduleRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DemoUpdateSchedule` mutation requires an argument of type `DemoUpdateScheduleVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DemoUpdateScheduleVariables {
+  id: UUIDString;
+  clientId?: UUIDString | null;
+  staffId?: UUIDString | null;
+  serviceTypeId?: UUIDString | null;
+  scheduledDate?: DateString | null;
+  startTime?: string | null;
+  endTime?: string | null;
+  status?: string | null;
+  notes?: string | null;
+}
+```
+### Return Type
+Recall that executing the `DemoUpdateSchedule` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DemoUpdateScheduleData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DemoUpdateScheduleData {
+  schedule_update?: Schedule_Key | null;
+}
+```
+### Using `DemoUpdateSchedule`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, demoUpdateSchedule, DemoUpdateScheduleVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoUpdateSchedule` mutation requires an argument of type `DemoUpdateScheduleVariables`:
+const demoUpdateScheduleVars: DemoUpdateScheduleVariables = {
+  id: ..., 
+  clientId: ..., // optional
+  staffId: ..., // optional
+  serviceTypeId: ..., // optional
+  scheduledDate: ..., // optional
+  startTime: ..., // optional
+  endTime: ..., // optional
+  status: ..., // optional
+  notes: ..., // optional
+};
+
+// Call the `demoUpdateSchedule()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await demoUpdateSchedule(demoUpdateScheduleVars);
+// Variables can be defined inline as well.
+const { data } = await demoUpdateSchedule({ id: ..., clientId: ..., staffId: ..., serviceTypeId: ..., scheduledDate: ..., startTime: ..., endTime: ..., status: ..., notes: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await demoUpdateSchedule(dataConnect, demoUpdateScheduleVars);
+
+console.log(data.schedule_update);
+
+// Or, you can use the `Promise` API.
+demoUpdateSchedule(demoUpdateScheduleVars).then((response) => {
+  const data = response.data;
+  console.log(data.schedule_update);
+});
+```
+
+### Using `DemoUpdateSchedule`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, demoUpdateScheduleRef, DemoUpdateScheduleVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoUpdateSchedule` mutation requires an argument of type `DemoUpdateScheduleVariables`:
+const demoUpdateScheduleVars: DemoUpdateScheduleVariables = {
+  id: ..., 
+  clientId: ..., // optional
+  staffId: ..., // optional
+  serviceTypeId: ..., // optional
+  scheduledDate: ..., // optional
+  startTime: ..., // optional
+  endTime: ..., // optional
+  status: ..., // optional
+  notes: ..., // optional
+};
+
+// Call the `demoUpdateScheduleRef()` function to get a reference to the mutation.
+const ref = demoUpdateScheduleRef(demoUpdateScheduleVars);
+// Variables can be defined inline as well.
+const ref = demoUpdateScheduleRef({ id: ..., clientId: ..., staffId: ..., serviceTypeId: ..., scheduledDate: ..., startTime: ..., endTime: ..., status: ..., notes: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = demoUpdateScheduleRef(dataConnect, demoUpdateScheduleVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.schedule_update);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.schedule_update);
+});
+```
+
+## DemoDeleteSchedule
+You can execute the `DemoDeleteSchedule` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+demoDeleteSchedule(vars: DemoDeleteScheduleVariables): MutationPromise<DemoDeleteScheduleData, DemoDeleteScheduleVariables>;
+
+interface DemoDeleteScheduleRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DemoDeleteScheduleVariables): MutationRef<DemoDeleteScheduleData, DemoDeleteScheduleVariables>;
+}
+export const demoDeleteScheduleRef: DemoDeleteScheduleRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+demoDeleteSchedule(dc: DataConnect, vars: DemoDeleteScheduleVariables): MutationPromise<DemoDeleteScheduleData, DemoDeleteScheduleVariables>;
+
+interface DemoDeleteScheduleRef {
+  ...
+  (dc: DataConnect, vars: DemoDeleteScheduleVariables): MutationRef<DemoDeleteScheduleData, DemoDeleteScheduleVariables>;
+}
+export const demoDeleteScheduleRef: DemoDeleteScheduleRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the demoDeleteScheduleRef:
+```typescript
+const name = demoDeleteScheduleRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DemoDeleteSchedule` mutation requires an argument of type `DemoDeleteScheduleVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DemoDeleteScheduleVariables {
+  id: UUIDString;
+}
+```
+### Return Type
+Recall that executing the `DemoDeleteSchedule` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DemoDeleteScheduleData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DemoDeleteScheduleData {
+  schedule_delete?: Schedule_Key | null;
+}
+```
+### Using `DemoDeleteSchedule`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, demoDeleteSchedule, DemoDeleteScheduleVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoDeleteSchedule` mutation requires an argument of type `DemoDeleteScheduleVariables`:
+const demoDeleteScheduleVars: DemoDeleteScheduleVariables = {
+  id: ..., 
+};
+
+// Call the `demoDeleteSchedule()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await demoDeleteSchedule(demoDeleteScheduleVars);
+// Variables can be defined inline as well.
+const { data } = await demoDeleteSchedule({ id: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await demoDeleteSchedule(dataConnect, demoDeleteScheduleVars);
+
+console.log(data.schedule_delete);
+
+// Or, you can use the `Promise` API.
+demoDeleteSchedule(demoDeleteScheduleVars).then((response) => {
+  const data = response.data;
+  console.log(data.schedule_delete);
+});
+```
+
+### Using `DemoDeleteSchedule`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, demoDeleteScheduleRef, DemoDeleteScheduleVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoDeleteSchedule` mutation requires an argument of type `DemoDeleteScheduleVariables`:
+const demoDeleteScheduleVars: DemoDeleteScheduleVariables = {
+  id: ..., 
+};
+
+// Call the `demoDeleteScheduleRef()` function to get a reference to the mutation.
+const ref = demoDeleteScheduleRef(demoDeleteScheduleVars);
+// Variables can be defined inline as well.
+const ref = demoDeleteScheduleRef({ id: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = demoDeleteScheduleRef(dataConnect, demoDeleteScheduleVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.schedule_delete);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.schedule_delete);
+});
+```
+
+## DemoCreateClient
+You can execute the `DemoCreateClient` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+demoCreateClient(vars: DemoCreateClientVariables): MutationPromise<DemoCreateClientData, DemoCreateClientVariables>;
+
+interface DemoCreateClientRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DemoCreateClientVariables): MutationRef<DemoCreateClientData, DemoCreateClientVariables>;
+}
+export const demoCreateClientRef: DemoCreateClientRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+demoCreateClient(dc: DataConnect, vars: DemoCreateClientVariables): MutationPromise<DemoCreateClientData, DemoCreateClientVariables>;
+
+interface DemoCreateClientRef {
+  ...
+  (dc: DataConnect, vars: DemoCreateClientVariables): MutationRef<DemoCreateClientData, DemoCreateClientVariables>;
+}
+export const demoCreateClientRef: DemoCreateClientRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the demoCreateClientRef:
+```typescript
+const name = demoCreateClientRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DemoCreateClient` mutation requires an argument of type `DemoCreateClientVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DemoCreateClientVariables {
+  facilityId: UUIDString;
+  name: string;
+  nameKana?: string | null;
+  gender?: string | null;
+  birthDate?: DateString | null;
+  careLevelId?: UUIDString | null;
+  addressPrefecture?: string | null;
+  addressCity?: string | null;
+  phone?: string | null;
+  careManager?: string | null;
+  careOffice?: string | null;
+  notes?: string | null;
+}
+```
+### Return Type
+Recall that executing the `DemoCreateClient` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DemoCreateClientData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DemoCreateClientData {
+  client_insert: Client_Key;
+}
+```
+### Using `DemoCreateClient`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, demoCreateClient, DemoCreateClientVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoCreateClient` mutation requires an argument of type `DemoCreateClientVariables`:
+const demoCreateClientVars: DemoCreateClientVariables = {
+  facilityId: ..., 
+  name: ..., 
+  nameKana: ..., // optional
+  gender: ..., // optional
+  birthDate: ..., // optional
+  careLevelId: ..., // optional
+  addressPrefecture: ..., // optional
+  addressCity: ..., // optional
+  phone: ..., // optional
+  careManager: ..., // optional
+  careOffice: ..., // optional
+  notes: ..., // optional
+};
+
+// Call the `demoCreateClient()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await demoCreateClient(demoCreateClientVars);
+// Variables can be defined inline as well.
+const { data } = await demoCreateClient({ facilityId: ..., name: ..., nameKana: ..., gender: ..., birthDate: ..., careLevelId: ..., addressPrefecture: ..., addressCity: ..., phone: ..., careManager: ..., careOffice: ..., notes: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await demoCreateClient(dataConnect, demoCreateClientVars);
+
+console.log(data.client_insert);
+
+// Or, you can use the `Promise` API.
+demoCreateClient(demoCreateClientVars).then((response) => {
+  const data = response.data;
+  console.log(data.client_insert);
+});
+```
+
+### Using `DemoCreateClient`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, demoCreateClientRef, DemoCreateClientVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoCreateClient` mutation requires an argument of type `DemoCreateClientVariables`:
+const demoCreateClientVars: DemoCreateClientVariables = {
+  facilityId: ..., 
+  name: ..., 
+  nameKana: ..., // optional
+  gender: ..., // optional
+  birthDate: ..., // optional
+  careLevelId: ..., // optional
+  addressPrefecture: ..., // optional
+  addressCity: ..., // optional
+  phone: ..., // optional
+  careManager: ..., // optional
+  careOffice: ..., // optional
+  notes: ..., // optional
+};
+
+// Call the `demoCreateClientRef()` function to get a reference to the mutation.
+const ref = demoCreateClientRef(demoCreateClientVars);
+// Variables can be defined inline as well.
+const ref = demoCreateClientRef({ facilityId: ..., name: ..., nameKana: ..., gender: ..., birthDate: ..., careLevelId: ..., addressPrefecture: ..., addressCity: ..., phone: ..., careManager: ..., careOffice: ..., notes: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = demoCreateClientRef(dataConnect, demoCreateClientVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.client_insert);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.client_insert);
+});
+```
+
+## DemoUpdateClient
+You can execute the `DemoUpdateClient` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+demoUpdateClient(vars: DemoUpdateClientVariables): MutationPromise<DemoUpdateClientData, DemoUpdateClientVariables>;
+
+interface DemoUpdateClientRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DemoUpdateClientVariables): MutationRef<DemoUpdateClientData, DemoUpdateClientVariables>;
+}
+export const demoUpdateClientRef: DemoUpdateClientRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+demoUpdateClient(dc: DataConnect, vars: DemoUpdateClientVariables): MutationPromise<DemoUpdateClientData, DemoUpdateClientVariables>;
+
+interface DemoUpdateClientRef {
+  ...
+  (dc: DataConnect, vars: DemoUpdateClientVariables): MutationRef<DemoUpdateClientData, DemoUpdateClientVariables>;
+}
+export const demoUpdateClientRef: DemoUpdateClientRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the demoUpdateClientRef:
+```typescript
+const name = demoUpdateClientRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DemoUpdateClient` mutation requires an argument of type `DemoUpdateClientVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DemoUpdateClientVariables {
+  id: UUIDString;
+  name?: string | null;
+  nameKana?: string | null;
+  gender?: string | null;
+  birthDate?: DateString | null;
+  careLevelId?: UUIDString | null;
+  addressPrefecture?: string | null;
+  addressCity?: string | null;
+  phone?: string | null;
+  careManager?: string | null;
+  careOffice?: string | null;
+  notes?: string | null;
+}
+```
+### Return Type
+Recall that executing the `DemoUpdateClient` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DemoUpdateClientData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DemoUpdateClientData {
+  client_update?: Client_Key | null;
+}
+```
+### Using `DemoUpdateClient`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, demoUpdateClient, DemoUpdateClientVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoUpdateClient` mutation requires an argument of type `DemoUpdateClientVariables`:
+const demoUpdateClientVars: DemoUpdateClientVariables = {
+  id: ..., 
+  name: ..., // optional
+  nameKana: ..., // optional
+  gender: ..., // optional
+  birthDate: ..., // optional
+  careLevelId: ..., // optional
+  addressPrefecture: ..., // optional
+  addressCity: ..., // optional
+  phone: ..., // optional
+  careManager: ..., // optional
+  careOffice: ..., // optional
+  notes: ..., // optional
+};
+
+// Call the `demoUpdateClient()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await demoUpdateClient(demoUpdateClientVars);
+// Variables can be defined inline as well.
+const { data } = await demoUpdateClient({ id: ..., name: ..., nameKana: ..., gender: ..., birthDate: ..., careLevelId: ..., addressPrefecture: ..., addressCity: ..., phone: ..., careManager: ..., careOffice: ..., notes: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await demoUpdateClient(dataConnect, demoUpdateClientVars);
+
+console.log(data.client_update);
+
+// Or, you can use the `Promise` API.
+demoUpdateClient(demoUpdateClientVars).then((response) => {
+  const data = response.data;
+  console.log(data.client_update);
+});
+```
+
+### Using `DemoUpdateClient`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, demoUpdateClientRef, DemoUpdateClientVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoUpdateClient` mutation requires an argument of type `DemoUpdateClientVariables`:
+const demoUpdateClientVars: DemoUpdateClientVariables = {
+  id: ..., 
+  name: ..., // optional
+  nameKana: ..., // optional
+  gender: ..., // optional
+  birthDate: ..., // optional
+  careLevelId: ..., // optional
+  addressPrefecture: ..., // optional
+  addressCity: ..., // optional
+  phone: ..., // optional
+  careManager: ..., // optional
+  careOffice: ..., // optional
+  notes: ..., // optional
+};
+
+// Call the `demoUpdateClientRef()` function to get a reference to the mutation.
+const ref = demoUpdateClientRef(demoUpdateClientVars);
+// Variables can be defined inline as well.
+const ref = demoUpdateClientRef({ id: ..., name: ..., nameKana: ..., gender: ..., birthDate: ..., careLevelId: ..., addressPrefecture: ..., addressCity: ..., phone: ..., careManager: ..., careOffice: ..., notes: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = demoUpdateClientRef(dataConnect, demoUpdateClientVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.client_update);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.client_update);
+});
+```
+
+## DemoDeleteClient
+You can execute the `DemoDeleteClient` mutation using the following action shortcut function, or by calling `executeMutation()` after calling the following `MutationRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+demoDeleteClient(vars: DemoDeleteClientVariables): MutationPromise<DemoDeleteClientData, DemoDeleteClientVariables>;
+
+interface DemoDeleteClientRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DemoDeleteClientVariables): MutationRef<DemoDeleteClientData, DemoDeleteClientVariables>;
+}
+export const demoDeleteClientRef: DemoDeleteClientRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `MutationRef` function.
+```typescript
+demoDeleteClient(dc: DataConnect, vars: DemoDeleteClientVariables): MutationPromise<DemoDeleteClientData, DemoDeleteClientVariables>;
+
+interface DemoDeleteClientRef {
+  ...
+  (dc: DataConnect, vars: DemoDeleteClientVariables): MutationRef<DemoDeleteClientData, DemoDeleteClientVariables>;
+}
+export const demoDeleteClientRef: DemoDeleteClientRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the demoDeleteClientRef:
+```typescript
+const name = demoDeleteClientRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DemoDeleteClient` mutation requires an argument of type `DemoDeleteClientVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DemoDeleteClientVariables {
+  id: UUIDString;
+}
+```
+### Return Type
+Recall that executing the `DemoDeleteClient` mutation returns a `MutationPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DemoDeleteClientData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DemoDeleteClientData {
+  client_update?: Client_Key | null;
+}
+```
+### Using `DemoDeleteClient`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, demoDeleteClient, DemoDeleteClientVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoDeleteClient` mutation requires an argument of type `DemoDeleteClientVariables`:
+const demoDeleteClientVars: DemoDeleteClientVariables = {
+  id: ..., 
+};
+
+// Call the `demoDeleteClient()` function to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await demoDeleteClient(demoDeleteClientVars);
+// Variables can be defined inline as well.
+const { data } = await demoDeleteClient({ id: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await demoDeleteClient(dataConnect, demoDeleteClientVars);
+
+console.log(data.client_update);
+
+// Or, you can use the `Promise` API.
+demoDeleteClient(demoDeleteClientVars).then((response) => {
+  const data = response.data;
+  console.log(data.client_update);
+});
+```
+
+### Using `DemoDeleteClient`'s `MutationRef` function
+
+```typescript
+import { getDataConnect, executeMutation } from 'firebase/data-connect';
+import { connectorConfig, demoDeleteClientRef, DemoDeleteClientVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoDeleteClient` mutation requires an argument of type `DemoDeleteClientVariables`:
+const demoDeleteClientVars: DemoDeleteClientVariables = {
+  id: ..., 
+};
+
+// Call the `demoDeleteClientRef()` function to get a reference to the mutation.
+const ref = demoDeleteClientRef(demoDeleteClientVars);
+// Variables can be defined inline as well.
+const ref = demoDeleteClientRef({ id: ..., });
+
+// You can also pass in a `DataConnect` instance to the `MutationRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = demoDeleteClientRef(dataConnect, demoDeleteClientVars);
+
+// Call `executeMutation()` on the reference to execute the mutation.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeMutation(ref);
+
+console.log(data.client_update);
+
+// Or, you can use the `Promise` API.
+executeMutation(ref).then((response) => {
+  const data = response.data;
+  console.log(data.client_update);
 });
 ```
 

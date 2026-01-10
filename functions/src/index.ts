@@ -869,3 +869,343 @@ function formatGoalDateRange(startDate?: string, endDate?: string): string {
   }
   return "";
 }
+
+// ========== デモデータリセット ==========
+
+const DEMO_FACILITY_ID = "00000000-0000-0000-0000-000000000001";
+
+export const resetDemoData = onCall(
+  {
+    region: LOCATION,
+    cors: true,
+    memory: "512MiB",
+    timeoutSeconds: 120,
+  },
+  async () => {
+    // 認証不要（デモ用）
+    const client = await pool.connect();
+
+    try {
+      await client.query("BEGIN");
+
+      // 1. デモデータ削除（外部キー制約の順序で）
+      // 訪問記録を削除
+      await client.query(
+        `DELETE FROM visit_records WHERE client_id IN (SELECT id FROM clients WHERE facility_id = $1)`,
+        [DEMO_FACILITY_ID]
+      );
+
+      // スケジュールを削除
+      await client.query(
+        `DELETE FROM schedules WHERE facility_id = $1`,
+        [DEMO_FACILITY_ID]
+      );
+
+      // 実施報告書を削除
+      await client.query(
+        `DELETE FROM reports WHERE client_id IN (SELECT id FROM clients WHERE facility_id = $1)`,
+        [DEMO_FACILITY_ID]
+      );
+
+      // ケアプランを削除
+      await client.query(
+        `DELETE FROM care_plans WHERE client_id IN (SELECT id FROM clients WHERE facility_id = $1)`,
+        [DEMO_FACILITY_ID]
+      );
+
+      // 利用者を削除
+      await client.query(
+        `DELETE FROM clients WHERE facility_id = $1`,
+        [DEMO_FACILITY_ID]
+      );
+
+      // 職員を削除
+      await client.query(
+        `DELETE FROM staff WHERE facility_id = $1`,
+        [DEMO_FACILITY_ID]
+      );
+
+      // サービス項目を削除
+      await client.query(
+        `DELETE FROM service_items WHERE service_type_id IN (SELECT id FROM service_types WHERE facility_id = $1)`,
+        [DEMO_FACILITY_ID]
+      );
+
+      // サービス種類を削除
+      await client.query(
+        `DELETE FROM service_types WHERE facility_id = $1`,
+        [DEMO_FACILITY_ID]
+      );
+
+      // 事業所を削除
+      await client.query(
+        `DELETE FROM facilities WHERE id = $1`,
+        [DEMO_FACILITY_ID]
+      );
+
+      // 2. シードデータ挿入
+
+      // 要介護度マスタ（存在しない場合のみ）
+      await client.query(`
+        INSERT INTO care_levels (id, name, sort_order) VALUES
+          ('00000000-0000-0000-0000-000000000201', '要支援1', 1),
+          ('00000000-0000-0000-0000-000000000202', '要支援2', 2),
+          ('00000000-0000-0000-0000-000000000203', '要介護1', 3),
+          ('00000000-0000-0000-0000-000000000204', '要介護2', 4),
+          ('00000000-0000-0000-0000-000000000205', '要介護3', 5),
+          ('00000000-0000-0000-0000-000000000206', '要介護4', 6),
+          ('00000000-0000-0000-0000-000000000207', '要介護5', 7)
+        ON CONFLICT (id) DO NOTHING
+      `);
+
+      // 訪問理由マスタ（存在しない場合のみ）
+      await client.query(`
+        INSERT INTO visit_reasons (id, name, sort_order) VALUES
+          ('00000000-0000-0000-0000-000000000301', '通常訪問', 1),
+          ('00000000-0000-0000-0000-000000000302', '緊急訪問', 2),
+          ('00000000-0000-0000-0000-000000000303', '初回訪問', 3),
+          ('00000000-0000-0000-0000-000000000304', 'サービス担当者会議', 4),
+          ('00000000-0000-0000-0000-000000000305', 'その他', 5)
+        ON CONFLICT (id) DO NOTHING
+      `);
+
+      // 事業所
+      await client.query(`
+        INSERT INTO facilities (id, name, address, phone, created_at, updated_at) VALUES
+          ($1, 'デモ訪問介護ステーション', '東京都千代田区丸の内1-1-1', '03-1234-5678', NOW(), NOW())
+      `, [DEMO_FACILITY_ID]);
+
+      // サービス種類
+      await client.query(`
+        INSERT INTO service_types (id, facility_id, code, name, category, color, sort_order) VALUES
+          ('00000000-0000-0000-0000-000000000501', $1, 'SH', '身体介護', '身体介護', '#4CAF50', 1),
+          ('00000000-0000-0000-0000-000000000502', $1, 'SE', '生活援助', '生活援助', '#2196F3', 2),
+          ('00000000-0000-0000-0000-000000000503', $1, 'JR', '自立支援', '自立支援', '#FF9800', 3),
+          ('00000000-0000-0000-0000-000000000504', $1, 'YS', '夜間対応', '夜間対応', '#9C27B0', 4),
+          ('00000000-0000-0000-0000-000000000505', $1, 'TK', '特定行為', '特定行為', '#F44336', 5),
+          ('00000000-0000-0000-0000-000000000506', $1, 'SO', 'その他', 'その他', '#607D8B', 6)
+      `, [DEMO_FACILITY_ID]);
+
+      // サービス項目（身体介護）
+      await client.query(`
+        INSERT INTO service_items (id, service_type_id, name, sort_order) VALUES
+          ('00000000-0000-0000-0000-000000000601', '00000000-0000-0000-0000-000000000501', '排泄介助', 1),
+          ('00000000-0000-0000-0000-000000000602', '00000000-0000-0000-0000-000000000501', '入浴介助', 2),
+          ('00000000-0000-0000-0000-000000000603', '00000000-0000-0000-0000-000000000501', '清拭', 3),
+          ('00000000-0000-0000-0000-000000000604', '00000000-0000-0000-0000-000000000501', '食事介助', 4),
+          ('00000000-0000-0000-0000-000000000605', '00000000-0000-0000-0000-000000000501', '服薬介助', 5),
+          ('00000000-0000-0000-0000-000000000606', '00000000-0000-0000-0000-000000000501', '更衣介助', 6),
+          ('00000000-0000-0000-0000-000000000607', '00000000-0000-0000-0000-000000000501', '体位変換', 7),
+          ('00000000-0000-0000-0000-000000000608', '00000000-0000-0000-0000-000000000501', '移乗介助', 8),
+          ('00000000-0000-0000-0000-000000000609', '00000000-0000-0000-0000-000000000501', '歩行介助', 9),
+          ('00000000-0000-0000-0000-000000000610', '00000000-0000-0000-0000-000000000501', '整容介助', 10)
+      `);
+
+      // サービス項目（生活援助）
+      await client.query(`
+        INSERT INTO service_items (id, service_type_id, name, sort_order) VALUES
+          ('00000000-0000-0000-0000-000000000611', '00000000-0000-0000-0000-000000000502', '掃除', 1),
+          ('00000000-0000-0000-0000-000000000612', '00000000-0000-0000-0000-000000000502', '洗濯', 2),
+          ('00000000-0000-0000-0000-000000000613', '00000000-0000-0000-0000-000000000502', '調理', 3),
+          ('00000000-0000-0000-0000-000000000614', '00000000-0000-0000-0000-000000000502', '買い物代行', 4),
+          ('00000000-0000-0000-0000-000000000615', '00000000-0000-0000-0000-000000000502', 'ゴミ出し', 5),
+          ('00000000-0000-0000-0000-000000000616', '00000000-0000-0000-0000-000000000502', '薬の受け取り', 6)
+      `);
+
+      // サービス項目（自立支援）
+      await client.query(`
+        INSERT INTO service_items (id, service_type_id, name, sort_order) VALUES
+          ('00000000-0000-0000-0000-000000000617', '00000000-0000-0000-0000-000000000503', '外出同行', 1),
+          ('00000000-0000-0000-0000-000000000618', '00000000-0000-0000-0000-000000000503', '通院等乗降介助', 2),
+          ('00000000-0000-0000-0000-000000000619', '00000000-0000-0000-0000-000000000503', 'リハビリ補助', 3),
+          ('00000000-0000-0000-0000-000000000620', '00000000-0000-0000-0000-000000000503', '見守り', 4)
+      `);
+
+      // 職員
+      await client.query(`
+        INSERT INTO staff (id, facility_id, firebase_uid, name, email, role, is_active, created_at, updated_at) VALUES
+          ('00000000-0000-0000-0000-000000000101', $1, NULL, 'デモユーザー', 'demo@example.com', 'admin', true, NOW(), NOW()),
+          ('00000000-0000-0000-0000-000000000102', $1, NULL, '山田 花子', 'yamada@example.com', 'staff', true, NOW(), NOW()),
+          ('00000000-0000-0000-0000-000000000103', $1, NULL, '佐藤 太郎', 'sato@example.com', 'staff', true, NOW(), NOW()),
+          ('00000000-0000-0000-0000-000000000104', $1, NULL, '鈴木 一郎', 'suzuki@example.com', 'staff', true, NOW(), NOW())
+      `, [DEMO_FACILITY_ID]);
+
+      // 利用者
+      await client.query(`
+        INSERT INTO clients (id, facility_id, name, name_kana, gender, birth_date, care_level_id, address_prefecture, address_city, phone, care_manager, care_office, emergency_phone, emergency_name, emergency_relation, notes, is_active, created_at, updated_at) VALUES
+          ('00000000-0000-0000-0000-000000000401', $1, '田中 太郎', 'タナカ タロウ', '男性', '1940-05-15', '00000000-0000-0000-0000-000000000204', '東京都', '千代田区', '03-1111-2222', '高橋 ケアマネ', 'ケアセンター東京', '090-1111-2222', '田中 花子', '妻', '明るい性格で会話好き', true, NOW(), NOW()),
+          ('00000000-0000-0000-0000-000000000402', $1, '佐藤 幸子', 'サトウ サチコ', '女性', '1935-08-20', '00000000-0000-0000-0000-000000000205', '東京都', '新宿区', '03-2222-3333', '渡辺 ケアマネ', '新宿ケアステーション', '090-2222-3333', '佐藤 一郎', '息子', '読書が趣味', true, NOW(), NOW()),
+          ('00000000-0000-0000-0000-000000000403', $1, '山田 次郎', 'ヤマダ ジロウ', '男性', '1945-03-10', '00000000-0000-0000-0000-000000000203', '東京都', '渋谷区', '03-3333-4444', '伊藤 ケアマネ', '渋谷介護センター', '090-3333-4444', '山田 美子', '娘', '一人暮らし', true, NOW(), NOW()),
+          ('00000000-0000-0000-0000-000000000404', $1, '鈴木 美代子', 'スズキ ミヨコ', '女性', '1938-11-25', '00000000-0000-0000-0000-000000000206', '東京都', '世田谷区', '03-4444-5555', '中村 ケアマネ', '世田谷ケアサポート', '090-4444-5555', '鈴木 健一', '息子', '全介助が必要', true, NOW(), NOW()),
+          ('00000000-0000-0000-0000-000000000405', $1, '高橋 健太', 'タカハシ ケンタ', '男性', '1950-07-08', '00000000-0000-0000-0000-000000000201', '東京都', '目黒区', '03-5555-6666', '小林 ケアマネ', '目黒介護ステーション', '090-5555-6666', '高橋 真理', '妻', '元教師', true, NOW(), NOW()),
+          ('00000000-0000-0000-0000-000000000406', $1, '伊藤 節子', 'イトウ セツコ', '女性', '1942-12-03', '00000000-0000-0000-0000-000000000204', '東京都', '大田区', '03-6666-7777', '山本 ケアマネ', '大田ケアセンター', '090-6666-7777', '伊藤 誠', '夫', '手芸が趣味', true, NOW(), NOW()),
+          ('00000000-0000-0000-0000-000000000407', $1, '渡辺 勝', 'ワタナベ マサル', '男性', '1948-09-17', '00000000-0000-0000-0000-000000000202', '東京都', '品川区', '03-7777-8888', '加藤 ケアマネ', '品川介護サービス', '090-7777-8888', '渡辺 久美子', '妻', '囲碁が趣味', true, NOW(), NOW()),
+          ('00000000-0000-0000-0000-000000000408', $1, '中村 智子', 'ナカムラ トモコ', '女性', '1936-04-22', '00000000-0000-0000-0000-000000000207', '東京都', '杉並区', '03-8888-9999', '佐々木 ケアマネ', '杉並ケアステーション', '090-8888-9999', '中村 浩二', '息子', '胃ろう管理中', true, NOW(), NOW()),
+          ('00000000-0000-0000-0000-000000000409', $1, '小林 正男', 'コバヤシ マサオ', '男性', '1947-01-30', '00000000-0000-0000-0000-000000000203', '東京都', '中野区', '03-9999-0000', '松本 ケアマネ', '中野介護センター', '090-9999-0000', '小林 恵子', '娘', '元会社員', true, NOW(), NOW()),
+          ('00000000-0000-0000-0000-000000000410', $1, '加藤 由美', 'カトウ ユミ', '女性', '1943-06-14', '00000000-0000-0000-0000-000000000205', '東京都', '練馬区', '03-0000-1111', '藤田 ケアマネ', '練馬ケアサポート', '090-0000-1111', '加藤 雅彦', '息子', 'カラオケが好き', true, NOW(), NOW())
+      `, [DEMO_FACILITY_ID]);
+
+      // スケジュール生成（過去7日〜今後14日）
+      const today = new Date();
+      for (let i = -7; i <= 14; i++) {
+        const date = new Date(today);
+        date.setDate(date.getDate() + i);
+        const dateStr = date.toISOString().split("T")[0];
+        const dayOfWeek = date.getDay();
+        const status = i < 0 ? "completed" : "scheduled";
+
+        // 田中太郎: 月水金
+        if ([1, 3, 5].includes(dayOfWeek)) {
+          await client.query(`
+            INSERT INTO schedules (id, facility_id, client_id, staff_id, service_type_id, scheduled_date, start_time, end_time, status, notes, created_at, updated_at)
+            VALUES (gen_random_uuid(), $1, '00000000-0000-0000-0000-000000000401', '00000000-0000-0000-0000-000000000102', '00000000-0000-0000-0000-000000000501', $2, '09:00', '10:00', $3, '定期訪問（身体介護）', NOW(), NOW())
+          `, [DEMO_FACILITY_ID, dateStr, status]);
+        }
+
+        // 佐藤幸子: 火木土
+        if ([2, 4, 6].includes(dayOfWeek)) {
+          await client.query(`
+            INSERT INTO schedules (id, facility_id, client_id, staff_id, service_type_id, scheduled_date, start_time, end_time, status, notes, created_at, updated_at)
+            VALUES (gen_random_uuid(), $1, '00000000-0000-0000-0000-000000000402', '00000000-0000-0000-0000-000000000103', '00000000-0000-0000-0000-000000000501', $2, '10:00', '11:30', $3, '定期訪問（入浴介助）', NOW(), NOW())
+          `, [DEMO_FACILITY_ID, dateStr, status]);
+        }
+
+        // 鈴木美代子: 毎日2回
+        await client.query(`
+          INSERT INTO schedules (id, facility_id, client_id, staff_id, service_type_id, scheduled_date, start_time, end_time, status, notes, created_at, updated_at)
+          VALUES (gen_random_uuid(), $1, '00000000-0000-0000-0000-000000000404', '00000000-0000-0000-0000-000000000102', '00000000-0000-0000-0000-000000000501', $2, '08:00', '09:00', $3, '朝のケア', NOW(), NOW())
+        `, [DEMO_FACILITY_ID, dateStr, status]);
+
+        await client.query(`
+          INSERT INTO schedules (id, facility_id, client_id, staff_id, service_type_id, scheduled_date, start_time, end_time, status, notes, created_at, updated_at)
+          VALUES (gen_random_uuid(), $1, '00000000-0000-0000-0000-000000000404', '00000000-0000-0000-0000-000000000103', '00000000-0000-0000-0000-000000000501', $2, '17:00', '18:00', $3, '夕方のケア', NOW(), NOW())
+        `, [DEMO_FACILITY_ID, dateStr, status]);
+      }
+
+      // 訪問記録生成（過去30日分）
+      for (let i = 1; i <= 30; i++) {
+        const date = new Date(today);
+        date.setDate(date.getDate() - i);
+        const dateStr = date.toISOString().split("T")[0];
+        const dayOfWeek = date.getDay();
+
+        // 田中太郎
+        if ([1, 3, 5].includes(dayOfWeek)) {
+          const bp_high = 120 + Math.floor(Math.random() * 20);
+          const bp_low = 70 + Math.floor(Math.random() * 15);
+          const pulse = 65 + Math.floor(Math.random() * 20);
+          const temp = (36.0 + Math.random() * 1.0).toFixed(1);
+
+          await client.query(`
+            INSERT INTO visit_records (id, client_id, staff_id, visit_date, visit_reason_id, start_time, end_time, vitals, services, notes, ai_generated, created_at, updated_at)
+            VALUES (
+              gen_random_uuid(),
+              '00000000-0000-0000-0000-000000000401',
+              '00000000-0000-0000-0000-000000000102',
+              $1,
+              '00000000-0000-0000-0000-000000000301',
+              '09:00', '10:00',
+              $2::jsonb,
+              '{"items": ["排泄介助", "服薬介助", "歩行介助"]}'::jsonb,
+              '体調良好。定期訪問実施。',
+              false, NOW(), NOW()
+            )
+          `, [dateStr, JSON.stringify({ bloodPressure: `${bp_high}/${bp_low}`, pulse, temperature: parseFloat(temp), spo2: 97 })]);
+        }
+
+        // 佐藤幸子
+        if ([2, 4, 6].includes(dayOfWeek)) {
+          const bp_high = 130 + Math.floor(Math.random() * 25);
+          const bp_low = 75 + Math.floor(Math.random() * 15);
+          const pulse = 70 + Math.floor(Math.random() * 15);
+
+          await client.query(`
+            INSERT INTO visit_records (id, client_id, staff_id, visit_date, visit_reason_id, start_time, end_time, vitals, services, notes, ai_generated, created_at, updated_at)
+            VALUES (
+              gen_random_uuid(),
+              '00000000-0000-0000-0000-000000000402',
+              '00000000-0000-0000-0000-000000000103',
+              $1,
+              '00000000-0000-0000-0000-000000000301',
+              '10:00', '11:30',
+              $2::jsonb,
+              '{"items": ["入浴介助", "更衣介助", "整容介助"]}'::jsonb,
+              '入浴を楽しまれていた。',
+              false, NOW(), NOW()
+            )
+          `, [dateStr, JSON.stringify({ bloodPressure: `${bp_high}/${bp_low}`, pulse, spo2: 95 })]);
+        }
+
+        // 鈴木美代子: 毎日2回
+        await client.query(`
+          INSERT INTO visit_records (id, client_id, staff_id, visit_date, visit_reason_id, start_time, end_time, vitals, services, notes, ai_generated, created_at, updated_at)
+          VALUES (
+            gen_random_uuid(),
+            '00000000-0000-0000-0000-000000000404',
+            '00000000-0000-0000-0000-000000000102',
+            $1,
+            '00000000-0000-0000-0000-000000000301',
+            '08:00', '09:00',
+            '{"bloodPressure": "105/65", "pulse": 72, "spo2": 94}'::jsonb,
+            '{"items": ["排泄介助", "体位変換", "更衣介助"]}'::jsonb,
+            '穏やかな表情で過ごされていた。',
+            false, NOW(), NOW()
+          )
+        `, [dateStr]);
+
+        await client.query(`
+          INSERT INTO visit_records (id, client_id, staff_id, visit_date, visit_reason_id, start_time, end_time, vitals, services, notes, ai_generated, created_at, updated_at)
+          VALUES (
+            gen_random_uuid(),
+            '00000000-0000-0000-0000-000000000404',
+            '00000000-0000-0000-0000-000000000103',
+            $1,
+            '00000000-0000-0000-0000-000000000301',
+            '17:00', '18:00',
+            '{"bloodPressure": "108/68", "pulse": 70, "spo2": 93}'::jsonb,
+            '{"items": ["排泄介助", "体位変換", "更衣介助"]}'::jsonb,
+            '夕方も穏やかに過ごされていた。',
+            false, NOW(), NOW()
+          )
+        `, [dateStr]);
+      }
+
+      // 実施報告書
+      const currentYear = today.getFullYear();
+      const currentMonth = today.getMonth() + 1;
+      const prevMonth1 = currentMonth - 1 > 0 ? currentMonth - 1 : 12;
+      const prevMonth2 = currentMonth - 2 > 0 ? currentMonth - 2 : 12;
+      const prevYear1 = prevMonth1 === 12 ? currentYear - 1 : currentYear;
+      const prevYear2 = prevMonth2 >= 11 ? currentYear - 1 : currentYear;
+
+      await client.query(`
+        INSERT INTO reports (id, client_id, staff_id, target_year, target_month, summary, ai_generated, pdf_generated, created_at, updated_at) VALUES
+          ('00000000-0000-0000-0000-000000000901', '00000000-0000-0000-0000-000000000401', '00000000-0000-0000-0000-000000000101', $1, $2, '体調安定。定期訪問を継続。', false, false, NOW(), NOW()),
+          ('00000000-0000-0000-0000-000000000902', '00000000-0000-0000-0000-000000000401', '00000000-0000-0000-0000-000000000101', $3, $4, '先月に引き続き安定。', false, false, NOW(), NOW()),
+          ('00000000-0000-0000-0000-000000000903', '00000000-0000-0000-0000-000000000402', '00000000-0000-0000-0000-000000000101', $1, $2, '入浴介助順調。', false, false, NOW(), NOW()),
+          ('00000000-0000-0000-0000-000000000904', '00000000-0000-0000-0000-000000000404', '00000000-0000-0000-0000-000000000101', $1, $2, '全介助継続中。穏やかに過ごす。', false, false, NOW(), NOW())
+      `, [prevYear2, prevMonth2, prevYear1, prevMonth1]);
+
+      // ケアプラン
+      await client.query(`
+        INSERT INTO care_plans (id, client_id, staff_id, current_situation, family_wishes, main_support, long_term_goals, short_term_goals, created_at, updated_at) VALUES
+          ('00000000-0000-0000-0000-000000001001', '00000000-0000-0000-0000-000000000401', '00000000-0000-0000-0000-000000000101', '糖尿病があり食事管理が必要。', '自宅で安心して過ごしてほしい。', '排泄介助、服薬管理、歩行介助', '{"goals": ["日常生活動作の維持"]}', '{"goals": ["毎日の服薬を確実に"]}', NOW(), NOW()),
+          ('00000000-0000-0000-0000-000000001002', '00000000-0000-0000-0000-000000000402', '00000000-0000-0000-0000-000000000101', '車椅子生活だが上肢機能良好。', '清潔を保ち趣味を楽しんでほしい。', '入浴介助を中心に清潔保持。', '{"goals": ["清潔で快適な生活"]}', '{"goals": ["週3回の入浴継続"]}', NOW(), NOW()),
+          ('00000000-0000-0000-0000-000000001003', '00000000-0000-0000-0000-000000000404', '00000000-0000-0000-0000-000000000101', 'ベッド上生活。全介助必要。', '穏やかに過ごしてほしい。', '排泄介助、体位変換、清潔保持。', '{"goals": ["苦痛のない穏やかな生活"]}', '{"goals": ["定時の体位変換を実施"]}', NOW(), NOW())
+      `);
+
+      await client.query("COMMIT");
+
+      return {
+        success: true,
+        message: "デモデータをリセットしました",
+      };
+    } catch (error) {
+      await client.query("ROLLBACK");
+      console.error("Reset demo data error:", error);
+      throw new HttpsError("internal", "デモデータのリセットに失敗しました");
+    } finally {
+      client.release();
+    }
+  }
+);

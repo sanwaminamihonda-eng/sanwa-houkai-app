@@ -10,8 +10,10 @@ import {
   Button,
   Alert,
   CircularProgress,
+  Divider,
 } from '@mui/material';
-import { Google as GoogleIcon } from '@mui/icons-material';
+import { Google as GoogleIcon, PlayArrow as PlayArrowIcon } from '@mui/icons-material';
+import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 
 export default function LoginPage() {
@@ -78,6 +80,28 @@ export default function LoginPage() {
           >
             Googleでログイン
           </Button>
+
+          <Divider sx={{ my: 3 }}>
+            <Typography variant="body2" color="text.secondary">
+              または
+            </Typography>
+          </Divider>
+
+          <Button
+            component={Link}
+            href="/demo"
+            variant="outlined"
+            startIcon={<PlayArrowIcon />}
+            fullWidth
+            size="large"
+            color="secondary"
+          >
+            デモ環境を試す
+          </Button>
+
+          <Typography variant="caption" color="text.secondary" sx={{ mt: 2, display: 'block' }}>
+            ログイン不要でサンプルデータを確認できます
+          </Typography>
         </CardContent>
       </Card>
     </Box>
