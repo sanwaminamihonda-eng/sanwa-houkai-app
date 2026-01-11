@@ -757,3 +757,28 @@ query DemoGetCarePlan($id: UUID!) @auth(level: PUBLIC) {
     }
   }
 }
+
+query DemoGetReport($id: UUID!) @auth(level: PUBLIC) {
+  report(id: $id) {
+    id
+    targetYear
+    targetMonth
+    summary
+    aiGenerated
+    pdfGenerated
+    pdfUrl
+    createdAt
+    updatedAt
+    client {
+      id
+      name
+      careLevel {
+        name
+      }
+    }
+    staff {
+      id
+      name
+    }
+  }
+}

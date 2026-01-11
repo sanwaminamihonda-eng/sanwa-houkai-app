@@ -43,6 +43,7 @@ This README will guide you through the process of using the generated JavaScript
   - [*DemoListReportsByFacility*](#demolistreportsbyfacility)
   - [*DemoListCarePlansByFacility*](#demolistcareplansbyfacility)
   - [*DemoGetCarePlan*](#demogetcareplan)
+  - [*DemoGetReport*](#demogetreport)
 - [**Mutations**](#mutations)
   - [*CreateClient*](#createclient)
   - [*UpdateClient*](#updateclient)
@@ -4383,6 +4384,136 @@ console.log(data.carePlan);
 executeQuery(ref).then((response) => {
   const data = response.data;
   console.log(data.carePlan);
+});
+```
+
+## DemoGetReport
+You can execute the `DemoGetReport` query using the following action shortcut function, or by calling `executeQuery()` after calling the following `QueryRef` function, both of which are defined in [dataconnect/index.d.ts](./index.d.ts):
+```typescript
+demoGetReport(vars: DemoGetReportVariables): QueryPromise<DemoGetReportData, DemoGetReportVariables>;
+
+interface DemoGetReportRef {
+  ...
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DemoGetReportVariables): QueryRef<DemoGetReportData, DemoGetReportVariables>;
+}
+export const demoGetReportRef: DemoGetReportRef;
+```
+You can also pass in a `DataConnect` instance to the action shortcut function or `QueryRef` function.
+```typescript
+demoGetReport(dc: DataConnect, vars: DemoGetReportVariables): QueryPromise<DemoGetReportData, DemoGetReportVariables>;
+
+interface DemoGetReportRef {
+  ...
+  (dc: DataConnect, vars: DemoGetReportVariables): QueryRef<DemoGetReportData, DemoGetReportVariables>;
+}
+export const demoGetReportRef: DemoGetReportRef;
+```
+
+If you need the name of the operation without creating a ref, you can retrieve the operation name by calling the `operationName` property on the demoGetReportRef:
+```typescript
+const name = demoGetReportRef.operationName;
+console.log(name);
+```
+
+### Variables
+The `DemoGetReport` query requires an argument of type `DemoGetReportVariables`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+
+```typescript
+export interface DemoGetReportVariables {
+  id: UUIDString;
+}
+```
+### Return Type
+Recall that executing the `DemoGetReport` query returns a `QueryPromise` that resolves to an object with a `data` property.
+
+The `data` property is an object of type `DemoGetReportData`, which is defined in [dataconnect/index.d.ts](./index.d.ts). It has the following fields:
+```typescript
+export interface DemoGetReportData {
+  report?: {
+    id: UUIDString;
+    targetYear: number;
+    targetMonth: number;
+    summary?: string | null;
+    aiGenerated?: boolean | null;
+    pdfGenerated?: boolean | null;
+    pdfUrl?: string | null;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+    client: {
+      id: UUIDString;
+      name: string;
+      careLevel?: {
+        name: string;
+      };
+    } & Client_Key;
+      staff: {
+        id: UUIDString;
+        name: string;
+      } & Staff_Key;
+  } & Report_Key;
+}
+```
+### Using `DemoGetReport`'s action shortcut function
+
+```typescript
+import { getDataConnect } from 'firebase/data-connect';
+import { connectorConfig, demoGetReport, DemoGetReportVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoGetReport` query requires an argument of type `DemoGetReportVariables`:
+const demoGetReportVars: DemoGetReportVariables = {
+  id: ..., 
+};
+
+// Call the `demoGetReport()` function to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await demoGetReport(demoGetReportVars);
+// Variables can be defined inline as well.
+const { data } = await demoGetReport({ id: ..., });
+
+// You can also pass in a `DataConnect` instance to the action shortcut function.
+const dataConnect = getDataConnect(connectorConfig);
+const { data } = await demoGetReport(dataConnect, demoGetReportVars);
+
+console.log(data.report);
+
+// Or, you can use the `Promise` API.
+demoGetReport(demoGetReportVars).then((response) => {
+  const data = response.data;
+  console.log(data.report);
+});
+```
+
+### Using `DemoGetReport`'s `QueryRef` function
+
+```typescript
+import { getDataConnect, executeQuery } from 'firebase/data-connect';
+import { connectorConfig, demoGetReportRef, DemoGetReportVariables } from '@sanwa-houkai-app/dataconnect';
+
+// The `DemoGetReport` query requires an argument of type `DemoGetReportVariables`:
+const demoGetReportVars: DemoGetReportVariables = {
+  id: ..., 
+};
+
+// Call the `demoGetReportRef()` function to get a reference to the query.
+const ref = demoGetReportRef(demoGetReportVars);
+// Variables can be defined inline as well.
+const ref = demoGetReportRef({ id: ..., });
+
+// You can also pass in a `DataConnect` instance to the `QueryRef` function.
+const dataConnect = getDataConnect(connectorConfig);
+const ref = demoGetReportRef(dataConnect, demoGetReportVars);
+
+// Call `executeQuery()` on the reference to execute the query.
+// You can use the `await` keyword to wait for the promise to resolve.
+const { data } = await executeQuery(ref);
+
+console.log(data.report);
+
+// Or, you can use the `Promise` API.
+executeQuery(ref).then((response) => {
+  const data = response.data;
+  console.log(data.report);
 });
 ```
 
