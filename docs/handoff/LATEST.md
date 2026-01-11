@@ -1,4 +1,4 @@
-# 作業状態 - 2026-01-11 (Client Detail Fix)
+# 作業状態 - 2026-01-11 (Reports/CarePlans Detail Click)
 
 ## プロジェクト概要
 
@@ -347,17 +347,26 @@ web/
 - リポジトリ: sanwaminamihonda-eng/sanwa-houkai-app
 - ブランチ: main
 - 状態: clean
-- CI/CD: ✅ 動作確認済み（PR #6, #7, #8, #10, #11, #12, #14, #16, #25, #26, #28, #29, #30, #31, #32, #33, #34, #35, #36, #37, #38, #39, #40, #41, #42, #43, #44, #45, #46, #47, #48, #49, #50, #51）
+- CI/CD: ✅ 動作確認済み（PR #6, #7, #8, #10, #11, #12, #14, #16, #25, #26, #28, #29, #30, #31, #32, #33, #34, #35, #36, #37, #38, #39, #40, #41, #42, #43, #44, #45, #46, #47, #48, #49, #50, #51, #52）
 - デプロイ: ✅ Firebase Hosting 自動デプロイ（main push時）
 
 ## 今セッション完了作業
+
+- [x] 実施報告書・計画書の行クリック詳細表示機能追加 - PR #52 ✅ マージ完了
+  - 実施報告書ページに行クリックで詳細ダイアログを表示する機能を追加
+  - ReportsTable/ReportCardListにonViewDetailハンドラ追加
+  - DemoGetReportクエリ追加（デモ環境用 @auth(level: PUBLIC)）
+  - デモ版careplansページの詳細表示を実装（console.logから実際のダイアログへ）
+  - Data Connectデプロイ完了
+
+### 前セッション完了作業
 
 - [x] 利用者詳細ページのクラッシュ修正 - PR #51 ✅ マージ完了
   - `assessment`フィールドがJSONオブジェクト（`{cognition, mobility}`）の場合にReact error #31が発生する問題を修正
   - `formatAssessment()`, `formatRegularServices()`ヘルパー関数追加
   - `ClientForDetail`型をAPIレスポンスに合わせて更新
 
-### 前セッション完了作業
+### 過去セッション完了作業（参考）
 
 - [x] レスポンシブリストコンポーネント追加 - PR #50 ✅ マージ完了
   - ResponsiveList共通コンポーネント作成（デスクトップ: テーブル、モバイル: カード）
