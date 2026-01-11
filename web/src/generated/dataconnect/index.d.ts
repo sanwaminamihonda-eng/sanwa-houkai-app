@@ -351,6 +351,35 @@ export interface DemoGetClientVariables {
   id: UUIDString;
 }
 
+export interface DemoGetReportData {
+  report?: {
+    id: UUIDString;
+    targetYear: number;
+    targetMonth: number;
+    summary?: string | null;
+    aiGenerated?: boolean | null;
+    pdfGenerated?: boolean | null;
+    pdfUrl?: string | null;
+    createdAt: TimestampString;
+    updatedAt: TimestampString;
+    client: {
+      id: UUIDString;
+      name: string;
+      careLevel?: {
+        name: string;
+      };
+    } & Client_Key;
+      staff: {
+        id: UUIDString;
+        name: string;
+      } & Staff_Key;
+  } & Report_Key;
+}
+
+export interface DemoGetReportVariables {
+  id: UUIDString;
+}
+
 export interface DemoGetSchedulesByRecurrenceIdData {
   schedules: ({
     id: UUIDString;
@@ -2056,4 +2085,16 @@ export const demoGetCarePlanRef: DemoGetCarePlanRef;
 
 export function demoGetCarePlan(vars: DemoGetCarePlanVariables): QueryPromise<DemoGetCarePlanData, DemoGetCarePlanVariables>;
 export function demoGetCarePlan(dc: DataConnect, vars: DemoGetCarePlanVariables): QueryPromise<DemoGetCarePlanData, DemoGetCarePlanVariables>;
+
+interface DemoGetReportRef {
+  /* Allow users to create refs without passing in DataConnect */
+  (vars: DemoGetReportVariables): QueryRef<DemoGetReportData, DemoGetReportVariables>;
+  /* Allow users to pass in custom DataConnect instances */
+  (dc: DataConnect, vars: DemoGetReportVariables): QueryRef<DemoGetReportData, DemoGetReportVariables>;
+  operationName: string;
+}
+export const demoGetReportRef: DemoGetReportRef;
+
+export function demoGetReport(vars: DemoGetReportVariables): QueryPromise<DemoGetReportData, DemoGetReportVariables>;
+export function demoGetReport(dc: DataConnect, vars: DemoGetReportVariables): QueryPromise<DemoGetReportData, DemoGetReportVariables>;
 

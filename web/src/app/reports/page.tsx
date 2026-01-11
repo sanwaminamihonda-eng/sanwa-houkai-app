@@ -22,11 +22,17 @@ import {
   Checkbox,
   FormControlLabel,
   Snackbar,
+  Chip,
+  Divider,
 } from '@mui/material';
 import {
   Add as AddIcon,
   Refresh as RefreshIcon,
   AutoAwesome as AiIcon,
+  Close as CloseIcon,
+  Download as DownloadIcon,
+  Person as PersonIcon,
+  CalendarToday as CalendarIcon,
 } from '@mui/icons-material';
 import { MainLayout } from '@/components/layout';
 import { ResponsiveList } from '@/components/common';
@@ -36,10 +42,13 @@ import { dataConnect, functions, httpsCallable } from '@/lib/firebase';
 import {
   listReportsByFacility,
   listClients,
+  getReport,
   ListClientsData,
+  GetReportData,
 } from '@sanwa-houkai-app/dataconnect';
 
 type Client = ListClientsData['clients'][0];
+type ReportDetail = NonNullable<GetReportData['report']>;
 
 interface GenerateReportRequest {
   clientId: string;
@@ -82,6 +91,11 @@ export default function ReportsPage() {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
+
+  // Detail dialog state
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [selectedReport, setSelectedReport] = useState<ReportDetail | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
 
   const fetchData = useCallback(async () => {
     if (!facilityId) return;
@@ -185,6 +199,32 @@ export default function ReportsPage() {
 
   const handleDownload = (pdfUrl: string) => {
     window.open(pdfUrl, '_blank');
+  };
+
+  const handleViewDetail = async (reportId: string) => {
+    setDetailDialogOpen(true);
+    setDetailLoading(true);
+    setSelectedReport(null);
+
+    try {
+      const result = await getReport(dataConnect, { id: reportId });
+      if (result.data.report) {
+        setSelectedReport(result.data.report);
+      }
+    } catch (err) {
+      console.error('Failed to load report:', err);
+      setSnackbarMessage('報告書の読み込みに失敗しました');
+      setSnackbarSeverity('error');
+      setSnackbarOpen(true);
+      setDetailDialogOpen(false);
+    } finally {
+      setDetailLoading(false);
+    }
+  };
+
+  const handleCloseDetailDialog = () => {
+    setDetailDialogOpen(false);
+    setSelectedReport(null);
   };
 
   const filteredReports = filterClientId
@@ -298,10 +338,10 @@ export default function ReportsPage() {
             </Button>
           }
           renderTable={(items) => (
-            <ReportsTable reports={items} onDownload={handleDownload} />
+            <ReportsTable reports={items} onViewDetail={handleViewDetail} onDownload={handleDownload} />
           )}
           renderCards={(items) => (
-            <ReportCardList reports={items} onDownload={handleDownload} />
+            <ReportCardList reports={items} onViewDetail={handleViewDetail} onDownload={handleDownload} />
           )}
           pagination
           totalCount={filteredReports.length}
@@ -404,6 +444,121 @@ export default function ReportsPage() {
             >
               {generating ? '生成中...' : '生成する'}
             </Button>
+          </DialogActions>
+        </Dialog>
+
+        {/* Detail Dialog */}
+        <Dialog
+          open={detailDialogOpen}
+          onClose={handleCloseDetailDialog}
+          maxWidth="md"
+          fullWidth
+        >
+          <DialogTitle>
+            <Box display="flex" alignItems="center" justifyContent="space-between">
+              <Typography variant="h6">報告書詳細</Typography>
+              <IconButton onClick={handleCloseDetailDialog} size="small">
+                <CloseIcon />
+              </IconButton>
+            </Box>
+          </DialogTitle>
+          <DialogContent dividers>
+            {detailLoading ? (
+              <Box display="flex" justifyContent="center" alignItems="center" py={8}>
+                <CircularProgress />
+              </Box>
+            ) : selectedReport ? (
+              <Box>
+                {/* Header Info */}
+                <Card sx={{ mb: 3 }}>
+                  <CardContent>
+                    <Box display="flex" alignItems="center" gap={2} mb={2}>
+                      <CalendarIcon color="primary" />
+                      <Typography variant="h5" fontWeight={600}>
+                        {selectedReport.targetYear}年{selectedReport.targetMonth}月
+                      </Typography>
+                    </Box>
+                    <Box display="flex" gap={3} flexWrap="wrap">
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <PersonIcon fontSize="small" color="action" />
+                        <Typography variant="body1" fontWeight={500}>
+                          {selectedReport.client.name}
+                        </Typography>
+                        {selectedReport.client.careLevel?.name && (
+                          <Chip
+                            label={selectedReport.client.careLevel.name}
+                            size="small"
+                            color="primary"
+                            variant="outlined"
+                          />
+                        )}
+                      </Box>
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <Typography variant="body2" color="text.secondary">
+                          担当者:
+                        </Typography>
+                        <Chip label={selectedReport.staff.name} size="small" variant="outlined" />
+                      </Box>
+                    </Box>
+                  </CardContent>
+                </Card>
+
+                {/* PDF Button */}
+                {selectedReport.pdfUrl && (
+                  <Button
+                    variant="contained"
+                    startIcon={<DownloadIcon />}
+                    onClick={() => handleDownload(selectedReport.pdfUrl!)}
+                    sx={{ mb: 3 }}
+                  >
+                    PDFを開く
+                  </Button>
+                )}
+
+                {/* AI Summary */}
+                {selectedReport.summary && (
+                  <Card sx={{ mb: 3 }}>
+                    <CardContent>
+                      <Box display="flex" alignItems="center" gap={1} mb={2}>
+                        <Typography variant="subtitle1" fontWeight={600}>
+                          月次要約
+                        </Typography>
+                        {selectedReport.aiGenerated && (
+                          <Chip
+                            icon={<AiIcon />}
+                            label="AI生成"
+                            size="small"
+                            color="primary"
+                            variant="outlined"
+                          />
+                        )}
+                      </Box>
+                      <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.8 }}>
+                        {selectedReport.summary}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Metadata */}
+                <Divider sx={{ my: 3 }} />
+                <Box display="flex" gap={3} justifyContent="flex-end">
+                  <Typography variant="body2" color="text.secondary">
+                    作成: {new Date(selectedReport.createdAt).toLocaleString('ja-JP')}
+                  </Typography>
+                  {selectedReport.updatedAt !== selectedReport.createdAt && (
+                    <Typography variant="body2" color="text.secondary">
+                      更新: {new Date(selectedReport.updatedAt).toLocaleString('ja-JP')}
+                    </Typography>
+                  )}
+                </Box>
+              </Box>
+            ) : (
+              <Alert severity="error">報告書が見つかりません</Alert>
+            )}
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDetailDialog}>閉じる</Button>
           </DialogActions>
         </Dialog>
 

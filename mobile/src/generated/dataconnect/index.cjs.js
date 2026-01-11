@@ -798,3 +798,15 @@ exports.demoGetCarePlanRef = demoGetCarePlanRef;
 exports.demoGetCarePlan = function demoGetCarePlan(dcOrVars, vars) {
   return executeQuery(demoGetCarePlanRef(dcOrVars, vars));
 };
+
+const demoGetReportRef = (dcOrVars, vars) => {
+  const { dc: dcInstance, vars: inputVars} = validateArgs(connectorConfig, dcOrVars, vars, true);
+  dcInstance._useGeneratedSdk();
+  return queryRef(dcInstance, 'DemoGetReport', inputVars);
+}
+demoGetReportRef.operationName = 'DemoGetReport';
+exports.demoGetReportRef = demoGetReportRef;
+
+exports.demoGetReport = function demoGetReport(dcOrVars, vars) {
+  return executeQuery(demoGetReportRef(dcOrVars, vars));
+};

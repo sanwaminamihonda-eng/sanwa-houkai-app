@@ -34,13 +34,14 @@ export interface ReportListItemData {
 
 interface ReportListItemProps {
   report: ReportListItemData;
+  onViewDetail?: (id: string) => void;
   onDownload?: (pdfUrl: string) => void;
 }
 
 /**
  * 帳票一覧のモバイル用カード表示アイテム
  */
-export function ReportListItem({ report, onDownload }: ReportListItemProps) {
+export function ReportListItem({ report, onViewDetail, onDownload }: ReportListItemProps) {
   const handleDownload = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (report.pdfUrl && onDownload) {
@@ -50,10 +51,15 @@ export function ReportListItem({ report, onDownload }: ReportListItemProps) {
 
   return (
     <Box
+      onClick={() => onViewDetail?.(report.id)}
       sx={{
         p: 2,
         borderBottom: '1px solid',
         borderColor: 'divider',
+        cursor: onViewDetail ? 'pointer' : 'default',
+        '&:hover': onViewDetail ? {
+          bgcolor: 'action.hover',
+        } : {},
         '&:last-child': {
           borderBottom: 'none',
         },
@@ -116,19 +122,21 @@ export function ReportListItem({ report, onDownload }: ReportListItemProps) {
 
 interface ReportCardListProps {
   reports: ReportListItemData[];
+  onViewDetail?: (id: string) => void;
   onDownload?: (pdfUrl: string) => void;
 }
 
 /**
  * 帳票一覧のモバイル用カードリスト
  */
-export function ReportCardList({ reports, onDownload }: ReportCardListProps) {
+export function ReportCardList({ reports, onViewDetail, onDownload }: ReportCardListProps) {
   return (
     <Box>
       {reports.map((report) => (
         <ReportListItem
           key={report.id}
           report={report}
+          onViewDetail={onViewDetail}
           onDownload={onDownload}
         />
       ))}

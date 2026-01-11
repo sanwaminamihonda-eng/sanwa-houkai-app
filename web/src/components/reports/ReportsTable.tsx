@@ -22,13 +22,14 @@ import { ReportListItemData } from './ReportListItem';
 
 interface ReportsTableProps {
   reports: ReportListItemData[];
+  onViewDetail?: (id: string) => void;
   onDownload?: (pdfUrl: string) => void;
 }
 
 /**
  * 帳票一覧のデスクトップ用テーブル表示
  */
-export function ReportsTable({ reports, onDownload }: ReportsTableProps) {
+export function ReportsTable({ reports, onViewDetail, onDownload }: ReportsTableProps) {
   return (
     <TableContainer component={Paper} elevation={0}>
       <Table>
@@ -45,7 +46,12 @@ export function ReportsTable({ reports, onDownload }: ReportsTableProps) {
         </TableHead>
         <TableBody>
           {reports.map((report) => (
-            <TableRow key={report.id} hover>
+            <TableRow
+              key={report.id}
+              hover
+              sx={{ cursor: onViewDetail ? 'pointer' : 'default' }}
+              onClick={() => onViewDetail?.(report.id)}
+            >
               <TableCell>
                 <Typography fontWeight={500}>
                   {report.targetYear}年{report.targetMonth}月
@@ -82,7 +88,10 @@ export function ReportsTable({ reports, onDownload }: ReportsTableProps) {
                     <IconButton
                       size="small"
                       color="primary"
-                      onClick={() => onDownload?.(report.pdfUrl!)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDownload?.(report.pdfUrl!);
+                      }}
                     >
                       <DownloadIcon fontSize="small" />
                     </IconButton>

@@ -10,13 +10,33 @@ import {
   Alert,
   Tooltip,
   IconButton,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Chip,
+  Divider,
 } from '@mui/material';
-import { Refresh as RefreshIcon } from '@mui/icons-material';
+import {
+  Refresh as RefreshIcon,
+  Close as CloseIcon,
+  Download as DownloadIcon,
+  AutoAwesome as AiIcon,
+  Person as PersonIcon,
+  CalendarToday as CalendarIcon,
+} from '@mui/icons-material';
 import { useDemoContext } from '@/contexts/DemoContext';
 import { ResponsiveList } from '@/components/common';
 import { ReportsTable, ReportCardList, ReportListItemData } from '@/components/reports';
 import { dataConnect } from '@/lib/firebase';
-import { demoListReportsByFacility } from '@sanwa-houkai-app/dataconnect';
+import {
+  demoListReportsByFacility,
+  demoGetReport,
+  DemoGetReportData,
+} from '@sanwa-houkai-app/dataconnect';
+
+type ReportDetail = NonNullable<DemoGetReportData['report']>;
 
 const ROWS_PER_PAGE_OPTIONS = [10, 25, 50];
 
@@ -30,6 +50,11 @@ export default function DemoReportsPage() {
   // Pagination state
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  // Detail dialog state
+  const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [selectedReport, setSelectedReport] = useState<ReportDetail | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
 
   const fetchData = useCallback(async () => {
     try {
@@ -60,6 +85,29 @@ export default function DemoReportsPage() {
 
   const handleDownload = (pdfUrl: string) => {
     window.open(pdfUrl, '_blank');
+  };
+
+  const handleViewDetail = async (reportId: string) => {
+    setDetailDialogOpen(true);
+    setDetailLoading(true);
+    setSelectedReport(null);
+
+    try {
+      const result = await demoGetReport(dataConnect, { id: reportId });
+      if (result.data.report) {
+        setSelectedReport(result.data.report);
+      }
+    } catch (err) {
+      console.error('Failed to load report:', err);
+      setDetailDialogOpen(false);
+    } finally {
+      setDetailLoading(false);
+    }
+  };
+
+  const handleCloseDetailDialog = () => {
+    setDetailDialogOpen(false);
+    setSelectedReport(null);
   };
 
   const paginatedReports = reports.slice(
@@ -108,10 +156,10 @@ export default function DemoReportsPage() {
         items={paginatedReports}
         emptyMessage="報告書がありません"
         renderTable={(items) => (
-          <ReportsTable reports={items} onDownload={handleDownload} />
+          <ReportsTable reports={items} onViewDetail={handleViewDetail} onDownload={handleDownload} />
         )}
         renderCards={(items) => (
-          <ReportCardList reports={items} onDownload={handleDownload} />
+          <ReportCardList reports={items} onViewDetail={handleViewDetail} onDownload={handleDownload} />
         )}
         pagination
         totalCount={reports.length}
@@ -125,6 +173,121 @@ export default function DemoReportsPage() {
         }}
         countLabel="件"
       />
+
+      {/* Detail Dialog */}
+      <Dialog
+        open={detailDialogOpen}
+        onClose={handleCloseDetailDialog}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          <Box display="flex" alignItems="center" justifyContent="space-between">
+            <Typography variant="h6">報告書詳細</Typography>
+            <IconButton onClick={handleCloseDetailDialog} size="small">
+              <CloseIcon />
+            </IconButton>
+          </Box>
+        </DialogTitle>
+        <DialogContent dividers>
+          {detailLoading ? (
+            <Box display="flex" justifyContent="center" alignItems="center" py={8}>
+              <CircularProgress />
+            </Box>
+          ) : selectedReport ? (
+            <Box>
+              {/* Header Info */}
+              <Card sx={{ mb: 3 }}>
+                <CardContent>
+                  <Box display="flex" alignItems="center" gap={2} mb={2}>
+                    <CalendarIcon color="primary" />
+                    <Typography variant="h5" fontWeight={600}>
+                      {selectedReport.targetYear}年{selectedReport.targetMonth}月
+                    </Typography>
+                  </Box>
+                  <Box display="flex" gap={3} flexWrap="wrap">
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <PersonIcon fontSize="small" color="action" />
+                      <Typography variant="body1" fontWeight={500}>
+                        {selectedReport.client.name}
+                      </Typography>
+                      {selectedReport.client.careLevel?.name && (
+                        <Chip
+                          label={selectedReport.client.careLevel.name}
+                          size="small"
+                          color="primary"
+                          variant="outlined"
+                        />
+                      )}
+                    </Box>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Typography variant="body2" color="text.secondary">
+                        担当者:
+                      </Typography>
+                      <Chip label={selectedReport.staff.name} size="small" variant="outlined" />
+                    </Box>
+                  </Box>
+                </CardContent>
+              </Card>
+
+              {/* PDF Button */}
+              {selectedReport.pdfUrl && (
+                <Button
+                  variant="contained"
+                  startIcon={<DownloadIcon />}
+                  onClick={() => handleDownload(selectedReport.pdfUrl!)}
+                  sx={{ mb: 3 }}
+                >
+                  PDFを開く
+                </Button>
+              )}
+
+              {/* AI Summary */}
+              {selectedReport.summary && (
+                <Card sx={{ mb: 3 }}>
+                  <CardContent>
+                    <Box display="flex" alignItems="center" gap={1} mb={2}>
+                      <Typography variant="subtitle1" fontWeight={600}>
+                        月次要約
+                      </Typography>
+                      {selectedReport.aiGenerated && (
+                        <Chip
+                          icon={<AiIcon />}
+                          label="AI生成"
+                          size="small"
+                          color="primary"
+                          variant="outlined"
+                        />
+                      )}
+                    </Box>
+                    <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.8 }}>
+                      {selectedReport.summary}
+                    </Typography>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Metadata */}
+              <Divider sx={{ my: 3 }} />
+              <Box display="flex" gap={3} justifyContent="flex-end">
+                <Typography variant="body2" color="text.secondary">
+                  作成: {new Date(selectedReport.createdAt).toLocaleString('ja-JP')}
+                </Typography>
+                {selectedReport.updatedAt !== selectedReport.createdAt && (
+                  <Typography variant="body2" color="text.secondary">
+                    更新: {new Date(selectedReport.updatedAt).toLocaleString('ja-JP')}
+                  </Typography>
+                )}
+              </Box>
+            </Box>
+          ) : (
+            <Alert severity="error">報告書が見つかりません</Alert>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDetailDialog}>閉じる</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
