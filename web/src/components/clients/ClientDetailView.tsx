@@ -30,6 +30,14 @@ import { formatDateJapanese } from '@/utils/formatters';
 /**
  * 利用者データの型定義（本番/デモ共通）
  */
+/**
+ * アセスメントデータの型（JSONオブジェクトまたは文字列）
+ */
+export type AssessmentData = {
+  mobility?: string;
+  cognition?: string;
+} | string | null;
+
 export interface ClientForDetail {
   name: string;
   nameKana?: string | null;
@@ -45,9 +53,9 @@ export interface ClientForDetail {
   emergencyRelation?: string | null;
   careManager?: string | null;
   careOffice?: string | null;
-  assessment?: string | null;
+  assessment?: AssessmentData;
   lastAssessmentDate?: string | null;
-  regularServices?: string | null;
+  regularServices?: string | string[] | null;
   notes?: string | null;
   createdAt: string;
   updatedAt: string;
@@ -90,6 +98,48 @@ function calculateAge(birthDate: string | null | undefined): string {
 function getFullAddress(client: ClientForDetail): string {
   const parts = [client.addressPrefecture, client.addressCity].filter(Boolean);
   return parts.join(' ') || '-';
+}
+
+/**
+ * アセスメントデータをフォーマット
+ */
+function formatAssessment(assessment: AssessmentData | undefined): string | null {
+  if (!assessment) return null;
+
+  // 文字列の場合はそのまま返す
+  if (typeof assessment === 'string') {
+    return assessment;
+  }
+
+  // オブジェクトの場合はフォーマット
+  const parts: string[] = [];
+  if (assessment.mobility) {
+    parts.push(`移動: ${assessment.mobility}`);
+  }
+  if (assessment.cognition) {
+    parts.push(`認知: ${assessment.cognition}`);
+  }
+
+  return parts.length > 0 ? parts.join('\n') : null;
+}
+
+/**
+ * 定期サービスをフォーマット
+ */
+function formatRegularServices(services: string | string[] | null | undefined): string | null {
+  if (!services) return null;
+
+  // 文字列の場合はそのまま返す
+  if (typeof services === 'string') {
+    return services;
+  }
+
+  // 配列の場合はカンマ区切りで結合
+  if (Array.isArray(services)) {
+    return services.join('、');
+  }
+
+  return null;
 }
 
 /**
@@ -325,11 +375,11 @@ export function ClientDetailView({
                   </Box>
                 ) : null}
 
-                {client.assessment ? (
+                {formatAssessment(client.assessment) ? (
                   <>
                     <Divider sx={{ my: 2 }} />
                     <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.8 }}>
-                      {client.assessment}
+                      {formatAssessment(client.assessment)}
                     </Typography>
                   </>
                 ) : null}
@@ -339,7 +389,7 @@ export function ClientDetailView({
         ) : null}
 
         {/* Regular Services (Extended Section) */}
-        {showExtendedSections && client.regularServices ? (
+        {showExtendedSections && formatRegularServices(client.regularServices) ? (
           <Grid size={{ xs: 12, md: 6 }}>
             <Card sx={{ height: '100%' }}>
               <CardContent>
@@ -348,7 +398,7 @@ export function ClientDetailView({
                   <Typography variant="h6">定期サービス</Typography>
                 </Box>
                 <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.8 }}>
-                  {client.regularServices}
+                  {formatRegularServices(client.regularServices)}
                 </Typography>
               </CardContent>
             </Card>
@@ -360,7 +410,7 @@ export function ClientDetailView({
           <Grid
             size={{
               xs: 12,
-              md: showExtendedSections && client.regularServices ? 6 : 12,
+              md: showExtendedSections && formatRegularServices(client.regularServices) ? 6 : 12,
             }}
           >
             <Card sx={{ height: '100%' }}>
